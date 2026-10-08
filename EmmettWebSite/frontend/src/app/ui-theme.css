@@ -1,0 +1,204 @@
+/*
+ * =============================================================================
+ * لایهٔ طراحی «UI» — فاز ۱ پورت ۱:۱ بستهٔ Figma Make به فرانت‌اند Next.js
+ * =============================================================================
+ *
+ * منبع: `UI/src/styles/theme.css` (کل ۴۸ توکن `:root` + لایهٔ `@layer base`)
+ * و `.font-editorial`/`.font-mono` از `UI/src/styles/fonts.css`.
+ *
+ * چرا مقادیر زیر کلاس `ui-theme` تعریف شده‌اند و نه در `:root`؟
+ * بستهٔ UI یک سایت تیرهٔ تک‌حالت با پالت زمردی است؛ اما فرانت فعلی ۱۸ مسیر
+ * فعال دارد که با دیزاین‌سیستم قبلی (ADR-0017: warm-white/indigo) کار می‌کنند
+ * و بازطراحی آن‌ها طبق نقشهٔ فاز ۷ انجام می‌شود. برای اینکه در فاز ۱
+ *   (۱) هیچ‌چیز از UI جا نیفتد — همهٔ توکن‌ها، با همان نام‌ها و همان مقادیر،
+ *   (۲) و هیچ تغییر بصری/رفتاری در مسیرهای فعلی رخ ندهد،
+ * توکن‌ها زیر کلاس `ui-theme` تعریف شده‌اند؛ فاز ۲ (پورت Home) کل درخت
+ * پورت‌شده را با این کلاس می‌پوشاند و در فاز ۷ پس از بازطراحی همهٔ صفحات،
+ * همین مقادیر به `:root` ارتقا داده می‌شوند و این پوشش برداشته می‌شود.
+ *
+ * چرا این روش «۱:۱» است؟
+ * نگاشت `@theme inline` در globals.css هر کلاس معنایی را به یک متغیر CSS
+ * تبدیل کرده است (مثل `bg-background` → `background-color: var(--background)`
+ * و `rounded-lg` → `border-radius: var(--radius-value-lg)`). پس بازتعریف
+ * متغیرها زیر `ui-theme` باعث می‌شود همهٔ کلاس‌های معنایی در آن ناحیه
+ * خودکار مقدار درست UI را بگیرند — بدون تغییر حتی یک کلاس در کد پورت‌شده.
+ *
+ * یادداشت‌های هم‌ارزی (بررسی‌شده و مستند):
+ *  - بلوک `.dark` در theme.css زیرمجموعه‌ای از `:root` با مقادیر یکسان است
+ *    (۳۴ کلید مشترک، صفر تفاوت مقدار — با ابزار بررسی شد)؛ بنابراین نسخهٔ
+ *    scoped جداگانه لازم نیست.
+ *  - `html { font-size: var(--font-size) }` در UI با `--font-size: 16px`
+ *    همان مقدار پیش‌فرض مرورگر است و `scroll-behavior: smooth` هم از قبل
+ *    در globals.css سراسری وجود دارد؛ این دو فقط برای ردیابی ثبت شده‌اند.
+ *  - `body { font-family: 'Inter', ... }` در fonts.css با مکانیزم زبان‌محور
+ *    فرانت (`--font-active-sans` → Inter برای en و Vazirmatn برای fa) پوشش
+ *    داده می‌شود؛ برای زبان انگلیسی نتیجه مو‌به‌مو یکی است و برای فارسی،
+ *    فونت فارسی حفظ می‌شود (الزام دوزبانه بودن سایت).
+ *  - استایل درون‌خطی `index.html` (`html, body { height: 100% }`) فقط ترفند
+ *    مانت Vite/`#root` است؛ معادل بصری‌اش در UI خودِ `min-h-screen` روی
+ *    پوشش App است که در فاز ۲ در layout پورت‌شده قرار می‌گیرد.
+ */
+
+/* ===== فونت سرمقاله‌ای (نقل ۱:۱ از UI/src/styles/fonts.css) ===== */
+/*
+ * در UI این کلاس سراسری و بدون cascade layer تعریف شده است (پس بر کلاس‌های
+ * utility اولویت دارد)؛ همان رفتار عیناً تکرار می‌شود. این کلاس در مسیرهای
+ * فعلی فرانت استفاده نمی‌شود، بنابراین هیچ اثر بصری ندارد.
+ */
+.font-editorial {
+  font-family: "Newsreader", Georgia, "Times New Roman", serif;
+}
+
+/* ===== فونت فنی (نقل ۱:۱ از UI/src/styles/fonts.css، محدود به ناحیهٔ پورت) ===== */
+/*
+ * در UI این قاعده سراسری است؛ برای پرهیز از تغییر ظاهر مسیرهای فعلی که از
+ * `font-mono` استفاده می‌کنند، اینجا به ناحیهٔ `ui-theme` محدود شده و در
+ * فاز ۷ سراسری می‌شود. قاعده بدون cascade layer است تا مثل UI بر
+ * کلاس‌های utility اولویت داشته باشد.
+ */
+.ui-theme .font-mono {
+  font-family: "JetBrains Mono", "Courier New", monospace;
+}
+
+/* ===== توکن‌های طراحی UI (نقل کامل `:root` از UI/src/styles/theme.css) ===== */
+.ui-theme {
+  --font-size: 16px;
+
+  /* Emmett Group — Emerald Engineering Color System */
+  --background: #0b1f18;
+  --foreground: #f3faf6;
+  --card: #102a20;
+  --card-foreground: #f3faf6;
+  --popover: #0b1f18;
+  --popover-foreground: #f3faf6;
+
+  /* Primary — Emerald */
+  --primary: #1fae6e;
+  --primary-foreground: #07130f;
+
+  /* Secondary — Deep Emerald surface */
+  --secondary: #16382b;
+  --secondary-foreground: #f3faf6;
+
+  /* Accent — Secondary Emerald */
+  --accent: #35c98a;
+  --accent-foreground: #07130f;
+
+  --muted: #102a20;
+  --muted-foreground: rgba(243, 250, 246, 0.5);
+  --destructive: #ef4444;
+  --destructive-foreground: #fafafa;
+  --border: rgba(31, 174, 110, 0.18);
+  --input: rgba(31, 174, 110, 0.12);
+  --input-background: rgba(16, 42, 32, 0.6);
+  --switch-background: #16382b;
+  --ring: #1fae6e;
+
+  /* Emmett surface tokens */
+  --deep-green-black: #07130f;
+  --dark-emerald: #0b1f18;
+  --forest-graphite: #102a20;
+  --emerald-slate: #16382b;
+  --soft-green: #ddede5;
+  --warm-green-white: #f1f7f3;
+  --warm-ivory: #f4f6f1;
+
+  /* Brand emerald */
+  --emerald-primary: #1fae6e;
+  --emerald-secondary: #35c98a;
+  --emerald-deep: #0b6b48;
+
+  --font-weight-medium: 500;
+  --font-weight-normal: 400;
+
+  --chart-1: #1fae6e;
+  --chart-2: #35c98a;
+  --chart-3: #4c9be8;
+  --chart-4: #f59e0b;
+  --chart-5: #ef4444;
+
+  --radius: 0.5rem;
+  --sidebar: #07130f;
+  --sidebar-foreground: #f3faf6;
+  --sidebar-primary: #1fae6e;
+  --sidebar-primary-foreground: #07130f;
+  --sidebar-accent: #102a20;
+  --sidebar-accent-foreground: #f3faf6;
+  --sidebar-border: rgba(31, 174, 110, 0.18);
+  --sidebar-ring: #1fae6e;
+
+  /*
+   * معادل‌نگاری با نگاشت‌های globals.css (نه با theme.css):
+   * در فرانت، شعاع گردی‌ها به‌صورت غیرمستقیم خوانده می‌شوند؛ برای اینکه
+   * `rounded-md`/`rounded-lg` در ناحیهٔ پورت دقیقاً اندازه‌های UI (۶px/۸px) را
+   * بدهند و نه مقادیر دیزاین‌سیستم فعلی (۸px/۱۶px)، اینجا بازتعریف می‌شوند:
+   *   UI: sm = calc(0.5rem − 4px)، md = calc(0.5rem − 2px)، lg = 0.5rem
+   * (rounded-xl و rounded-2xl در هیچ‌کدام بازتعریف نشده‌اند؛ پیش‌فرض Tailwind
+   * یعنی ۱۲px و ۱۶px در هر دو یکی است.)
+   */
+  --radius-value-sm: calc(var(--radius) - 4px);
+  --radius-value-md: calc(var(--radius) - 2px);
+  --radius-value-lg: var(--radius);
+  --radius-value-none: 0px;
+}
+
+/* ===== لایهٔ base (نقل کامل `@layer base` از UI/src/styles/theme.css) ===== */
+/*
+ * همه با پیشوند `.ui-theme` تا خارج از ناحیهٔ پورت هیچ اثری نداشته باشند، و
+ * داخل همان `@layer base` تا مثل UI کلاس‌های utility روی آن‌ها اولویت داشته
+ * باشند (ترتیب لایه‌ها: theme → base → components → utilities).
+ */
+@layer base {
+  .ui-theme {
+    background-color: var(--background);
+    color: var(--foreground);
+    font-size: var(--font-size);
+  }
+
+  .ui-theme * {
+    border-color: var(--border);
+    outline-color: color-mix(in oklab, var(--ring) 50%, transparent);
+  }
+
+  .ui-theme h1 {
+    font-size: var(--text-2xl);
+    font-weight: var(--font-weight-medium);
+    line-height: 1.5;
+  }
+
+  .ui-theme h2 {
+    font-size: var(--text-xl);
+    font-weight: var(--font-weight-medium);
+    line-height: 1.5;
+  }
+
+  .ui-theme h3 {
+    font-size: var(--text-lg);
+    font-weight: var(--font-weight-medium);
+    line-height: 1.5;
+  }
+
+  .ui-theme h4 {
+    font-size: var(--text-base);
+    font-weight: var(--font-weight-medium);
+    line-height: 1.5;
+  }
+
+  .ui-theme label {
+    font-size: var(--text-base);
+    font-weight: var(--font-weight-medium);
+    line-height: 1.5;
+  }
+
+  .ui-theme button {
+    font-size: var(--text-base);
+    font-weight: var(--font-weight-medium);
+    line-height: 1.5;
+  }
+
+  .ui-theme input {
+    font-size: var(--text-base);
+    font-weight: var(--font-weight-normal);
+    line-height: 1.5;
+  }
+}
