@@ -329,6 +329,26 @@
           "label": "Contact — Start a Project",
           "category": "Action",
           "href": "/contact"
+        },
+        {
+          "label": "Creative advisor",
+          "category": "Page",
+          "href": "/advisor"
+        },
+        {
+          "label": "Project estimate",
+          "category": "Page",
+          "href": "/estimate"
+        },
+        {
+          "label": "Search",
+          "category": "Page",
+          "href": "/search"
+        },
+        {
+          "label": "Account",
+          "category": "Page",
+          "href": "/profile"
         }
       ]
     },

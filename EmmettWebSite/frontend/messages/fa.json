@@ -329,6 +329,26 @@
           "label": "تماس — شروع یک پروژه",
           "category": "اقدام",
           "href": "/contact"
+        },
+        {
+          "label": "مشاور ایده‌پرداز",
+          "category": "صفحه",
+          "href": "/advisor"
+        },
+        {
+          "label": "تخمین پروژه",
+          "category": "صفحه",
+          "href": "/estimate"
+        },
+        {
+          "label": "جستجو",
+          "category": "صفحه",
+          "href": "/search"
+        },
+        {
+          "label": "حساب کاربری",
+          "category": "صفحه",
+          "href": "/profile"
         }
       ]
     },
