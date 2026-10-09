@@ -4,7 +4,9 @@ import { useState, useRef, useEffect } from "react";
 import { motion } from "motion/react";
 import { Link } from "@/i18n/navigation";
 
-const paths = [
+import type { HomeCourse } from "./home-data";
+
+const pathSlots = [
   {
     id: "software",
     name: "Software Engineering",
@@ -68,10 +70,19 @@ const graphLinks = [
   { from: { x: 52, y: 50 }, to: { x: 50, y: 70 } },
 ];
 
-export function AcademySection() {
+export function AcademySection({ courses }: { courses: HomeCourse[] | null }) {
   const [activePathId, setActivePathId] = useState<string | null>(null);
   const [inView, setInView] = useState(false);
   const sectionRef = useRef<HTMLElement>(null);
+  const paths =
+    courses === null
+      ? pathSlots.map((slot) => ({ ...slot, href: "/academy" }))
+      : courses.slice(0, pathSlots.length).map((course, index) => ({
+          ...pathSlots[index]!,
+          name: course.title,
+          level: course.levelLabel || pathSlots[index]!.level,
+          href: course.href,
+        }));
 
   useEffect(() => {
     const el = sectionRef.current;
@@ -89,7 +100,9 @@ export function AcademySection() {
     return () => obs.disconnect();
   }, []);
 
-  const activePath = activePathId ? paths.find((p) => p.id === activePathId) : null;
+  const activePath = activePathId
+    ? (paths.find((p) => p.id === activePathId) ?? pathSlots.find((p) => p.id === activePathId))
+    : null;
 
   return (
     <section ref={sectionRef} className="py-28 lg:py-36" style={{ background: "#102A20" }}>
@@ -176,7 +189,7 @@ export function AcademySection() {
               })}
 
               {/* Path nodes */}
-              {paths.map((path) => {
+              {pathSlots.map((path) => {
                 const isActive = activePathId === path.id;
                 return path.nodes.map((node, ni) => {
                   const isCompleted = ni < 2 || (isActive && ni < 3);
@@ -223,7 +236,7 @@ export function AcademySection() {
               })}
 
               {/* Path labels */}
-              {paths.map((path) => (
+              {pathSlots.map((path) => (
                 <text
                   key={path.id}
                   x={3}
@@ -290,7 +303,7 @@ export function AcademySection() {
                         className="text-sm font-semibold transition-colors duration-150"
                         style={{ color: activePathId === path.id ? path.color : "#F3FAF6" }}
                       >
-                        {path.name}
+                        <Link href={path.href}>{path.name}</Link>
                       </h4>
                     </div>
                     <p className="text-xs font-mono text-[rgba(243,250,246,0.35)] ms-3.5">

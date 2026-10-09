@@ -6,27 +6,28 @@ import { LibrarySection } from "./library-section";
 import { AcademySection } from "./academy-section";
 import { ContactSection } from "./contact-section";
 import { Footer } from "./footer";
+import type { HomeContent } from "./home-data";
 
-export function Home() {
+export function Home({ content }: { content: HomeContent }) {
   return (
     <div>
       {/* 1 — Hero: "We engineer intelligent systems." */}
       <Hero />
 
       {/* 2 — Services: Engineering across the entire stack */}
-      <ServicesSection />
+      <ServicesSection services={content.services} />
 
       {/* 3 — Products: Products born from engineering problems */}
-      <ProductsSection />
+      <ProductsSection products={content.products} />
 
       {/* 4 — Projects: What we've built */}
-      <ProjectsSection />
+      <ProjectsSection projects={content.projects} total={content.projectTotal} />
 
       {/* 5 — Library: What we're learning */}
-      <LibrarySection />
+      <LibrarySection articles={content.articles} />
 
       {/* 6 — Academy: Build your way into deeper knowledge */}
-      <AcademySection />
+      <AcademySection courses={content.courses} />
 
       {/* Contact CTA */}
       <ContactSection />

@@ -4,6 +4,8 @@ import { motion } from "motion/react";
 import { Link } from "@/i18n/navigation";
 import { ArrowRight } from "lucide-react";
 
+import type { HomeProduct } from "./home-data";
+
 type Product = {
   id: string;
   num: string;
@@ -17,7 +19,7 @@ type Product = {
   bgTo: string;
 };
 
-const products: Product[] = [
+const productSlots: Product[] = [
   {
     id: "pentestor",
     num: "01",
@@ -162,7 +164,17 @@ function ProductUI({ id }: { id: string }) {
   return <PropertyUI />;
 }
 
-export function ProductsSection() {
+export function ProductsSection({ products: items }: { products: HomeProduct[] | null }) {
+  const products =
+    items === null
+      ? productSlots
+      : items.slice(0, productSlots.length).map((item, index) => ({
+          ...productSlots[index]!,
+          num: item.num,
+          name: item.name,
+          copy: item.copy,
+          href: item.href,
+        }));
   return (
     <section className="py-28 lg:py-36" style={{ background: "#0B1F18" }}>
       <div className="max-w-[1440px] mx-auto px-6 lg:px-12">

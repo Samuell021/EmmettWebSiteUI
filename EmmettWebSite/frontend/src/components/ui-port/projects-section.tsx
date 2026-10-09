@@ -4,7 +4,9 @@ import { useState } from "react";
 import { motion } from "motion/react";
 import { Link } from "@/i18n/navigation";
 
-const projects = [
+import type { HomeProject } from "./home-data";
+
+const projectSlots = [
   {
     num: "001",
     title: "Athena Intelligence Platform",
@@ -40,8 +42,26 @@ const projects = [
   },
 ];
 
-export function ProjectsSection() {
+export function ProjectsSection({
+  projects: items,
+  total,
+}: {
+  projects: HomeProject[] | null;
+  total: number;
+}) {
   const [hovered, setHovered] = useState<number | null>(null);
+  const projects =
+    items === null
+      ? projectSlots.map((slot) => ({ ...slot, href: "/projects" }))
+      : items.slice(0, projectSlots.length).map((item, index) => ({
+          ...projectSlots[index]!,
+          num: item.num,
+          title: item.title,
+          description: item.description,
+          industry: item.industry || projectSlots[index]!.industry,
+          year: item.year || projectSlots[index]!.year,
+          href: item.href,
+        }));
 
   return (
     <section className="py-28 lg:py-36" style={{ background: "#DDEDE5" }}>
@@ -155,7 +175,7 @@ export function ProjectsSection() {
                       className="mt-4 lg:flex lg:justify-end"
                     >
                       <Link
-                        href="/projects"
+                        href={p.href}
                         className="text-[11px] font-mono text-[#0B6B48] hover:text-[#1FAE6E] transition-colors"
                       >
                         Read case study →
@@ -170,7 +190,9 @@ export function ProjectsSection() {
 
         <div className="border-t border-[rgba(16,42,32,0.12)] pt-8 mt-0 flex items-center justify-between">
           <span className="text-sm font-mono text-[rgba(16,42,32,0.4)]">
-            3 of 12 projects shown
+            {items === null
+              ? "3 of 12 projects shown"
+              : `${projects.length} of ${total} projects shown`}
           </span>
           <Link
             href="/projects"

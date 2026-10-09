@@ -1,8 +1,16 @@
-import { setRequestLocale } from "next-intl/server";
+import { getTranslations, setRequestLocale } from "next-intl/server";
 
 import { JsonLd } from "@/components/seo/json-ld";
 import { Home } from "@/components/ui-port/home";
+import {
+  mapArticles,
+  mapCourses,
+  mapProducts,
+  mapProjects,
+  mapServices,
+} from "@/components/ui-port/home-data";
 import type { AppLocale } from "@/i18n/routing";
+import { getBlogPosts, getCourses, getProjects, getServices } from "@/lib/api/server";
 import { getFaqForPath } from "@/lib/api/seo";
 import { faqJsonLd } from "@/lib/seo/json-ld";
 
@@ -18,12 +26,32 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
   const { locale } = await params;
   setRequestLocale(locale as AppLocale);
 
-  const faqItems = await getFaqForPath("/", locale);
+  const academy = await getTranslations({ locale, namespace: "academy" });
+  const list = "page_size=100";
+  const [faqItems, services, products, projects, posts, courses] = await Promise.all([
+    getFaqForPath("/", locale),
+    getServices(locale, `${list}&ordering=order`),
+    getProjects(locale, `is_product=true&${list}&ordering=order`),
+    getProjects(locale, `${list}&ordering=-year`),
+    getBlogPosts(locale, `${list}&ordering=-published_at`),
+    getCourses(locale, `${list}&ordering=order`),
+  ]);
 
   return (
     <>
       <JsonLd data={faqJsonLd(faqItems)} />
-      <Home />
+      <Home
+        content={{
+          services: services ? mapServices(services) : null,
+          products: products ? mapProducts(products) : null,
+          projects: projects ? mapProjects(projects) : null,
+          projectTotal: projects?.count ?? 0,
+          articles: posts ? mapArticles(posts, locale) : null,
+          courses: courses
+            ? mapCourses(courses, (level) => academy(`levels.${level}`), academy("hours"))
+            : null,
+        }}
+      />
     </>
   );
 }

@@ -4,7 +4,9 @@ import { useState } from "react";
 import { motion } from "motion/react";
 import { Link } from "@/i18n/navigation";
 
-const services = [
+import type { HomeService } from "./home-data";
+
+const serviceSlots = [
   {
     id: "software",
     num: "01",
@@ -127,8 +129,18 @@ function isActiveCluster(id: string, active: string | null) {
   return clusterLinks.some(([a, b]) => (a === active && b === id) || (b === active && a === id));
 }
 
-export function ServicesSection() {
+export function ServicesSection({ services: items }: { services: HomeService[] | null }) {
   const [active, setActive] = useState<string | null>(null);
+  const services =
+    items === null
+      ? serviceSlots.map((slot) => ({ ...slot, href: "/services" }))
+      : items.slice(0, serviceSlots.length).map((item, index) => ({
+          ...serviceSlots[index]!,
+          num: item.num,
+          title: item.title,
+          copy: item.copy,
+          href: item.href,
+        }));
 
   return (
     <section className="py-28 lg:py-36" style={{ background: "#F1F7F3" }}>
@@ -197,7 +209,7 @@ export function ServicesSection() {
                         className="text-base font-semibold transition-colors duration-150"
                         style={{ color: active === s.id ? "#1FAE6E" : "#102A20" }}
                       >
-                        {s.title}
+                        <Link href={s.href}>{s.title}</Link>
                       </h3>
                     </div>
                     <p className="text-sm text-[rgba(16,42,32,0.55)] leading-relaxed mb-3">
