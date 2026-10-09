@@ -1,4 +1,4 @@
-import { setRequestLocale } from "next-intl/server";
+import { getTranslations, setRequestLocale } from "next-intl/server";
 
 import { ComingSoon } from "@/components/ui-port/coming-soon";
 import type { AppLocale } from "@/i18n/routing";
@@ -12,5 +12,6 @@ export default async function CrmPage({ params }: { params: Promise<{ locale: st
   const { locale } = await params;
   setRequestLocale(locale as AppLocale);
 
-  return <ComingSoon page="CRM" subtitle="Business systems engineered around real workflows" />;
+  const t = await getTranslations({ locale, namespace: "ui.comingSoon" });
+  return <ComingSoon page={t("crmTitle")} subtitle={t("crmSubtitle")} />;
 }

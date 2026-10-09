@@ -2,45 +2,22 @@
 
 import { useState } from "react";
 import { motion } from "motion/react";
+import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 
 import type { HomeProject } from "./home-data";
+import { ForwardMark } from "./forward-mark";
 
-const projectSlots = [
-  {
-    num: "001",
-    title: "Athena Intelligence Platform",
-    industry: "Defense & Intelligence",
-    description:
-      "Distributed intelligence fusion system processing multi-source data streams for real-time situational awareness at national scale.",
-    tech: ["Go", "Kafka", "Kubernetes", "ML Pipeline", "PostgreSQL"],
-    outcome: "14ms median latency at 2.4M events/sec",
-    year: "2025",
-    size: "large",
-  },
-  {
-    num: "002",
-    title: "Meridian Supply Chain",
-    industry: "Logistics & Operations",
-    description:
-      "Real-time supply chain visibility and optimization engine covering procurement, manufacturing and last-mile delivery across 40+ countries.",
-    tech: ["Python", "FastAPI", "Apache Spark", "Redis", "React"],
-    outcome: "31% reduction in logistics overhead",
-    year: "2025",
-    size: "medium",
-  },
-  {
-    num: "003",
-    title: "Axon Bioinformatics",
-    industry: "Healthcare & Research",
-    description:
-      "Genomic analysis pipeline for rare disease diagnosis — sequence alignment, variant calling, and AI-assisted phenotype matching for clinical teams.",
-    tech: ["Python", "Nextflow", "PyTorch", "PostgreSQL", "Docker"],
-    outcome: "Reduced analysis time from 72h to 4h",
-    year: "2024",
-    size: "medium",
-  },
-];
+const projectNums = ["001", "002", "003"] as const;
+
+type ProjectCopy = {
+  title: string;
+  industry: string;
+  description: string;
+  tech: string[];
+  outcome: string;
+  year: string;
+};
 
 export function ProjectsSection({
   projects: items,
@@ -50,18 +27,25 @@ export function ProjectsSection({
   total: number;
 }) {
   const [hovered, setHovered] = useState<number | null>(null);
-  const projects =
-    items === null
-      ? projectSlots.map((slot) => ({ ...slot, href: "/projects" }))
-      : items.slice(0, projectSlots.length).map((item, index) => ({
-          ...projectSlots[index]!,
-          num: item.num,
-          title: item.title,
-          description: item.description,
-          industry: item.industry || projectSlots[index]!.industry,
-          year: item.year || projectSlots[index]!.year,
-          href: item.href,
-        }));
+  const t = useTranslations("ui.projects");
+  const copy = t.raw("slots") as ProjectCopy[];
+  const projects = projectNums
+    .map((num, index) => {
+      const text = copy[index];
+      const live = items?.[index];
+      if (items !== null && !live) return null;
+      return {
+        num: live?.num ?? num,
+        title: live?.title || text?.title || "",
+        industry: live?.industry || text?.industry || "",
+        description: live?.description || text?.description || "",
+        tech: text?.tech ?? [],
+        outcome: text?.outcome ?? "",
+        year: live?.year || text?.year || "",
+        href: live?.href || "/projects",
+      };
+    })
+    .filter((project) => project !== null);
 
   return (
     <section className="py-28 lg:py-36" style={{ background: "#DDEDE5" }}>
@@ -77,7 +61,7 @@ export function ProjectsSection({
             >
               <div className="w-6 h-px bg-[#0B6B48]" />
               <span className="text-[10px] font-mono tracking-[0.22em] uppercase text-[#0B6B48]">
-                Projects · 03
+                {t("eyebrow")}
               </span>
             </motion.div>
             <motion.h2
@@ -87,7 +71,7 @@ export function ProjectsSection({
               transition={{ delay: 0.06 }}
               className="text-[clamp(2rem,4.5vw,3.5rem)] font-medium tracking-tight text-[#102A20] leading-tight"
             >
-              What we&apos;ve built.
+              {t("title")}
             </motion.h2>
           </div>
           <motion.p
@@ -97,7 +81,7 @@ export function ProjectsSection({
             transition={{ delay: 0.1 }}
             className="text-base text-[rgba(16,42,32,0.55)] leading-relaxed max-w-[40ch] lg:text-end lg:ms-auto"
           >
-            Real problems. Real constraints. Real systems.
+            {t("lead")}
           </motion.p>
         </div>
 
@@ -158,7 +142,7 @@ export function ProjectsSection({
                 <div className="lg:text-end">
                   <div className="inline-block text-start lg:text-end">
                     <span className="text-[10px] font-mono tracking-widest uppercase text-[rgba(16,42,32,0.3)] block mb-2">
-                      Outcome
+                      {t("outcome")}
                     </span>
                     <p
                       className="text-sm font-mono font-semibold transition-colors duration-200"
@@ -178,7 +162,7 @@ export function ProjectsSection({
                         href={p.href}
                         className="text-[11px] font-mono text-[#0B6B48] hover:text-[#1FAE6E] transition-colors"
                       >
-                        Read case study →
+                        {t("caseStudy")} <ForwardMark />
                       </Link>
                     </motion.div>
                   )}
@@ -190,15 +174,13 @@ export function ProjectsSection({
 
         <div className="border-t border-[rgba(16,42,32,0.12)] pt-8 mt-0 flex items-center justify-between">
           <span className="text-sm font-mono text-[rgba(16,42,32,0.4)]">
-            {items === null
-              ? "3 of 12 projects shown"
-              : `${projects.length} of ${total} projects shown`}
+            {items === null ? t("shownFallback") : t("shown", { shown: projects.length, total })}
           </span>
           <Link
             href="/projects"
             className="inline-flex items-center gap-2 text-sm font-mono text-[#0B6B48] hover:text-[#1FAE6E] transition-colors"
           >
-            View all projects →
+            {t("viewAll")} <ForwardMark />
           </Link>
         </div>
       </div>

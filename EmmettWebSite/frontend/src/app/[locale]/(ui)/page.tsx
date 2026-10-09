@@ -27,6 +27,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
   setRequestLocale(locale as AppLocale);
 
   const academy = await getTranslations({ locale, namespace: "academy" });
+  const library = await getTranslations({ locale, namespace: "ui.library" });
   const list = "page_size=100";
   const [faqItems, services, products, projects, posts, courses] = await Promise.all([
     getFaqForPath("/", locale),
@@ -46,7 +47,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
           products: products ? mapProducts(products) : null,
           projects: projects ? mapProjects(projects) : null,
           projectTotal: projects?.count ?? 0,
-          articles: posts ? mapArticles(posts, locale) : null,
+          articles: posts ? mapArticles(posts, locale, library("minute")) : null,
           courses: courses
             ? mapCourses(courses, (level) => academy(`levels.${level}`), academy("hours"))
             : null,

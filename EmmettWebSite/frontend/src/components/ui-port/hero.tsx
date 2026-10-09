@@ -3,6 +3,7 @@
 import { motion } from "motion/react";
 import nextDynamic from "next/dynamic";
 import { ArrowRight } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 import { Link } from "@/i18n/navigation";
 
@@ -17,6 +18,9 @@ const NeuralNetwork3D = nextDynamic(
 );
 
 export function Hero() {
+  const t = useTranslations("ui.hero");
+  const stats = t.raw("stats") as Array<{ value: string; label: string }>;
+
   return (
     <section
       id="home"
@@ -49,7 +53,7 @@ export function Hero() {
             >
               <div className="w-6 h-px bg-[#1FAE6E]" />
               <span className="text-[11px] font-mono tracking-[0.22em] uppercase text-[#1FAE6E]">
-                Engineering Collective · University of Tehran
+                {t("eyebrow")}
               </span>
             </motion.div>
 
@@ -60,11 +64,11 @@ export function Hero() {
               transition={{ duration: 0.7, delay: 0.08 }}
               className="text-[clamp(2.8rem,7vw,6.5rem)] font-medium leading-[0.95] tracking-tight text-[#F3FAF6]"
             >
-              We engineer
+              {t("line1")}
               <br />
-              <span className="text-[#1FAE6E]">intelligent</span>
+              <span className="text-[#1FAE6E]">{t("accent")}</span>
               <br />
-              systems.
+              {t("line3")}
             </motion.h1>
 
             {/* Subheading */}
@@ -74,7 +78,7 @@ export function Hero() {
               transition={{ duration: 0.6, delay: 0.2 }}
               className="text-lg text-[rgba(243,250,246,0.62)] max-w-[44ch] leading-relaxed"
             >
-              Software, AI, cybersecurity and products built for real-world complexity.
+              {t("sub")}
             </motion.p>
 
             {/* CTAs */}
@@ -88,14 +92,14 @@ export function Hero() {
                 href="/projects"
                 className="group inline-flex items-center gap-2 px-7 py-3.5 bg-[#1FAE6E] text-[#07130F] rounded-lg font-semibold text-sm hover:bg-[#35C98A] transition-all duration-150"
               >
-                Explore our work
-                <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+                {t("explore")}
+                <ArrowRight className="w-4 h-4 rtl:-scale-x-100 group-hover:translate-x-0.5 rtl:group-hover:-translate-x-0.5 transition-transform" />
               </Link>
               <Link
                 href="/contact"
                 className="inline-flex items-center gap-2 px-7 py-3.5 border border-[rgba(31,174,110,0.25)] rounded-lg text-[rgba(243,250,246,0.65)] text-sm font-mono hover:border-[rgba(31,174,110,0.5)] hover:text-[#F3FAF6] hover:bg-[rgba(31,174,110,0.06)] transition-all duration-150"
               >
-                Start a project
+                {t("start")}
               </Link>
             </motion.div>
 
@@ -106,11 +110,7 @@ export function Hero() {
               transition={{ duration: 0.5, delay: 0.45 }}
               className="flex items-center gap-10 pt-2 border-t border-[rgba(31,174,110,0.12)]"
             >
-              {[
-                { value: "40+", label: "Systems Shipped" },
-                { value: "99.97%", label: "Uptime SLA" },
-                { value: "12", label: "Countries" },
-              ].map((s, i) => (
+              {stats.map((s, i) => (
                 <div key={i} className="flex flex-col gap-0.5">
                   <span className="text-2xl font-semibold font-mono text-[#F3FAF6]">{s.value}</span>
                   <span className="text-[10px] text-[rgba(243,250,246,0.35)] uppercase tracking-[0.15em] font-mono">
@@ -134,16 +134,16 @@ export function Hero() {
 
               {/* Technical labels floating on canvas */}
               <div className="absolute top-10 start-8 font-mono text-[10px] text-[rgba(31,174,110,0.45)] tracking-widest uppercase">
-                AI / ML
+                {t("ai")}
               </div>
               <div className="absolute top-1/3 end-8 font-mono text-[10px] text-[rgba(77,155,232,0.4)] tracking-widest uppercase">
-                Security
+                {t("security")}
               </div>
               <div className="absolute bottom-20 start-12 font-mono text-[10px] text-[rgba(31,174,110,0.35)] tracking-widest uppercase">
-                Backend
+                {t("backend")}
               </div>
               <div className="absolute bottom-10 end-10 font-mono text-[10px] text-[rgba(243,250,246,0.2)] tracking-[0.08em]">
-                v4.1.2 · live
+                {t("version")}
               </div>
             </div>
 
@@ -152,7 +152,7 @@ export function Hero() {
               <div className="flex items-center gap-2">
                 <div className="w-1.5 h-1.5 rounded-full bg-[#1FAE6E] animate-pulse" />
                 <span className="text-[10px] font-mono text-[rgba(31,174,110,0.7)] tracking-widest uppercase">
-                  Systems Online
+                  {t("online")}
                 </span>
               </div>
             </div>
@@ -179,7 +179,7 @@ export function Hero() {
           />
         </motion.div>
         <span className="text-[10px] font-mono text-[rgba(243,250,246,0.2)] tracking-widest uppercase">
-          scroll
+          {t("scroll")}
         </span>
       </motion.div>
     </section>

@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import { Github, Linkedin, Twitter } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 
 function EmeraldStarfield() {
@@ -87,42 +88,18 @@ function EmeraldStarfield() {
   return <canvas ref={canvasRef} aria-hidden className="absolute inset-0 w-full h-full" />;
 }
 
-const columns = [
-  {
-    header: "Company",
-    links: [
-      { label: "About", href: "/about" },
-      { label: "Careers", href: "/about" },
-      { label: "Contact", href: "/contact" },
-    ],
-  },
-  {
-    header: "Work",
-    links: [
-      { label: "Services", href: "/services" },
-      { label: "Products", href: "/products" },
-      { label: "Projects", href: "/projects" },
-    ],
-  },
-  {
-    header: "Learn",
-    links: [
-      { label: "Library", href: "/blog" },
-      { label: "Academy", href: "/academy" },
-      { label: "Research", href: "/blog" },
-    ],
-  },
-  {
-    header: "Legal",
-    links: [
-      { label: "Privacy", href: "#" },
-      { label: "Terms", href: "#" },
-      { label: "Security", href: "#" },
-    ],
-  },
-];
+type FooterColumn = { header: string; links: Array<{ label: string; href: string }> };
 
 export function Footer() {
+  const t = useTranslations("ui.footer");
+  const brand = useTranslations("ui");
+  const columns = t.raw("columns") as FooterColumn[];
+  const social = [
+    { icon: Github, label: t("social.github") },
+    { icon: Linkedin, label: t("social.linkedin") },
+    { icon: Twitter, label: t("social.twitter") },
+  ];
+
   return (
     <footer
       className="relative border-t border-[rgba(31,174,110,0.08)] overflow-hidden"
@@ -141,7 +118,7 @@ export function Footer() {
                 {col.links.map((link) => (
                   <li key={link.label}>
                     <Link
-                      href={link.href}
+                      href={link.href as "/"}
                       className="text-sm text-[rgba(243,250,246,0.35)] hover:text-[rgba(243,250,246,0.7)] transition-colors duration-150"
                     >
                       {link.label}
@@ -153,37 +130,36 @@ export function Footer() {
           ))}
         </div>
 
-        {/* Bottom bar */}
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6 pt-8 border-t border-[rgba(31,174,110,0.08)]">
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-2">
               <div className="w-1.5 h-1.5 rounded-full bg-[#1FAE6E] animate-pulse" />
               <span className="text-xs font-mono text-[rgba(243,250,246,0.22)]">
-                All systems operational
+                {t("operational")}
               </span>
             </div>
             <span className="text-xs text-[rgba(243,250,246,0.1)]">·</span>
             <span className="text-xs font-mono text-[rgba(243,250,246,0.22)]">
-              © 2026 Emmett Group
+              {t("copyright", { year: new Date().getFullYear() })}
             </span>
           </div>
 
           <div className="flex items-center gap-3">
-            {[Github, Linkedin, Twitter].map((Icon, i) => (
+            {social.map((item) => (
               <a
-                key={i}
+                key={item.label}
                 href="#"
+                aria-label={item.label}
                 className="p-2 rounded-lg border border-[rgba(31,174,110,0.1)] text-[rgba(243,250,246,0.2)] hover:text-[rgba(243,250,246,0.55)] hover:border-[rgba(31,174,110,0.25)] transition-all duration-150"
               >
-                <Icon className="w-3.5 h-3.5" />
+                <item.icon className="w-3.5 h-3.5" />
               </a>
             ))}
           </div>
         </div>
 
-        {/* Large wordmark */}
         <div className="mt-16 font-mono text-[clamp(4rem,15vw,12rem)] font-bold leading-none text-[rgba(31,174,110,0.04)] tracking-[0.05em] select-none">
-          EMMETT
+          {brand("brand")}
         </div>
       </div>
     </footer>

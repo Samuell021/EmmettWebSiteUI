@@ -6,6 +6,8 @@ import { useState, useEffect, useCallback } from "react";
 import { Link, usePathname, useRouter } from "@/i18n/navigation";
 import { Menu, X, Terminal, ChevronRight, Search } from "lucide-react";
 
+import { UiLocaleSwitch } from "./locale-switch";
+
 /**
  * برچسب‌های ناوبری از پیام‌های دوزبانهٔ پروژه می‌آیند (namespace `nav`).
  * مقادیر زبان انگلیسی مو‌به‌مو همان رشته‌های بستهٔ UI هستند
@@ -23,18 +25,7 @@ const navLinks = [
   { key: "about", href: "/about" },
 ] as const;
 
-const paletteItems = [
-  { label: "Home", category: "Page", href: "/" },
-  { label: "Services — The Engineering System", category: "Page", href: "/services" },
-  { label: "Products — The Product Lab", category: "Page", href: "/products" },
-  { label: "PenTestor — Security Engineering", category: "Product", href: "/products/pentestor" },
-  { label: "CRM — Business Systems", category: "Product", href: "/products/crm" },
-  { label: "Projects — Proof of Work", category: "Page", href: "/projects" },
-  { label: "Library — Engineering Knowledge", category: "Page", href: "/blog" },
-  { label: "Academy — Learning Paths", category: "Page", href: "/academy" },
-  { label: "About — Who We Are", category: "Page", href: "/about" },
-  { label: "Contact — Start a Project", category: "Action", href: "/contact" },
-];
+type PaletteItem = { label: string; category: string; href: string };
 
 export function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
@@ -44,6 +35,9 @@ export function Navbar() {
   const [hidden, setHidden] = useState(false);
   const [lastScrollY, setLastScrollY] = useState(0);
   const t = useTranslations("nav");
+  const ui = useTranslations("ui");
+  const palette = useTranslations("ui.nav");
+  const paletteItems = palette.raw("palette") as PaletteItem[];
   const router = useRouter();
   const pathname = usePathname();
 
@@ -107,10 +101,10 @@ export function Navbar() {
           {/* Wordmark */}
           <Link href="/" className="flex items-center gap-2 flex-shrink-0">
             <span className="font-mono text-base tracking-[0.2em] text-[#F3FAF6] font-semibold">
-              EMMETT
+              {ui("brand")}
             </span>
             <span className="hidden sm:inline font-mono text-[10px] tracking-widest text-[rgba(243,250,246,0.28)] uppercase">
-              GROUP
+              {ui("brandGroup")}
             </span>
           </Link>
 
@@ -138,6 +132,8 @@ export function Navbar() {
 
           {/* Right */}
           <div className="flex items-center gap-3 flex-shrink-0">
+            <UiLocaleSwitch />
+
             <button
               onClick={() => setPaletteOpen(true)}
               className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-md border border-[rgba(31,174,110,0.12)] bg-[rgba(31,174,110,0.03)] text-[rgba(243,250,246,0.28)] text-xs font-mono hover:border-[rgba(31,174,110,0.25)] hover:text-[rgba(243,250,246,0.55)] transition-all"
@@ -156,7 +152,7 @@ export function Navbar() {
             <button
               onClick={() => setIsOpen(!isOpen)}
               className="lg:hidden p-2 rounded-lg border border-[rgba(31,174,110,0.12)] bg-[rgba(31,174,110,0.03)]"
-              aria-label="Toggle menu"
+              aria-label={isOpen ? palette("closeMenu") : palette("openMenu")}
             >
               {isOpen ? (
                 <X className="w-5 h-5 text-[rgba(243,250,246,0.6)]" />
@@ -188,7 +184,7 @@ export function Navbar() {
                 }`}
               >
                 {t(item.key)}
-                <ChevronRight className="w-4 h-4 opacity-20" />
+                <ChevronRight className="w-4 h-4 opacity-20 rtl:-scale-x-100" />
               </Link>
             ))}
             <div className="pt-8">
@@ -239,7 +235,7 @@ export function Navbar() {
             <div className="max-h-72 overflow-y-auto py-2">
               {filtered.length === 0 ? (
                 <div className="px-4 py-8 text-center text-sm text-[rgba(243,250,246,0.3)] font-mono">
-                  No results found.
+                  {palette("noResults")}
                 </div>
               ) : (
                 filtered.map((item, i) => (
@@ -253,7 +249,7 @@ export function Navbar() {
                     className="w-full flex items-center justify-between px-4 py-3 hover:bg-[rgba(31,174,110,0.06)] transition-colors group text-start"
                   >
                     <div className="flex items-center gap-3">
-                      <ChevronRight className="w-3 h-3 text-[rgba(243,250,246,0.18)] group-hover:text-[#1FAE6E] transition-colors" />
+                      <ChevronRight className="w-3 h-3 text-[rgba(243,250,246,0.18)] group-hover:text-[#1FAE6E] transition-colors rtl:-scale-x-100" />
                       <span className="text-sm text-[rgba(243,250,246,0.55)] group-hover:text-[#F3FAF6] transition-colors font-mono">
                         {item.label}
                       </span>

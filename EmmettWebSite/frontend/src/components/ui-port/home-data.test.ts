@@ -94,8 +94,8 @@ describe("home section mappers", () => {
         published_at: "2026-08-12T00:00:00Z",
       },
     ]);
-    const en = mapArticles(posts, "en")[0]!;
-    const fa = mapArticles(posts, "fa")[0]!;
+    const en = mapArticles(posts, "en", "min")[0]!;
+    const fa = mapArticles(posts, "fa", "دقیقه")[0]!;
     expect(en).toMatchObject({
       href: "/blog/throughput",
       initials: "AK",
@@ -138,7 +138,7 @@ describe("home section mappers", () => {
     expect(mapServices(null)).toEqual([]);
     expect(mapProducts(null)).toEqual([]);
     expect(mapProjects(null)).toEqual([]);
-    expect(mapArticles(null, "en")).toEqual([]);
+    expect(mapArticles(null, "en", "min")).toEqual([]);
     expect(mapCourses(null, (level) => level, "hours")).toEqual([]);
   });
 });

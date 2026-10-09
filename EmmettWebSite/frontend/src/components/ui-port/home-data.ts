@@ -124,6 +124,7 @@ export function mapProjects(data: Paginated<ProjectListItem> | null): HomeProjec
 export function mapArticles(
   data: Paginated<BlogPostListItem> | null,
   locale: string,
+  minuteLabel: string,
 ): HomeArticle[] {
   const appLocale = toAppLocale(locale);
   return (data?.results ?? []).slice(0, PREVIEW.articles).map((post) => ({
@@ -133,7 +134,7 @@ export function mapArticles(
     author: post.author_name ?? "",
     initials: initials(post.author_name ?? ""),
     date: post.published_at ? formatDate(post.published_at, appLocale) : "",
-    readTime: `${post.reading_time_minutes} min`,
+    readTime: `${post.reading_time_minutes} ${minuteLabel}`,
     href: `/blog/${post.slug}`,
   }));
 }

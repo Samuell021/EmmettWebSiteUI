@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import { motion } from "motion/react";
+import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { ArrowRight } from "lucide-react";
 
@@ -88,6 +89,9 @@ function SubtleNetwork() {
 }
 
 export function ContactSection() {
+  const t = useTranslations("ui.contact");
+  const meta = t.raw("meta") as Array<{ label: string; value: string }>;
+
   return (
     <section className="relative py-36 lg:py-48 overflow-hidden" style={{ background: "#07130F" }}>
       <SubtleNetwork />
@@ -104,7 +108,7 @@ export function ContactSection() {
         >
           <div className="w-6 h-px bg-[#1FAE6E]" />
           <span className="text-[10px] font-mono tracking-[0.22em] uppercase text-[#1FAE6E]">
-            Contact · 06
+            {t("eyebrow")}
           </span>
           <div className="w-6 h-px bg-[#1FAE6E]" />
         </motion.div>
@@ -116,9 +120,9 @@ export function ContactSection() {
           transition={{ delay: 0.07 }}
           className="text-[clamp(2.5rem,6vw,5.5rem)] font-medium tracking-tight text-[#F3FAF6] leading-[0.95] mb-6"
         >
-          Have a difficult
+          {t("line1")}
           <br />
-          <span className="text-[#1FAE6E]">problem?</span>
+          <span className="text-[#1FAE6E]">{t("accent")}</span>
         </motion.h2>
 
         <motion.p
@@ -128,9 +132,9 @@ export function ContactSection() {
           transition={{ delay: 0.15 }}
           className="text-lg text-[rgba(243,250,246,0.5)] max-w-[42ch] mx-auto leading-relaxed mb-12"
         >
-          Tell us what you&apos;re trying to build.
+          {t("lead1")}
           <br />
-          We&apos;ll figure out the system together.
+          {t("lead2")}
         </motion.p>
 
         <motion.div
@@ -144,14 +148,14 @@ export function ContactSection() {
             href="/contact"
             className="group inline-flex items-center gap-3 px-8 py-4 bg-[#1FAE6E] text-[#07130F] rounded-lg font-semibold hover:bg-[#35C98A] transition-all duration-150"
           >
-            Start a conversation
+            {t("start")}
             <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
           </Link>
           <Link
             href="/projects"
             className="inline-flex items-center gap-2 px-8 py-4 border border-[rgba(31,174,110,0.2)] rounded-lg text-[rgba(243,250,246,0.55)] font-mono text-sm hover:border-[rgba(31,174,110,0.4)] hover:text-[#F3FAF6] transition-all duration-150"
           >
-            See our work first
+            {t("work")}
           </Link>
         </motion.div>
 
@@ -163,12 +167,7 @@ export function ContactSection() {
           transition={{ delay: 0.35 }}
           className="mt-20 flex items-center justify-center gap-8 flex-wrap"
         >
-          {[
-            { label: "Location", value: "Tehran, IR" },
-            { label: "Response time", value: "< 24h" },
-            { label: "Languages", value: "EN · FA" },
-            { label: "Status", value: "Accepting projects" },
-          ].map((item) => (
+          {meta.map((item) => (
             <div key={item.label} className="text-center">
               <div className="text-[9px] font-mono text-[rgba(243,250,246,0.2)] tracking-widest uppercase mb-1">
                 {item.label}

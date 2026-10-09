@@ -2,46 +2,18 @@
 
 import { useState } from "react";
 import { motion } from "motion/react";
+import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 
 import type { HomeService } from "./home-data";
+import { ForwardMark } from "./forward-mark";
 
 const serviceSlots = [
-  {
-    id: "software",
-    num: "01",
-    title: "Software Engineering",
-    copy: "Robust software systems designed for scale, reliability and long-term evolution.",
-    tags: ["Architecture", "Backend", "APIs", "Distributed Systems"],
-  },
-  {
-    id: "ai",
-    num: "02",
-    title: "AI / Machine Learning",
-    copy: "From data to intelligent systems — we turn machine learning research into usable products.",
-    tags: ["ML", "Deep Learning", "LLMs", "Computer Vision"],
-  },
-  {
-    id: "security",
-    num: "03",
-    title: "Cybersecurity",
-    copy: "Security engineered into the system — from attack surface to infrastructure hardening.",
-    tags: ["Appsec", "Pentesting", "Threat Analysis", "Security Automation"],
-  },
-  {
-    id: "product",
-    num: "04",
-    title: "Product Engineering",
-    copy: "We transform complex ideas into products people can actually use and build on.",
-    tags: ["UX", "UI", "Prototyping", "Product Architecture"],
-  },
-  {
-    id: "infra",
-    num: "05",
-    title: "Infrastructure",
-    copy: "The systems beneath the systems. Cloud, DevOps, containers, deployment, observability.",
-    tags: ["Cloud", "DevOps", "Containers", "Observability"],
-  },
+  { id: "software", num: "01" },
+  { id: "ai", num: "02" },
+  { id: "security", num: "03" },
+  { id: "product", num: "04" },
+  { id: "infra", num: "05" },
 ];
 
 type ClusterNode = { x: number; y: number };
@@ -129,16 +101,27 @@ function isActiveCluster(id: string, active: string | null) {
   return clusterLinks.some(([a, b]) => (a === active && b === id) || (b === active && a === id));
 }
 
+type ServiceCopy = { title: string; copy: string; tags: string[] };
+
 export function ServicesSection({ services: items }: { services: HomeService[] | null }) {
   const [active, setActive] = useState<string | null>(null);
+  const t = useTranslations("ui.services");
+  const copy = t.raw("slots") as ServiceCopy[];
   const services =
     items === null
-      ? serviceSlots.map((slot) => ({ ...slot, href: "/services" }))
+      ? serviceSlots.map((slot, index) => ({
+          ...slot,
+          title: copy[index]?.title ?? "",
+          copy: copy[index]?.copy ?? "",
+          tags: copy[index]?.tags ?? [],
+          href: "/services",
+        }))
       : items.slice(0, serviceSlots.length).map((item, index) => ({
           ...serviceSlots[index]!,
           num: item.num,
           title: item.title,
           copy: item.copy,
+          tags: copy[index]?.tags ?? [],
           href: item.href,
         }));
 
@@ -155,7 +138,7 @@ export function ServicesSection({ services: items }: { services: HomeService[] |
           >
             <div className="w-6 h-px bg-[#1FAE6E]" />
             <span className="text-[10px] font-mono tracking-[0.22em] uppercase text-[#1FAE6E]">
-              Services · 01
+              {t("eyebrow")}
             </span>
           </motion.div>
           <motion.h2
@@ -165,7 +148,7 @@ export function ServicesSection({ services: items }: { services: HomeService[] |
             transition={{ delay: 0.06 }}
             className="text-[clamp(2rem,4.5vw,3.5rem)] font-medium tracking-tight text-[#102A20] leading-tight max-w-2xl"
           >
-            Engineering across the entire stack.
+            {t("title")}
           </motion.h2>
           <motion.p
             initial={{ opacity: 0 }}
@@ -174,8 +157,7 @@ export function ServicesSection({ services: items }: { services: HomeService[] |
             transition={{ delay: 0.12 }}
             className="mt-4 text-base text-[rgba(16,42,32,0.58)] max-w-[52ch] leading-relaxed"
           >
-            From infrastructure to intelligence, we design and build the systems that make ambitious
-            products possible.
+            {t("lead")}
           </motion.p>
         </div>
 
@@ -241,7 +223,7 @@ export function ServicesSection({ services: items }: { services: HomeService[] |
                 href="/services"
                 className="inline-flex items-center gap-2 text-sm font-mono text-[#1FAE6E] hover:text-[#35C98A] transition-colors"
               >
-                View full engineering system →
+                {t("viewSystem")} <ForwardMark />
               </Link>
             </div>
           </div>
@@ -256,7 +238,7 @@ export function ServicesSection({ services: items }: { services: HomeService[] |
             style={{ aspectRatio: "4/3" }}
           >
             <div className="absolute top-4 start-4 text-[10px] font-mono text-[rgba(16,42,32,0.3)] tracking-widest uppercase">
-              System Map · Hover to explore
+              {t("mapTitle")}
             </div>
 
             <svg viewBox="0 0 100 86" className="w-full h-full" preserveAspectRatio="xMidYMid meet">
@@ -373,7 +355,7 @@ export function ServicesSection({ services: items }: { services: HomeService[] |
                 </motion.div>
               ) : (
                 <div className="text-[11px] font-mono text-[rgba(16,42,32,0.3)] tracking-wide">
-                  Hover a service to activate
+                  {t("mapIdle")}
                 </div>
               )}
             </div>

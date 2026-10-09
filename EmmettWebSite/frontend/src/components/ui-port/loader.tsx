@@ -1,6 +1,7 @@
 "use client";
 
 import { AnimatePresence, motion } from "motion/react";
+import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 
 /**
@@ -14,6 +15,8 @@ import { useEffect, useState } from "react";
  * نمی‌شود تا کاری بی‌دلیل اجرا نشود.
  */
 export function Loader() {
+  const t = useTranslations("ui.loader");
+  const brand = useTranslations("ui");
   const [progress, setProgress] = useState(0);
   const [visible, setVisible] = useState(true);
 
@@ -46,12 +49,12 @@ export function Loader() {
         >
           <div className="text-center space-y-8">
             <div className="font-mono text-5xl tracking-[0.2em] text-[#F3FAF6] font-semibold">
-              EMMETT
+              {brand("brand")}
             </div>
 
             <div className="space-y-3 w-72 mx-auto">
               <div className="flex items-center justify-between text-xs font-mono text-[rgba(243,250,246,0.28)]">
-                <span>INITIALIZING</span>
+                <span>{t("initializing")}</span>
                 <span>{progress}%</span>
               </div>
               <div className="h-px bg-[rgba(31,174,110,0.12)] overflow-hidden">
@@ -64,7 +67,7 @@ export function Loader() {
             </div>
 
             <p className="text-xs font-mono text-[rgba(243,250,246,0.2)] tracking-widest">
-              EMMETT GROUP · ENGINEERING COLLECTIVE
+              {t("collective")}
             </p>
           </div>
         </motion.div>

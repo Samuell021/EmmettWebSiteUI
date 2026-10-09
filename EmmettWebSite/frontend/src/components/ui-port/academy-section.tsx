@@ -2,54 +2,49 @@
 
 import { useState, useRef, useEffect } from "react";
 import { motion } from "motion/react";
+import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 
 import type { HomeCourse } from "./home-data";
+import { ForwardMark } from "./forward-mark";
 
 const pathSlots = [
   {
     id: "software",
-    name: "Software Engineering",
-    level: "Foundations → Advanced",
-    topics: 48,
     color: "#1FAE6E",
     nodes: [
-      { label: "Algorithms", x: 15, y: 30 },
-      { label: "Data Structures", x: 30, y: 22 },
-      { label: "System Design", x: 48, y: 30 },
-      { label: "Distributed", x: 65, y: 22 },
-      { label: "Architecture", x: 82, y: 30 },
+      { x: 15, y: 30 },
+      { x: 30, y: 22 },
+      { x: 48, y: 30 },
+      { x: 65, y: 22 },
+      { x: 82, y: 30 },
     ],
   },
   {
     id: "ai",
-    name: "AI / Machine Learning",
-    level: "Math → Production",
-    topics: 56,
     color: "#35C98A",
     nodes: [
-      { label: "Linear Algebra", x: 12, y: 50 },
-      { label: "ML Fundamentals", x: 32, y: 50 },
-      { label: "Deep Learning", x: 52, y: 50 },
-      { label: "LLMs", x: 70, y: 50 },
-      { label: "MLOps", x: 86, y: 50 },
+      { x: 12, y: 50 },
+      { x: 32, y: 50 },
+      { x: 52, y: 50 },
+      { x: 70, y: 50 },
+      { x: 86, y: 50 },
     ],
   },
   {
     id: "security",
-    name: "Cybersecurity",
-    level: "Concepts → Expert",
-    topics: 42,
     color: "#4C9BE8",
     nodes: [
-      { label: "Networking", x: 14, y: 70 },
-      { label: "Security Basics", x: 32, y: 70 },
-      { label: "Appsec", x: 50, y: 70 },
-      { label: "Pentesting", x: 67, y: 70 },
-      { label: "Security Eng.", x: 84, y: 70 },
+      { x: 14, y: 70 },
+      { x: 32, y: 70 },
+      { x: 50, y: 70 },
+      { x: 67, y: 70 },
+      { x: 84, y: 70 },
     ],
   },
-];
+] as const;
+
+type AcademyCopy = { name: string; level: string; topics: number; nodes: string[] };
 
 const graphLinks = [
   { from: { x: 15, y: 30 }, to: { x: 30, y: 22 } },
@@ -74,13 +69,25 @@ export function AcademySection({ courses }: { courses: HomeCourse[] | null }) {
   const [activePathId, setActivePathId] = useState<string | null>(null);
   const [inView, setInView] = useState(false);
   const sectionRef = useRef<HTMLElement>(null);
+  const t = useTranslations("ui.academy");
+  const copy = t.raw("slots") as AcademyCopy[];
+  const graphPaths = pathSlots.map((slot, index) => ({
+    ...slot,
+    name: copy[index]?.name ?? "",
+    level: copy[index]?.level ?? "",
+    topics: copy[index]?.topics ?? 0,
+    nodes: slot.nodes.map((node, nodeIndex) => ({
+      ...node,
+      label: copy[index]?.nodes[nodeIndex] ?? "",
+    })),
+  }));
   const paths =
     courses === null
-      ? pathSlots.map((slot) => ({ ...slot, href: "/academy" }))
-      : courses.slice(0, pathSlots.length).map((course, index) => ({
-          ...pathSlots[index]!,
+      ? graphPaths.map((slot) => ({ ...slot, href: "/academy" }))
+      : courses.slice(0, graphPaths.length).map((course, index) => ({
+          ...graphPaths[index]!,
           name: course.title,
-          level: course.levelLabel || pathSlots[index]!.level,
+          level: course.levelLabel || graphPaths[index]!.level,
           href: course.href,
         }));
 
@@ -101,7 +108,7 @@ export function AcademySection({ courses }: { courses: HomeCourse[] | null }) {
   }, []);
 
   const activePath = activePathId
-    ? (paths.find((p) => p.id === activePathId) ?? pathSlots.find((p) => p.id === activePathId))
+    ? (paths.find((p) => p.id === activePathId) ?? graphPaths.find((p) => p.id === activePathId))
     : null;
 
   return (
@@ -118,7 +125,7 @@ export function AcademySection({ courses }: { courses: HomeCourse[] | null }) {
             >
               <div className="w-6 h-px bg-[#1FAE6E]" />
               <span className="text-[10px] font-mono tracking-[0.22em] uppercase text-[#1FAE6E]">
-                Academy · 05
+                {t("eyebrow")}
               </span>
             </motion.div>
             <motion.h2
@@ -128,7 +135,7 @@ export function AcademySection({ courses }: { courses: HomeCourse[] | null }) {
               transition={{ delay: 0.06 }}
               className="text-[clamp(2rem,4.5vw,3.5rem)] font-medium tracking-tight text-[#F3FAF6] leading-tight"
             >
-              Build your way into deeper knowledge.
+              {t("title")}
             </motion.h2>
           </div>
           <motion.p
@@ -138,8 +145,7 @@ export function AcademySection({ courses }: { courses: HomeCourse[] | null }) {
             transition={{ delay: 0.1 }}
             className="text-base text-[rgba(243,250,246,0.45)] leading-relaxed max-w-[40ch] lg:ms-auto"
           >
-            Courses, paths and practical systems designed around real engineering problems — not
-            artificial curricula.
+            {t("lead")}
           </motion.p>
         </div>
 
@@ -155,7 +161,7 @@ export function AcademySection({ courses }: { courses: HomeCourse[] | null }) {
           >
             <div className="flex items-center justify-between mb-3">
               <span className="text-[10px] font-mono text-[rgba(243,250,246,0.3)] tracking-widest uppercase">
-                Knowledge Graph · Learning Paths
+                {t("graph")}
               </span>
               {activePath && (
                 <motion.span
@@ -189,7 +195,7 @@ export function AcademySection({ courses }: { courses: HomeCourse[] | null }) {
               })}
 
               {/* Path nodes */}
-              {pathSlots.map((path) => {
+              {graphPaths.map((path) => {
                 const isActive = activePathId === path.id;
                 return path.nodes.map((node, ni) => {
                   const isCompleted = ni < 2 || (isActive && ni < 3);
@@ -236,7 +242,7 @@ export function AcademySection({ courses }: { courses: HomeCourse[] | null }) {
               })}
 
               {/* Path labels */}
-              {pathSlots.map((path) => (
+              {graphPaths.map((path) => (
                 <text
                   key={path.id}
                   x={3}
@@ -274,7 +280,7 @@ export function AcademySection({ courses }: { courses: HomeCourse[] | null }) {
           {/* Learning paths list */}
           <div className="space-y-4">
             <p className="text-[10px] font-mono text-[rgba(243,250,246,0.3)] tracking-widest uppercase mb-6">
-              Available Paths
+              {t("available")}
             </p>
             {paths.map((path, i) => (
               <motion.div
@@ -311,7 +317,7 @@ export function AcademySection({ courses }: { courses: HomeCourse[] | null }) {
                     </p>
                   </div>
                   <span className="text-xs font-mono text-[rgba(243,250,246,0.28)] flex-shrink-0">
-                    {path.topics} topics
+                    {t("topics", { count: path.topics })}
                   </span>
                 </div>
 
@@ -333,7 +339,7 @@ export function AcademySection({ courses }: { courses: HomeCourse[] | null }) {
                 href="/academy"
                 className="inline-flex items-center gap-2 text-sm font-mono text-[#1FAE6E] hover:text-[#35C98A] transition-colors"
               >
-                Start building →
+                {t("start")} <ForwardMark />
               </Link>
             </div>
           </div>

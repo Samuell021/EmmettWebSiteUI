@@ -2,86 +2,50 @@
 
 import { useState } from "react";
 import { motion } from "motion/react";
+import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 
 import type { HomeArticle } from "./home-data";
+import { ForwardMark } from "./forward-mark";
 
-const articleSlots = [
-  {
-    category: "AI / ML",
-    title: "Building production LLM pipelines without the hype",
-    author: "Ali Karimi",
-    date: "Aug 2026",
-    readTime: "14 min",
-    featured: true,
-    excerpt:
-      "A practical breakdown of how we designed and deployed a real-time document intelligence system — what worked, what failed, and what we learned building at scale.",
-  },
-  {
-    category: "Cybersecurity",
-    title: "Attack surface mapping at scale with graph theory",
-    author: "Sara Tehrani",
-    date: "Jul 2026",
-    readTime: "11 min",
-    featured: false,
-  },
-  {
-    category: "Systems",
-    title: "Distributed consensus: beyond Raft and Paxos",
-    author: "Reza Mohammadi",
-    date: "Jul 2026",
-    readTime: "18 min",
-    featured: false,
-  },
-  {
-    category: "Engineering",
-    title: "The cost of premature abstraction in Go microservices",
-    author: "Ali Karimi",
-    date: "Jun 2026",
-    readTime: "9 min",
-    featured: false,
-  },
-  {
-    category: "Bioinformatics",
-    title: "Sequence alignment algorithms for clinical genomics",
-    author: "Neda Hosseini",
-    date: "Jun 2026",
-    readTime: "22 min",
-    featured: false,
-  },
-];
+const categoryColors = ["#1FAE6E", "#4C9BE8", "#0B6B48", "#35C98A", "#7DD8B4"] as const;
 
-const categoryColors: Record<string, string> = {
-  "AI / ML": "#1FAE6E",
-  Cybersecurity: "#4C9BE8",
-  Systems: "#0B6B48",
-  Engineering: "#35C98A",
-  Bioinformatics: "#7DD8B4",
+type ArticleCopy = {
+  category: string;
+  title: string;
+  author: string;
+  date: string;
+  readTime: string;
+  excerpt?: string;
 };
+
+function initialsOf(name: string) {
+  const parts = name.trim().split(/\s+/).filter(Boolean);
+  return `${parts[0]?.[0] ?? ""}${parts[1]?.[0] ?? ""}`.toUpperCase();
+}
 
 export function LibrarySection({ articles: items }: { articles: HomeArticle[] | null }) {
   const [hovered, setHovered] = useState<number | null>(null);
-  const articles =
-    items === null
-      ? articleSlots.map((slot, index) => ({
-          ...slot,
-          excerpt: "excerpt" in slot ? slot.excerpt : "",
-          href: "/blog",
-          initials: index === 0 ? "AK" : "",
-        }))
-      : items.slice(0, articleSlots.length).map((item, index) => {
-          const slot = articleSlots[index]!;
-          return {
-            ...slot,
-            title: item.title,
-            excerpt: item.excerpt || ("excerpt" in slot ? slot.excerpt : ""),
-            author: item.author || slot.author,
-            date: item.date || slot.date,
-            readTime: item.readTime || slot.readTime,
-            href: item.href,
-            initials: item.initials || (index === 0 ? "AK" : ""),
-          };
-        });
+  const t = useTranslations("ui.library");
+  const copy = t.raw("slots") as ArticleCopy[];
+  const articles = copy
+    .map((slot, index) => {
+      const live = items?.[index];
+      if (items !== null && !live) return null;
+      const author = live?.author || slot.author;
+      return {
+        category: slot.category,
+        color: categoryColors[index] ?? "#1FAE6E",
+        title: live?.title || slot.title,
+        excerpt: live?.excerpt || slot.excerpt || "",
+        author,
+        date: live?.date || slot.date,
+        readTime: live?.readTime || slot.readTime,
+        href: live?.href || "/blog",
+        initials: live?.initials || initialsOf(author),
+      };
+    })
+    .filter((article) => article !== null);
   const featured = articles[0];
   const rest = articles.slice(1);
 
@@ -98,7 +62,7 @@ export function LibrarySection({ articles: items }: { articles: HomeArticle[] | 
           >
             <div className="w-6 h-px bg-[#1FAE6E]" />
             <span className="text-[10px] font-mono tracking-[0.22em] uppercase text-[#1FAE6E]">
-              Library · 04
+              {t("eyebrow")}
             </span>
           </motion.div>
           <motion.h2
@@ -108,7 +72,7 @@ export function LibrarySection({ articles: items }: { articles: HomeArticle[] | 
             transition={{ delay: 0.06 }}
             className="text-[clamp(2rem,4.5vw,3.5rem)] font-medium tracking-tight text-[#102A20] leading-tight max-w-3xl"
           >
-            What we&apos;re learning, building and thinking about.
+            {t("title")}
           </motion.h2>
         </div>
 
@@ -125,14 +89,14 @@ export function LibrarySection({ articles: items }: { articles: HomeArticle[] | 
                   <span
                     className="text-[10px] font-mono tracking-widest uppercase px-2 py-0.5 rounded"
                     style={{
-                      color: categoryColors[featured.category] || "#1FAE6E",
-                      background: `${categoryColors[featured.category] || "#1FAE6E"}15`,
+                      color: featured.color,
+                      background: `${featured.color}15`,
                     }}
                   >
                     {featured.category}
                   </span>
                   <span className="text-[10px] font-mono text-[rgba(16,42,32,0.3)] tracking-widest">
-                    Featured
+                    {t("featured")}
                   </span>
                 </div>
                 {/* Editorial serif title for featured */}
@@ -157,7 +121,7 @@ export function LibrarySection({ articles: items }: { articles: HomeArticle[] | 
                   </span>
                   <span className="text-[rgba(16,42,32,0.2)]">·</span>
                   <span className="text-xs font-mono text-[rgba(16,42,32,0.38)]">
-                    {featured.readTime} read
+                    {t("readSuffix", { time: featured.readTime })}
                   </span>
                 </div>
               </div>
@@ -205,7 +169,7 @@ export function LibrarySection({ articles: items }: { articles: HomeArticle[] | 
                   </svg>
                 </div>
                 <div className="absolute bottom-3 end-3 text-[9px] font-mono text-[rgba(16,42,32,0.3)] tracking-widest uppercase">
-                  LLM Throughput Analysis
+                  {t("caption")}
                 </div>
               </div>
             </div>
@@ -225,15 +189,15 @@ export function LibrarySection({ articles: items }: { articles: HomeArticle[] | 
               onMouseLeave={() => setHovered(null)}
               className="border-t border-[rgba(16,42,32,0.1)] py-5 group cursor-default transition-all duration-150"
               style={{
-                paddingLeft: hovered === i ? "12px" : "0",
-                borderLeft:
+                paddingInlineStart: hovered === i ? "12px" : "0",
+                borderInlineStart:
                   hovered === i ? "2px solid rgba(31,174,110,0.4)" : "2px solid transparent",
               }}
             >
               <div className="grid lg:grid-cols-[100px_1fr_200px_80px_80px] gap-4 items-center">
                 <span
                   className="text-[9px] font-mono tracking-widest uppercase"
-                  style={{ color: categoryColors[article.category] || "#1FAE6E" }}
+                  style={{ color: article.color }}
                 >
                   {article.category}
                 </span>
@@ -254,7 +218,7 @@ export function LibrarySection({ articles: items }: { articles: HomeArticle[] | 
                     className="text-sm text-[rgba(16,42,32,0.3)] group-hover:text-[#1FAE6E] transition-colors duration-150"
                     aria-hidden
                   >
-                    →
+                    <ForwardMark />
                   </span>
                 </div>
               </div>
@@ -263,14 +227,12 @@ export function LibrarySection({ articles: items }: { articles: HomeArticle[] | 
         </div>
 
         <div className="border-t border-[rgba(16,42,32,0.1)] pt-8 mt-0 flex items-center justify-between">
-          <span className="text-xs font-mono text-[rgba(16,42,32,0.35)]">
-            Engineering, AI, Security, Bioinformatics, Systems, Research
-          </span>
+          <span className="text-xs font-mono text-[rgba(16,42,32,0.35)]">{t("taxonomy")}</span>
           <Link
             href="/blog"
             className="text-sm font-mono text-[#1FAE6E] hover:text-[#35C98A] transition-colors"
           >
-            Open Library →
+            {t("open")} <ForwardMark />
           </Link>
         </div>
       </div>
