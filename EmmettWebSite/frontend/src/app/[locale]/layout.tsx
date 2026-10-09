@@ -7,8 +7,6 @@ import { connection } from "next/server";
 import { routing, localeDirections, type AppLocale } from "@/i18n/routing";
 import { JsonLd } from "@/components/seo/json-ld";
 import { ThemeProvider } from "@/components/providers/theme-provider";
-import { SiteHeader } from "@/components/organisms/site-header";
-import { SiteFooter } from "@/components/organisms/site-footer";
 import { getSeoSettingsOrDefaults } from "@/lib/api/seo";
 import { siteJsonLd } from "@/lib/seo/json-ld";
 import { buildPageMetadata } from "@/lib/seo/metadata";
@@ -93,7 +91,6 @@ export default async function LocaleLayout({
   const siteUrl = (process.env.PUBLIC_SITE_URL ?? getPublicSiteUrl()).replace(/\/+$/, "");
   const structuredData = siteJsonLd(settings, siteUrl, locale);
   const activeSansVariable = locale === "fa" ? "var(--font-fa)" : "var(--font-en)";
-  const tCommon = await getTranslations({ locale, namespace: "common" });
 
   return (
     <html
@@ -118,19 +115,7 @@ export default async function LocaleLayout({
       <body className="flex min-h-screen flex-col bg-background text-foreground">
         <JsonLd data={structuredData} />
         <NextIntlClientProvider>
-          <ThemeProvider>
-            <a
-              href="#main-content"
-              className="sr-only focus:not-sr-only focus:fixed focus:start-4 focus:top-4 focus:z-[100] focus:rounded-sm focus:bg-primary focus:px-4 focus:py-2 focus:text-primary-foreground"
-            >
-              {tCommon("skipToContent")}
-            </a>
-            <SiteHeader />
-            <main id="main-content" className="flex-1">
-              {children}
-            </main>
-            <SiteFooter />
-          </ThemeProvider>
+          <ThemeProvider>{children}</ThemeProvider>
         </NextIntlClientProvider>
       </body>
     </html>

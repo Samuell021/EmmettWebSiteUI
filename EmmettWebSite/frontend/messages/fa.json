@@ -28,7 +28,8 @@
     "search": "جستجو",
     "account": "حساب کاربری",
     "advisor": "مشاور ایده‌پرداز",
-    "estimate": "تخمین پروژه"
+    "estimate": "تخمین پروژه",
+    "startProject": "شروع یک پروژه"
   },
   "theme": {
     "toggleLabel": "تغییر پوستهٔ روشن/تاریک",

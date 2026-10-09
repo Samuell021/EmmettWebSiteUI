@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
+import { Rss } from "lucide-react";
 
 import { Link } from "@/i18n/navigation";
 import type { AppLocale } from "@/i18n/routing";
-import { Badge } from "@/components/ui/badge";
 import {
   Card,
   CardHeader,
@@ -11,12 +11,11 @@ import {
   CardDescription,
   CardMedia,
 } from "@/components/molecules/card";
-import { getCourses } from "@/lib/api/server";
+import { getBlogPosts } from "@/lib/api/server";
 import { getSeoSettingsOrDefaults } from "@/lib/api/seo";
 import { buildPageMetadata } from "@/lib/seo/metadata";
 import { getPublicSiteUrl, toAppLocale } from "@/lib/seo/site";
 import Image from "next/image";
-import { Rss } from "lucide-react";
 
 export async function generateMetadata({
   params,
@@ -24,40 +23,45 @@ export async function generateMetadata({
   params: Promise<{ locale: string }>;
 }): Promise<Metadata> {
   const { locale } = await params;
-  const t = await getTranslations({ locale, namespace: "academy" });
+  const t = await getTranslations({ locale, namespace: "blog" });
   const settings = await getSeoSettingsOrDefaults();
   return buildPageMetadata({
     locale: toAppLocale(locale),
-    path: "/academy",
+    path: "/blog",
     title: t("title"),
     description: t("description"),
     settings,
     siteUrl: getPublicSiteUrl(),
-    rssPath: "/academy/rss",
+    rssPath: "/blog/rss",
   });
 }
 
-export default async function AcademyPage({ params }: { params: Promise<{ locale: string }> }) {
+function formatDate(locale: string, iso: string | null) {
+  if (!iso) return null;
+  return new Intl.DateTimeFormat(locale === "fa" ? "fa-IR" : "en-US", {
+    dateStyle: "medium",
+  }).format(new Date(iso));
+}
+
+export default async function BlogPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
   setRequestLocale(locale as AppLocale);
-  const t = await getTranslations("academy");
+  const t = await getTranslations("blog");
 
-  const data = await getCourses(locale);
-  const courses = data?.results ?? [];
+  const data = await getBlogPosts(locale);
+  const posts = data?.results ?? [];
 
   return (
-    <div className="mx-auto max-w-(--breakpoint-xl) px-4 py-16 sm:px-6 lg:px-10">
-      <header className="flex flex-wrap items-start justify-between gap-4">
+    <div className="mx-auto max-w-(--container-site) px-4 py-16 sm:px-6 lg:px-10">
+      <header className="flex flex-wrap items-end justify-between gap-4">
         <div className="max-w-2xl">
           <h1 className="text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
             {t("title")}
           </h1>
           <p className="mt-3 text-base text-muted-foreground">{t("description")}</p>
         </div>
-        {/* مسیر فید یک Route Handler است (خروجی XML)؛ لینک ساده کافی است و
-            از ``<link rel="alternate">`` متادیتا هم کشف می‌شود. */}
         <a
-          href={locale === "fa" ? "/academy/rss" : "/en/academy/rss"}
+          href={locale === "fa" ? "/blog/rss" : "/en/blog/rss"}
           className="inline-flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
         >
           <Rss aria-hidden="true" className="size-4" />
@@ -65,17 +69,17 @@ export default async function AcademyPage({ params }: { params: Promise<{ locale
         </a>
       </header>
 
-      {courses.length === 0 ? (
+      {posts.length === 0 ? (
         <p className="mt-10 text-muted-foreground">{t("empty")}</p>
       ) : (
         <div className="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {courses.map((course) => (
-            <Link key={course.public_id} href={`/academy/${course.slug}`} className="block">
+          {posts.map((post) => (
+            <Link key={post.public_id} href={`/blog/${post.slug}`} className="block">
               <Card className="h-full overflow-hidden">
-                {course.cover_image_url ? (
+                {post.cover_image_url ? (
                   <CardMedia>
                     <Image
-                      src={course.cover_image_url}
+                      src={post.cover_image_url}
                       alt=""
                       fill
                       sizes="(max-width: 768px) 100vw, 33vw"
@@ -84,12 +88,14 @@ export default async function AcademyPage({ params }: { params: Promise<{ locale
                   </CardMedia>
                 ) : null}
                 <CardHeader>
-                  <div className="flex flex-wrap items-center gap-2">
-                    <Badge variant="technical">{t(`levels.${course.level}`)}</Badge>
-                    {course.is_featured ? <Badge variant="accent">★</Badge> : null}
-                  </div>
-                  <CardTitle>{course.title}</CardTitle>
-                  <CardDescription>{course.summary}</CardDescription>
+                  <p className="text-xs text-muted-foreground">
+                    {formatDate(locale, post.published_at)}
+                    {post.reading_time_minutes
+                      ? ` · ${t("readingTime", { minutes: post.reading_time_minutes })}`
+                      : ""}
+                  </p>
+                  <CardTitle>{post.title}</CardTitle>
+                  <CardDescription>{post.excerpt}</CardDescription>
                 </CardHeader>
               </Card>
             </Link>

@@ -12,7 +12,10 @@ test.describe("صفحهٔ اصلی و ناوبری", () => {
 
   test("هدر سایت لینک کتابخانه را به /blog می‌فرستد نه /library", async ({ page }) => {
     await page.goto("/");
-    const libraryLink = page.getByRole("link", { name: "کتابخانه" });
+    // در تجربهٔ پورت‌شدهٔ Home (فاز ۲) هم نوار ناوبری و هم فوتر لینک
+    // «کتابخانه» دارند؛ این تست قصد دارد لینکِ *هدر* را بسنجد، پس جست‌وجو را
+    // به عنصر <nav> (نوار بالای صفحه) محدود می‌کنیم.
+    const libraryLink = page.getByRole("navigation").getByRole("link", { name: "کتابخانه" });
     await expect(libraryLink).toHaveAttribute("href", "/blog");
   });
 

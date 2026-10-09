@@ -56,7 +56,7 @@ export default function DesignSystemPage() {
   const [nameValue, setNameValue] = useState("");
 
   return (
-    <div className="mx-auto flex max-w-(--breakpoint-xl) flex-col gap-16 px-4 py-16 sm:px-6 lg:px-10">
+    <div className="mx-auto flex max-w-(--container-site) flex-col gap-16 px-4 py-16 sm:px-6 lg:px-10">
       <header className="flex flex-col gap-3">
         <Breadcrumb items={[{ label: "Emmett", href: "/" }, { label: t("title") }]} />
         <h1 className="text-4xl font-medium tracking-tight">{t("title")}</h1>

@@ -177,13 +177,28 @@
   --duration-slow: 400ms;
   --ease-emmett-standard: cubic-bezier(0.16, 1, 0.3, 1);
 
-  /* بریک‌پوینت‌های برند (بخش B3 — جایگزین کامل مقیاس پیش‌فرض Tailwind) */
-  --breakpoint-xxs: 23.4375rem; /* 375px */
-  --breakpoint-xs: 24.375rem; /* 390px */
-  --breakpoint-sm: 48rem; /* 768px */
-  --breakpoint-md: 64rem; /* 1024px */
-  --breakpoint-lg: 80rem; /* 1280px */
-  --breakpoint-xl: 90rem; /* 1440px */
+  /*
+   * بریک‌پوینت‌های برند — فاز ۲ (پورت UI): `sm/md/lg/xl` به **پیش‌فرض Tailwind**
+   * برگشتند، چون بستهٔ UI با همان مقیاس نوشته شده است (sm=640، md=768، lg=1024،
+   * xl=1280، 2xl=1536). این تنها راه وفاداری کامل پورت است، چون media queryها
+   * در زمان build ثابت می‌شوند و قابل scope کردن نیستند (تصمیم ثبت‌شدهٔ مالک
+   * محصول در `docs/ui-port-ledger.md`، بخش «تصمیم‌های ثبت‌شده»).
+   * دو نقطهٔ ریز باقی‌مانده (`xxs`/`xs`) مخصوص برند و فقط در مسیرهای فعلی
+   * استفاده می‌شوند؛ بستهٔ UI هیچ‌گاه از آن‌ها استفاده نمی‌کند.
+   */
+  --breakpoint-xxs: 23.4375rem; /* 375px — برند (در UI استفاده نمی‌شود) */
+  --breakpoint-xs: 24.375rem; /* 390px — برند (در UI استفاده نمی‌شود) */
+  --breakpoint-sm: 40rem; /* 640px — پیش‌فرض Tailwind (مقیاس UI) */
+  --breakpoint-md: 48rem; /* 768px — پیش‌فرض Tailwind (مقیاس UI) */
+  --breakpoint-lg: 64rem; /* 1024px — پیش‌فرض Tailwind (مقیاس UI) */
+  --breakpoint-xl: 80rem; /* 1280px — پیش‌فرض Tailwind (مقیاس UI) */
+
+  /*
+   * عرض ظرف مسیرهای فعلی. قبلاً به `--breakpoint-xl` (آن‌وقت ۹۰rem) وصل بود.
+   * فاز ۲ مقدار xl را به ۸۰rem برگرداند تا پورت UI مو‌به‌مو باشد؛ این توکن جدا
+   * ماند تا measure صفحات فعلی در ۱۴۴۰+ باریک نشود (بازبینی عرض‌ها، دفترچهٔ پورت).
+   */
+  --container-site: 90rem;
 
   /* فونت‌ها — مقدار واقعی متغیر CSS در لایهٔ layout بسته به زبان ست می‌شود */
   --font-sans: var(--font-active-sans, ui-sans-serif, system-ui, sans-serif);

@@ -28,7 +28,8 @@
     "search": "Search",
     "account": "Account",
     "advisor": "Creative advisor",
-    "estimate": "Project estimate"
+    "estimate": "Project estimate",
+    "startProject": "Start a Project"
   },
   "theme": {
     "toggleLabel": "Toggle light/dark theme",

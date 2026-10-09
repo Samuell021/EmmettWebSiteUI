@@ -46,7 +46,7 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
   const testimonials = testimonialsData?.results ?? [];
 
   return (
-    <div className="mx-auto max-w-(--breakpoint-xl) px-4 py-16 sm:px-6 lg:px-10">
+    <div className="mx-auto max-w-(--container-site) px-4 py-16 sm:px-6 lg:px-10">
       <header className="max-w-2xl">
         <h1 className="text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
           {t("title")}
