@@ -224,7 +224,7 @@ export function Navbar() {
                 autoFocus
                 value={paletteQuery}
                 onChange={(e) => setPaletteQuery(e.target.value)}
-                placeholder="Search pages, products, commands…"
+                placeholder={palette("searchPlaceholder")}
                 className="flex-1 bg-transparent text-[#F3FAF6] font-mono text-sm placeholder:text-[rgba(243,250,246,0.2)] outline-none"
               />
               <kbd className="text-[10px] font-mono text-[rgba(243,250,246,0.2)] border border-[rgba(31,174,110,0.12)] rounded px-1.5 py-0.5">

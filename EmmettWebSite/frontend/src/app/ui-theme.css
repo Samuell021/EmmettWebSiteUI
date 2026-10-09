@@ -108,6 +108,7 @@ body:has(.ui-theme) {
 
 /* ===== توکن‌های طراحی UI (نقل کامل `:root` از UI/src/styles/theme.css) ===== */
 .ui-theme {
+  color-scheme: dark;
   --font-size: 16px;
 
   /* Emmett Group — Emerald Engineering Color System */
@@ -252,4 +253,11 @@ body:has(.ui-theme) {
 /* کارت‌های صفحات داخلی: هاور زمردی، بدون تغییر کارت‌های اختصاصی خانه. */
 .ui-theme a:hover [data-slot="card"] {
   border-color: rgba(31, 174, 110, 0.45);
+}
+
+/* فهرست باز <select> در بعضی مرورگرها پس‌زمینهٔ روشن می‌گیرد. */
+.ui-theme select option,
+.ui-theme select optgroup {
+  background-color: #102a20;
+  color: #f3faf6;
 }

@@ -190,8 +190,8 @@ Home، ناوبری، پاورقی، لودر و ComingSoon از `messages/fa.js
 `/advisor`، `/estimate`، `/search`، `/profile`. برچسب‌ها همان متن موجود `nav` هستند.
 
 `UI/` به `archive/UI/` منتقل شد. `EmmettWebSite/legacy-frontend-reference/` حذف شد.
-بک‌اند تغییر نکرد. اسکریپت دستی `backend/scripts/generate_brand_assets.py` هنوز به
-مسیر حذف‌شده اشاره می‌کند و اجرا نشد.
+اسکریپت دستی `backend/scripts/generate_brand_assets.py` تصویر مرجع را از
+`archive/UI/src/imports/____.jpg` می‌خواند؛ همان فایل است و خروجی برند عوض نشده.
 
 ## موارد باز (برای فازهای بعد)
 
