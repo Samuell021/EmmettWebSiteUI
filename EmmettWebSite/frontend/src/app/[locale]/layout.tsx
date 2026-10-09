@@ -6,7 +6,6 @@ import { connection } from "next/server";
 
 import { routing, localeDirections, type AppLocale } from "@/i18n/routing";
 import { JsonLd } from "@/components/seo/json-ld";
-import { ThemeProvider } from "@/components/providers/theme-provider";
 import { getSeoSettingsOrDefaults } from "@/lib/api/seo";
 import { siteJsonLd } from "@/lib/seo/json-ld";
 import { buildPageMetadata } from "@/lib/seo/metadata";
@@ -96,7 +95,6 @@ export default async function LocaleLayout({
     <html
       lang={locale}
       dir={direction}
-      suppressHydrationWarning
       className="antialiased"
       style={{ "--font-active-sans": activeSansVariable } as React.CSSProperties}
     >
@@ -114,9 +112,7 @@ export default async function LocaleLayout({
       </head>
       <body className="flex min-h-screen flex-col bg-background text-foreground">
         <JsonLd data={structuredData} />
-        <NextIntlClientProvider>
-          <ThemeProvider>{children}</ThemeProvider>
-        </NextIntlClientProvider>
+        <NextIntlClientProvider>{children}</NextIntlClientProvider>
       </body>
     </html>
   );

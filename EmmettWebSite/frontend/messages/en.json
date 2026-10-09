@@ -33,12 +33,7 @@
     "estimate": "Project estimate",
     "startProject": "Start a Project"
   },
-  "theme": {
-    "toggleLabel": "Toggle light/dark theme",
-    "light": "Light",
-    "dark": "Dark",
-    "system": "System"
-  },
+
   "locale": {
     "switchLabel": "Switch language",
     "fa": "فارسی",

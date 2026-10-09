@@ -33,12 +33,7 @@
     "estimate": "تخمین پروژه",
     "startProject": "شروع یک پروژه"
   },
-  "theme": {
-    "toggleLabel": "تغییر پوستهٔ روشن/تاریک",
-    "light": "روشن",
-    "dark": "تاریک",
-    "system": "سیستم"
-  },
+
   "locale": {
     "switchLabel": "تغییر زبان",
     "fa": "فارسی",

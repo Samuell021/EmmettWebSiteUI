@@ -7,7 +7,6 @@ import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { Button } from "@/components/ui/button";
 import { LocaleSwitcher } from "@/components/molecules/locale-switcher";
-import { ThemeToggle } from "@/components/molecules/theme-toggle";
 import { cn } from "@/lib/utils";
 
 const NAV_ITEMS = [
@@ -36,7 +35,7 @@ const NAV_HREF_OVERRIDES: Partial<Record<(typeof NAV_ITEMS)[number], string>> = 
  *
  * نوار دسکتاپ از 90rem (۱۴۴۰px) دیده می‌شود. کامنت قدیمی «زیر ۱۰۲۴px» را
  * می‌گفت چون `md` آن‌وقت ۱۰۲۴px بود؛ اندازه‌گیری برچسب‌های fa (۹ لینک + لوگو
- * + جستجو/حساب/زبان/تم/CTA، وزن ۷۰۰ به‌عنوان سقف) ردیف را حدود ۱۲۳۸px نشان
+ * + جستجو/حساب/زبان/CTA، وزن ۷۰۰ به‌عنوان سقف) ردیف را حدود ۱۲۳۸px نشان
  * داد. با padding مربوط به `lg` فقط ظرف ۹۰rem جا می‌شود. زیر این عرض منوی
  * همبرگری می‌ماند تا سرریز افقی پیش نیاید (بازبینی عرض‌های فاز ۲).
  */
@@ -95,7 +94,6 @@ export function SiteHeader() {
             <User aria-hidden="true" className="size-4" />
           </Link>
           <LocaleSwitcher />
-          <ThemeToggle />
           <Button asChild size="sm">
             <Link href="/contact">{tCommon("startProject")}</Link>
           </Button>
@@ -131,7 +129,6 @@ export function SiteHeader() {
           ))}
           <div className="mt-2 flex items-center justify-between gap-2 border-t border-border pt-3">
             <LocaleSwitcher />
-            <ThemeToggle />
           </div>
         </nav>
       ) : null}

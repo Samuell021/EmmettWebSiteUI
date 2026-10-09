@@ -15,8 +15,7 @@ import { UiMotion } from "@/components/ui-port/ui-motion";
  *   </motion.div>
  *
  * تفاوت‌های عامدانه و دلیل هرکدام:
- *  ۱) `ui-theme` روی پوشش بیرونی: توکن‌های UI هنوز زیر این کلاس هستند (ارتقای
- *     `:root` فاز ۷ است). از فاز ۵ همهٔ صفحات locale داخل همین پوسته هستند.
+ *  ۱) توکن‌های UI روی `:root` هستند (فاز ۷). پوشش `ui-theme` برداشته شده.
  *  ۲) محتوای صفحه همیشه رندر می‌شود (در UI تا پایان لودر رندر نمی‌شد)؛ اما
  *     لودر تمام‌صفحه و مات است، پس تجربهٔ بصری کاربر یکی است و در عوض صفحه
  *     برای موتور جست‌وجو/بدون‌JS محتوا دارد.
@@ -25,7 +24,7 @@ import { UiMotion } from "@/components/ui-port/ui-motion";
  *  ۴) لینک «پرش به محتوا» (Skip link) افزوده شده — نامرئی است مگر با
  *     کیبورد، و معیار دسترس‌پذیری پروژه (Lighthouse a11y) است.
  *  ۵) `UiMotion` فقط انیمیشن‌های `motion` همین پوسته را به
- *     `prefers-reduced-motion` وصل می‌کند. توکن‌ها و ThemeToggle فاز ۷ هستند.
+ *     `prefers-reduced-motion` وصل می‌کند.
  */
 export default async function UiLayout({
   children,
@@ -45,15 +44,13 @@ export default async function UiLayout({
       >
         {tCommon("skipToContent")}
       </a>
-      <div className="ui-theme">
-        <UiMotion>
-          <Loader />
-          <div className="ui-shell min-h-screen overflow-x-hidden bg-[#0B1F18] text-foreground">
-            <Navbar />
-            <main id="main-content">{children}</main>
-          </div>
-        </UiMotion>
-      </div>
+      <UiMotion>
+        <Loader />
+        <div className="ui-shell min-h-screen overflow-x-hidden bg-[#0B1F18] text-foreground">
+          <Navbar />
+          <main id="main-content">{children}</main>
+        </div>
+      </UiMotion>
     </>
   );
 }
