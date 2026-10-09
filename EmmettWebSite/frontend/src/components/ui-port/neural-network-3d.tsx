@@ -3,6 +3,8 @@
 import { useEffect, useRef } from "react";
 import * as THREE from "three";
 
+import { prefersReducedMotion } from "./reduced-motion";
+
 export function NeuralNetwork3D() {
   const mountRef = useRef<HTMLDivElement>(null);
 
@@ -23,7 +25,9 @@ export function NeuralNetwork3D() {
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.setSize(mount.clientWidth, mount.clientHeight);
     renderer.setClearColor(0x000000, 0);
+    renderer.domElement.setAttribute("aria-hidden", "true");
     mount.appendChild(renderer.domElement);
+    const reduced = prefersReducedMotion();
 
     // Particles — emerald nodes
     const count = 420;
@@ -126,21 +130,22 @@ export function NeuralNetwork3D() {
       mouseX = (e.clientX / window.innerWidth - 0.5) * 2;
       mouseY = (e.clientY / window.innerHeight - 0.5) * 2;
     };
-    window.addEventListener("mousemove", onMouseMove);
+    if (!reduced) window.addEventListener("mousemove", onMouseMove);
 
     const onResize = () => {
       if (!mount) return;
       camera.aspect = mount.clientWidth / mount.clientHeight;
       camera.updateProjectionMatrix();
       renderer.setSize(mount.clientWidth, mount.clientHeight);
+      if (reduced) renderer.render(scene, camera);
     };
     window.addEventListener("resize", onResize);
 
-    let frameId: number;
+    let frameId = 0;
     const startTime = performance.now();
     const animate = () => {
-      frameId = requestAnimationFrame(animate);
-      const elapsed = (performance.now() - startTime) / 1000;
+      if (!reduced) frameId = requestAnimationFrame(animate);
+      const elapsed = reduced ? 0 : (performance.now() - startTime) / 1000;
       particles.rotation.y = elapsed * 0.045 + mouseX * 0.25;
       particles.rotation.x = Math.sin(elapsed * 0.025) * 0.18 + mouseY * 0.18;
       lines.rotation.y = particles.rotation.y;
@@ -160,5 +165,5 @@ export function NeuralNetwork3D() {
     };
   }, []);
 
-  return <div ref={mountRef} className="w-full h-full" />;
+  return <div ref={mountRef} aria-hidden className="w-full h-full" />;
 }

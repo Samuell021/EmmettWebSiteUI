@@ -6,6 +6,7 @@ import { useState, useEffect, useCallback } from "react";
 import { Link, usePathname, useRouter } from "@/i18n/navigation";
 import { Menu, X, Terminal, ChevronRight, Search } from "lucide-react";
 
+import { useDialogA11y } from "./dialog-a11y";
 import { UiLocaleSwitch } from "./locale-switch";
 
 /**
@@ -40,6 +41,10 @@ export function Navbar() {
   const paletteItems = palette.raw("palette") as PaletteItem[];
   const router = useRouter();
   const pathname = usePathname();
+  const closeMenu = useCallback(() => setIsOpen(false), []);
+  const closePalette = useCallback(() => setPaletteOpen(false), []);
+  const menuRef = useDialogA11y(isOpen, closeMenu);
+  const paletteRef = useDialogA11y(paletteOpen, closePalette);
 
   /**
    * معادل `isActive` در `NavLink` بستهٔ UI (تطبیق مسیر دقیق یا زیرمسیر آن؛
@@ -63,6 +68,7 @@ export function Navbar() {
   const handleKeyDown = useCallback((e: KeyboardEvent) => {
     if ((e.metaKey || e.ctrlKey) && e.key === "k") {
       e.preventDefault();
+      setIsOpen(false);
       setPaletteOpen((v) => !v);
     }
     if (e.key === "Escape") {
@@ -87,6 +93,7 @@ export function Navbar() {
   return (
     <>
       <motion.nav
+        aria-label={t("landmark")}
         initial={{ y: -100, opacity: 0 }}
         animate={{ y: hidden ? -100 : 0, opacity: 1 }}
         transition={{ duration: 0.28, ease: "easeInOut" }}
@@ -135,8 +142,28 @@ export function Navbar() {
             <UiLocaleSwitch />
 
             <button
-              onClick={() => setPaletteOpen(true)}
+              type="button"
+              onClick={() => {
+                setIsOpen(false);
+                setPaletteOpen(true);
+              }}
+              className="sr-only focus:not-sr-only focus:fixed focus:start-4 focus:top-16 focus:z-[60] focus:rounded-md focus:border focus:border-[rgba(31,174,110,0.25)] focus:bg-[#0B1F18] focus:px-3 focus:py-1.5 focus:font-mono focus:text-xs md:hidden"
+              aria-label={t("search")}
+              aria-expanded={paletteOpen}
+              aria-controls="command-palette"
+            >
+              {t("search")}
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setIsOpen(false);
+                setPaletteOpen(true);
+              }}
               className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-md border border-[rgba(31,174,110,0.12)] bg-[rgba(31,174,110,0.03)] text-[rgba(243,250,246,0.28)] text-xs font-mono hover:border-[rgba(31,174,110,0.25)] hover:text-[rgba(243,250,246,0.55)] transition-all"
+              aria-label={t("search")}
+              aria-expanded={paletteOpen}
+              aria-controls="command-palette"
             >
               <Terminal className="w-3 h-3" />
               <span>⌘K</span>
@@ -150,9 +177,15 @@ export function Navbar() {
             </Link>
 
             <button
-              onClick={() => setIsOpen(!isOpen)}
+              type="button"
+              onClick={() => {
+                setPaletteOpen(false);
+                setIsOpen(!isOpen);
+              }}
               className="lg:hidden p-2 rounded-lg border border-[rgba(31,174,110,0.12)] bg-[rgba(31,174,110,0.03)]"
               aria-label={isOpen ? palette("closeMenu") : palette("openMenu")}
+              aria-expanded={isOpen}
+              aria-controls="mobile-nav"
             >
               {isOpen ? (
                 <X className="w-5 h-5 text-[rgba(243,250,246,0.6)]" />
@@ -167,6 +200,11 @@ export function Navbar() {
       {/* Mobile drawer */}
       {isOpen && (
         <motion.div
+          ref={menuRef}
+          id="mobile-nav"
+          role="dialog"
+          aria-modal="true"
+          aria-label={t("menu")}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
@@ -211,6 +249,11 @@ export function Navbar() {
         >
           <div className="absolute inset-0 bg-[#07130F]/75 backdrop-blur-sm" />
           <motion.div
+            ref={paletteRef}
+            id="command-palette"
+            role="dialog"
+            aria-modal="true"
+            aria-label={t("search")}
             initial={{ scale: 0.96, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             transition={{ duration: 0.18 }}
@@ -219,12 +262,13 @@ export function Navbar() {
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center gap-3 px-4 py-4 border-b border-[rgba(31,174,110,0.1)]">
-              <Search className="w-4 h-4 text-[rgba(243,250,246,0.3)] flex-shrink-0" />
+              <Search className="w-4 h-4 text-[rgba(243,250,246,0.3)] flex-shrink-0" aria-hidden />
               <input
                 autoFocus
                 value={paletteQuery}
                 onChange={(e) => setPaletteQuery(e.target.value)}
                 placeholder={palette("searchPlaceholder")}
+                aria-label={palette("searchPlaceholder")}
                 className="flex-1 bg-transparent text-[#F3FAF6] font-mono text-sm placeholder:text-[rgba(243,250,246,0.2)] outline-none"
               />
               <kbd className="text-[10px] font-mono text-[rgba(243,250,246,0.2)] border border-[rgba(31,174,110,0.12)] rounded px-1.5 py-0.5">
@@ -241,6 +285,7 @@ export function Navbar() {
                 filtered.map((item, i) => (
                   <button
                     key={i}
+                    type="button"
                     onClick={() => {
                       router.push(item.href);
                       setPaletteOpen(false);

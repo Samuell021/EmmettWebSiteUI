@@ -6,6 +6,8 @@ import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { ArrowRight } from "lucide-react";
 
+import { prefersReducedMotion } from "./reduced-motion";
+
 function SubtleNetwork() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -15,11 +17,14 @@ function SubtleNetwork() {
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
-    let frameId: number;
+    let frameId = 0;
+    const reduced = prefersReducedMotion();
+    let draw = () => {};
 
     const resize = () => {
       canvas.width = canvas.offsetWidth;
       canvas.height = canvas.offsetHeight;
+      if (reduced) draw();
     };
     resize();
     window.addEventListener("resize", resize);
@@ -32,7 +37,7 @@ function SubtleNetwork() {
       vy: (Math.random() - 0.5) * 0.25,
     }));
 
-    const draw = () => {
+    draw = () => {
       if (!canvas || !ctx) return;
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -69,7 +74,7 @@ function SubtleNetwork() {
         ctx.fill();
       }
 
-      frameId = requestAnimationFrame(draw);
+      if (!reduced) frameId = requestAnimationFrame(draw);
     };
     draw();
 
@@ -149,7 +154,7 @@ export function ContactSection() {
             className="group inline-flex items-center gap-3 px-8 py-4 bg-[#1FAE6E] text-[#07130F] rounded-lg font-semibold hover:bg-[#35C98A] transition-all duration-150"
           >
             {t("start")}
-            <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+            <ArrowRight className="w-4 h-4 rtl:-scale-x-100 group-hover:translate-x-0.5 rtl:group-hover:-translate-x-0.5 transition-transform" />
           </Link>
           <Link
             href="/projects"

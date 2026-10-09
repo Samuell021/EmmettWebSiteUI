@@ -44,6 +44,7 @@ export function Loader() {
           initial={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.4 }}
+          aria-hidden
           className="ui-loader fixed inset-0 z-50 flex items-center justify-center"
           style={{ background: "#07130F" }}
         >

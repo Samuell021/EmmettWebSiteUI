@@ -25,7 +25,7 @@
 | ۳   | اتصال داده به APIهای موجود (services/products/projects/blog/academy) | ✅ همین PR |
 | ۴   | دوزبانگی پوستهٔ UI: پیام‌های fa/en، RTL، و `Accept-Language`         | ✅ همین PR |
 | ۵   | بازطراحی مسیرهای داخلی با ظاهر UI، بایگانی `UI/`، حذف مرجع قدیمی     | ✅ همین PR |
-| ۶   | SEO دوزبانه، RTL، a11y و `prefers-reduced-motion`                    | —          |
+| ۶   | SEO دوزبانه، RTL، a11y و `prefers-reduced-motion`                    | ✅ همین PR |
 | ۷   | ارتقای توکن‌ها از `ui-theme` به `:root` و حذف ThemeToggle            | —          |
 | ۸   | E2E/Lighthouse/CI + ثبت ADR                                          | —          |
 
@@ -192,6 +192,20 @@ Home، ناوبری، پاورقی، لودر و ComingSoon از `messages/fa.js
 `UI/` به `archive/UI/` منتقل شد. `EmmettWebSite/legacy-frontend-reference/` حذف شد.
 اسکریپت دستی `backend/scripts/generate_brand_assets.py` تصویر مرجع را از
 `archive/UI/src/imports/____.jpg` می‌خواند؛ همان فایل است و خروجی برند عوض نشده.
+
+## فاز ۶ — تأیید پوسته: سئو، RTL، دسترس‌پذیری، کاهش حرکت
+
+پوستهٔ پورت‌شده از قبل `lang`/`dir`، لینک پرش، `main`، متادیتای مسیرهای داخلی و قاعدهٔ
+سراسری CSS برای `prefers-reduced-motion` را داشت. این فاز فقط شکاف‌های همان پوسته را
+بست؛ بک‌اند، توکن‌ها، ThemeToggle، عرض‌ها و اتصال ⌘K به API جست‌وجو دست نخورده‌اند.
+
+- `/products/crm` و `/products/pentestor` دیگر canonical صفحهٔ خانه را به ارث نمی‌برند.
+  عنوان و توضیح از `ui.comingSoon` و بقیهٔ متادیتا از `buildPageMetadata` می‌آید.
+- فلش تماس در RTL برمی‌گردد. نشانگر اسکرول هیرو با `left-1/2` در هر دو جهت وسط می‌ماند.
+- نوار برچسب landmark دارد. پالت و کشوی موبایل `dialog` هستند: نام، `aria-modal`،
+  قفل فوکوس، Escape و بازگرداندن فوکوس. دکمهٔ جست‌وجوی موبایل فقط هنگام فوکوس دیده می‌شود.
+- `MotionConfig reducedMotion="user"` فقط دور پوستهٔ UI است. سه حلقهٔ canvas اگر کاهش
+  حرکت خواسته شده باشد یک فریم می‌کشند و تکرار نمی‌شوند.
 
 ## موارد باز (برای فازهای بعد)
 

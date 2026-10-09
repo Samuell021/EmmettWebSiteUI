@@ -14,6 +14,7 @@ export function ComingSoon({ page, subtitle }: { page: string; subtitle: string 
     >
       {/* Subtle emerald grid */}
       <div
+        aria-hidden
         className="absolute inset-0 opacity-40"
         style={{
           backgroundImage:

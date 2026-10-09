@@ -2,6 +2,7 @@ import { getTranslations } from "next-intl/server";
 
 import { Loader } from "@/components/ui-port/loader";
 import { Navbar } from "@/components/ui-port/navbar";
+import { UiMotion } from "@/components/ui-port/ui-motion";
 
 /**
  * پوستهٔ گروه مسیر `(ui)` — پورت ۱:۱ بستهٔ طراحی UI به Next.js.
@@ -23,6 +24,8 @@ import { Navbar } from "@/components/ui-port/navbar";
  *     انیمیشن CSS (`.ui-shell`) پیاده شده تا با JS غیرفعال هم صفحه دیده شود.
  *  ۴) لینک «پرش به محتوا» (Skip link) افزوده شده — نامرئی است مگر با
  *     کیبورد، و معیار دسترس‌پذیری پروژه (Lighthouse a11y) است.
+ *  ۵) `UiMotion` فقط انیمیشن‌های `motion` همین پوسته را به
+ *     `prefers-reduced-motion` وصل می‌کند. توکن‌ها و ThemeToggle فاز ۷ هستند.
  */
 export default async function UiLayout({
   children,
@@ -43,11 +46,13 @@ export default async function UiLayout({
         {tCommon("skipToContent")}
       </a>
       <div className="ui-theme">
-        <Loader />
-        <div className="ui-shell min-h-screen bg-[#0B1F18] text-foreground overflow-x-hidden">
-          <Navbar />
-          <main id="main-content">{children}</main>
-        </div>
+        <UiMotion>
+          <Loader />
+          <div className="ui-shell min-h-screen overflow-x-hidden bg-[#0B1F18] text-foreground">
+            <Navbar />
+            <main id="main-content">{children}</main>
+          </div>
+        </UiMotion>
       </div>
     </>
   );

@@ -5,6 +5,8 @@ import { Github, Linkedin, Twitter } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 
+import { prefersReducedMotion } from "./reduced-motion";
+
 function EmeraldStarfield() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -14,11 +16,14 @@ function EmeraldStarfield() {
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
-    let frameId: number;
+    let frameId = 0;
+    const reduced = prefersReducedMotion();
+    let draw = () => {};
 
     const resize = () => {
       canvas.width = canvas.offsetWidth;
       canvas.height = canvas.offsetHeight;
+      if (reduced) draw();
     };
     resize();
     window.addEventListener("resize", resize);
@@ -36,7 +41,7 @@ function EmeraldStarfield() {
       null;
     let nextShoot = 22 + Math.random() * 14;
 
-    const draw = () => {
+    draw = () => {
       if (!canvas || !ctx) return;
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -75,7 +80,7 @@ function EmeraldStarfield() {
         if (shootingStar.opacity <= 0) shootingStar = null;
       }
 
-      frameId = requestAnimationFrame(draw);
+      if (!reduced) frameId = requestAnimationFrame(draw);
     };
     draw();
 
