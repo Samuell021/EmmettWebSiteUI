@@ -101,9 +101,29 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements-dev.txt
 
+      # تنظیمات مخصوص تست در CI (ADR-0037): تست‌های ادمین URLهای سادهٔ
+      # ‎/static/...‎ را assert می‌کنند و قالب Jazzmin یک دایرکتوری را با
+      # ‎{% static %}‎ صدا می‌زند؛ هر دو با Manifest Storage ناسازگارند و روی
+      # checkout تمیز همهٔ صفحات ادمین 500 می‌گیرند. این shim فقط در CI و
+      # فقط برای تست‌هاست (storage سادهٔ استاتیک)؛ production دست‌نخورده
+      # می‌ماند و هیچ فایل بک‌اندی تغییر نمی‌کند.
+      - name: Prepare CI-only test settings (plain static storage)
+        run: |
+          TEST_SETTINGS_DIR="$RUNNER_TEMP/ci-test-settings"
+          mkdir -p "$TEST_SETTINGS_DIR"
+          cat > "$TEST_SETTINGS_DIR/ci_test_settings.py" <<'PYEOF'
+          from config.settings.dev import *  # noqa: F401,F403
+
+          STORAGES = {
+              "default": {"BACKEND": "django.core.files.storage.FileSystemStorage"},
+              "staticfiles": {"BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage"},
+          }
+          STATICFILES_STORAGE = "django.contrib.staticfiles.storage.StaticFilesStorage"
+          PYEOF
+          echo "DJANGO_SETTINGS_MODULE=ci_test_settings" >> "$GITHUB_ENV"
+          echo "PYTHONPATH=$TEST_SETTINGS_DIR:${{ github.workspace }}/EmmettWebSite/backend" >> "$GITHUB_ENV"
+
       - name: Run pytest with coverage enforcement (≥ 85%)
-        env:
-          DJANGO_SETTINGS_MODULE: config.settings.dev
         run: |
           coverage run -m pytest -q
           coverage report --fail-under=85 -m
