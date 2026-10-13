@@ -552,13 +552,18 @@ jobs:
                       continue
                   audits = report.get("audits", {})
                   url = entry.get("url", "?")
-                  for audit_id in ("color-contrast", "heading-order", "label-content-name-mismatch", "bf-cache"):
+                  for audit_id, limit in (
+                      ("color-contrast", 5),
+                      ("heading-order", 2),
+                      ("label-content-name-mismatch", 2),
+                      ("bf-cache", 2),
+                  ):
                       if emitted >= 10:
                           break
                       audit = audits.get(audit_id, {})
                       if audit.get("score") in (None, 1):
                           continue
-                      for item in audit.get("details", {}).get("items", [])[:2]:
+                      for item in audit.get("details", {}).get("items", [])[:limit]:
                           if emitted >= 10:
                               break
                           node = item.get("node", {}) if isinstance(item, dict) else {}

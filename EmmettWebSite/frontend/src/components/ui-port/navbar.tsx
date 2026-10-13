@@ -161,7 +161,9 @@ export function Navbar() {
                 setPaletteOpen(true);
               }}
               className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-md border border-[rgba(31,174,110,0.12)] bg-[rgba(31,174,110,0.03)] text-[rgba(243,250,246,0.28)] text-xs font-mono hover:border-[rgba(31,174,110,0.25)] hover:text-[rgba(243,250,246,0.55)] transition-all"
-              aria-label={t("search")}
+              // نام دسترس‌پذیر باید متن قابل‌مشاهده (⌘K) را دربرگیرد
+              // (Lighthouse: label-content-name-mismatch).
+              aria-label={`${t("search")} ⌘K`}
               aria-expanded={paletteOpen}
               aria-controls="command-palette"
             >

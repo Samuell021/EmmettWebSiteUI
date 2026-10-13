@@ -305,12 +305,14 @@ export function AcademySection({ courses }: { courses: HomeCourse[] | null }) {
                         className="w-1.5 h-1.5 rounded-full"
                         style={{ background: path.color }}
                       />
-                      <h4
+                      {/* h3: عنوان کارت مستقیم زیر h2 بخش می‌آید؛ h4 ترتیب
+                          سرفصل‌ها را می‌شکست (Lighthouse: heading-order). */}
+                      <h3
                         className="text-sm font-semibold transition-colors duration-150"
                         style={{ color: activePathId === path.id ? path.color : "#F3FAF6" }}
                       >
                         <Link href={path.href}>{path.name}</Link>
-                      </h4>
+                      </h3>
                     </div>
                     <p className="text-xs font-mono text-[rgba(243,250,246,0.35)] ms-3.5">
                       {path.level}
