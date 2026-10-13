@@ -383,8 +383,12 @@ jobs:
           import glob
 
           for index, path in enumerate(sorted(glob.glob("test-results/**/error-context.md", recursive=True))[:10], 1):
-              lines = [line.rstrip() for line in open(path, encoding="utf-8", errors="ignore") if line.strip()]
-              body = "\n".join([path, *lines[:45]])[:3500]
+              text = open(path, encoding="utf-8", errors="ignore").read()
+              yaml_text = text.split("```yaml", 1)[-1]
+              lines = [line.rstrip() for line in yaml_text.splitlines() if line.strip()]
+              main_at = next((i for i, line in enumerate(lines) if line.startswith("- main:")), 0)
+              lines = lines[main_at:] if main_at else lines
+              body = "\n".join([path, *lines[:80]])[:3800]
               escaped = body.replace("%", "%25").replace("\r", "%0D").replace("\n", "%0A")
               print(f"::error title=playwright-context-{index}::{escaped}")
           PYEOF
@@ -397,23 +401,23 @@ jobs:
           python3 - <<'PYEOF'
           import json
 
-          emitted = 0
+          from collections import Counter
+
+          counts: Counter = Counter()
           try:
               raw_lines = open("/tmp/django-e2e.log", encoding="utf-8", errors="ignore").read().splitlines()
           except FileNotFoundError:
               raw_lines = []
           for raw in raw_lines:
-              if emitted >= 10:
-                  break
               try:
                   entry = json.loads(raw)
               except (ValueError, TypeError):
                   continue
               code = entry.get("code")
               if isinstance(code, int) and code >= 400:
-                  body = f"{entry.get('request')} -> {code}"
-                  print(f"::error title=backend-api-error::{body}")
-                  emitted += 1
+                  counts[(entry.get("request"), code)] += 1
+          for (request, code), total in counts.most_common(10):
+              print(f"::error title=backend-api-error::{request} -> {code} x{total}")
           PYEOF
 
       - name: Upload Playwright diagnostics (report, traces & responsive screenshots)
