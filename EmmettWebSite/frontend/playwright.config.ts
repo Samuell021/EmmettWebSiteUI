@@ -48,17 +48,22 @@ export default defineConfig({
   projects: [
     {
       name: "fa",
-      use: { ...devices["Desktop Chrome"], baseURL: "http://127.0.0.1:3000" },
+      // locale مرورگر باید fa باشد: next-intl بر اساس Accept-Language زبان
+      // را تشخیص می‌دهد و بدون این گزینه (پیش‌فرض en-US مرورگر CI) همهٔ
+      // مسیرهای بدون پیشوند به /en ریدایرکت می‌شوند و تست‌های فارسی خالی
+      // برمی‌گردند. این همان قرارداد دو پروژهٔ ADR-0023 است که در کانفیگ
+      // اولیه جا افتاده بود و فقط با اجرای واقعی CI دیده شد (ADR-0037).
+      use: { ...devices["Desktop Chrome"], baseURL: "http://127.0.0.1:3000", locale: "fa-IR" },
       testIgnore: /locale\.spec\.ts/,
     },
     {
       name: "fa-locale",
-      use: { ...devices["Desktop Chrome"], baseURL: "http://127.0.0.1:3000" },
+      use: { ...devices["Desktop Chrome"], baseURL: "http://127.0.0.1:3000", locale: "fa-IR" },
       testMatch: /locale\.spec\.ts/,
     },
     {
       name: "en",
-      use: { ...devices["Desktop Chrome"], baseURL: "http://127.0.0.1:3000/en/" },
+      use: { ...devices["Desktop Chrome"], baseURL: "http://127.0.0.1:3000/en/", locale: "en-US" },
       testMatch: /locale\.spec\.ts/,
     },
   ],
