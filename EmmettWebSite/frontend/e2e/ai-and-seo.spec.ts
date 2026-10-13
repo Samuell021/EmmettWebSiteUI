@@ -31,7 +31,7 @@ test.describe("مشاور ایده‌پرداز و تخمین‌گر هوشمن�
     await expect(page.getByRole("heading", { level: 2, name: "برآورد اولیهٔ زمان" })).toBeVisible({
       timeout: 10_000,
     });
-    await expect(page.getByText(/حداقل زمان خوش‌بینانه/)).toBeVisible();
+    await expect(page.getByText(/حداقل زمان خوش‌بینانه: .*روز کاری/)).toBeVisible();
   });
 });
 
