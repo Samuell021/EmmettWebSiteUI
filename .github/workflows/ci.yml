@@ -490,6 +490,26 @@ jobs:
                       if isinstance(score, (int, float)) and score < 0.95 and emitted < 10:
                           print(f"::error title=lighthouse-score::{url} {category}={score:.2f} (< 0.95)")
                           emitted += 1
+                  # auditهای مشخصِ failشده در همان گزارش نماینده، تا اصلاح
+                  # هدفمند باشد نه حدسی.
+                  try:
+                      report = json.load(open(entry["jsonPath"], encoding="utf-8"))
+                  except (KeyError, ValueError, OSError):
+                      continue
+                  audits = report.get("audits", {})
+                  for category_id in ("accessibility", "performance"):
+                      category = report.get("categories", {}).get(category_id, {})
+                      for ref in category.get("auditRefs", []):
+                          if emitted >= 10:
+                              break
+                          audit = audits.get(ref.get("id"), {})
+                          score = audit.get("score")
+                          if score is not None and score < 1 and audit.get("scoreDisplayMode") in ("binary", "numeric"):
+                              detail = audit.get("displayValue", "")
+                              print(
+                                  f"::error title=lighthouse-audit::{url} {category_id}/{ref.get('id')}={score} {detail}".strip()
+                              )
+                              emitted += 1
           if emitted == 0:
               # امتیاز زیر آستانه‌ای در manifest نیست؛ پس شکست زیرساختی است و
               # خطوط معنادار لاگ LHCI را منتشر می‌کنیم.
