@@ -113,7 +113,7 @@ export function Hero() {
               {stats.map((s, i) => (
                 <div key={i} className="flex flex-col gap-0.5">
                   <span className="text-2xl font-semibold font-mono text-[#F3FAF6]">{s.value}</span>
-                  <span className="text-[10px] text-[rgba(243,250,246,0.35)] uppercase tracking-[0.15em] font-mono">
+                  <span className="text-[10px] text-[rgba(243,250,246,0.58)] uppercase tracking-[0.15em] font-mono">
                     {s.label}
                   </span>
                 </div>
@@ -142,7 +142,7 @@ export function Hero() {
               <div className="absolute bottom-20 start-12 font-mono text-[10px] text-[rgba(31,174,110,0.35)] tracking-widest uppercase">
                 {t("backend")}
               </div>
-              <div className="absolute bottom-10 end-10 font-mono text-[10px] text-[rgba(243,250,246,0.2)] tracking-[0.08em]">
+              <div className="absolute bottom-10 end-10 font-mono text-[10px] text-[rgba(243,250,246,0.58)] tracking-[0.08em]">
                 {t("version")}
               </div>
             </div>
@@ -179,7 +179,7 @@ export function Hero() {
             className="w-0.5 h-2 rounded-full bg-[rgba(31,174,110,0.4)]"
           />
         </motion.div>
-        <span className="text-[10px] font-mono text-[rgba(243,250,246,0.2)] tracking-widest uppercase">
+        <span className="text-[10px] font-mono text-[rgba(243,250,246,0.58)] tracking-widest uppercase">
           {t("scroll")}
         </span>
       </motion.div>
