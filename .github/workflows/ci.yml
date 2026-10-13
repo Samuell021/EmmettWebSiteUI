@@ -510,6 +510,7 @@ jobs:
                                   f"::error title=lighthouse-audit::{url} {category_id}/{ref.get('id')}={score} {detail}".strip()
                               )
                               emitted += 1
+
           if emitted == 0:
               # امتیاز زیر آستانه‌ای در manifest نیست؛ پس شکست زیرساختی است و
               # خطوط معنادار لاگ LHCI را منتشر می‌کنیم.
@@ -524,6 +525,46 @@ jobs:
               ]
               for line in interesting[-10:]:
                   print(f"::error title=lighthouse-infra::{line[:300]}")
+          PYEOF
+
+      # گره‌های مشخص failشده در auditهای دسترس‌پذیری/bf-cache (گام جدا، چون
+      # سقف annotation هر step ده‌تاست).
+      - name: Publish Lighthouse failing nodes
+        if: failure()
+        working-directory: EmmettWebSite/frontend
+        run: |
+          python3 - <<'PYEOF'
+          import glob
+          import json
+
+          emitted = 0
+          for manifest_path in glob.glob(".lighthouseci/manifest.json"):
+              try:
+                  manifest = json.load(open(manifest_path, encoding="utf-8"))
+              except (ValueError, OSError):
+                  continue
+              for entry in manifest:
+                  if not entry.get("isRepresentativeRun") or emitted >= 10:
+                      continue
+                  try:
+                      report = json.load(open(entry["jsonPath"], encoding="utf-8"))
+                  except (KeyError, ValueError, OSError):
+                      continue
+                  audits = report.get("audits", {})
+                  url = entry.get("url", "?")
+                  for audit_id in ("color-contrast", "heading-order", "label-content-name-mismatch", "bf-cache"):
+                      if emitted >= 10:
+                          break
+                      audit = audits.get(audit_id, {})
+                      if audit.get("score") in (None, 1):
+                          continue
+                      for item in audit.get("details", {}).get("items", [])[:2]:
+                          if emitted >= 10:
+                              break
+                          node = item.get("node", {}) if isinstance(item, dict) else {}
+                          snippet = node.get("selector") or node.get("snippet") or item.get("reason") or str(item)[:160]
+                          print(f"::error title=lighthouse-node::{url} {audit_id}: {str(snippet)[:220]}")
+                          emitted += 1
           PYEOF
 
       - name: Upload Lighthouse reports
