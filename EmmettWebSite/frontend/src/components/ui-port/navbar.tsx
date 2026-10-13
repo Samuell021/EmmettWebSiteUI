@@ -110,7 +110,7 @@ export function Navbar() {
             <span className="font-mono text-base tracking-[0.2em] text-[#F3FAF6] font-semibold">
               {ui("brand")}
             </span>
-            <span className="hidden sm:inline font-mono text-[10px] tracking-widest text-[rgba(243,250,246,0.28)] uppercase">
+            <span className="hidden sm:inline font-mono text-[10px] tracking-widest text-[rgba(243,250,246,0.58)] uppercase">
               {ui("brandGroup")}
             </span>
           </Link>
@@ -124,7 +124,7 @@ export function Navbar() {
                 className={`relative text-sm transition-colors duration-150 py-1 group ${
                   isActive(item.href)
                     ? "text-[#F3FAF6]"
-                    : "text-[rgba(243,250,246,0.48)] hover:text-[rgba(243,250,246,0.8)]"
+                    : "text-[rgba(243,250,246,0.58)] hover:text-[rgba(243,250,246,0.8)]"
                 }`}
               >
                 {t(item.key)}
@@ -160,7 +160,7 @@ export function Navbar() {
                 setIsOpen(false);
                 setPaletteOpen(true);
               }}
-              className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-md border border-[rgba(31,174,110,0.12)] bg-[rgba(31,174,110,0.03)] text-[rgba(243,250,246,0.28)] text-xs font-mono hover:border-[rgba(31,174,110,0.25)] hover:text-[rgba(243,250,246,0.55)] transition-all"
+              className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-md border border-[rgba(31,174,110,0.12)] bg-[rgba(31,174,110,0.03)] text-[rgba(243,250,246,0.58)] text-xs font-mono hover:border-[rgba(31,174,110,0.25)] hover:text-[rgba(243,250,246,0.8)] transition-all"
               // نام دسترس‌پذیر باید متن قابل‌مشاهده (⌘K) را دربرگیرد
               // (Lighthouse: label-content-name-mismatch).
               aria-label={`${t("search")} ⌘K`}

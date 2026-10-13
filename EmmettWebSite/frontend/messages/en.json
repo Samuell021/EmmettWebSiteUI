@@ -95,7 +95,8 @@
     "title": "Services",
     "description": "What we build, how we build it, and why it holds up under pressure.",
     "empty": "No services found.",
-    "backToList": "Back to services"
+    "backToList": "Back to services",
+    "listHeading": "All services"
   },
   "projects": {
     "title": "Projects",
