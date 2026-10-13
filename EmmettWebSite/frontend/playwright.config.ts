@@ -16,9 +16,11 @@ import { defineConfig, devices } from "@playwright/test";
  * ``next build`` در دسترس باشد (جزئیات در ``e2e/README.md``).
  *
  * فاز ۸ پورت (ADR-0037):
- * - خروجی تشخیصی CI: trace/video فقط هنگام شکست و screenshot فقط برای تستِ
+ * - خروجی تشخیصی CI: trace فقط هنگام شکست و screenshot فقط برای تستِ
  *   شکست‌خورده نگه داشته می‌شود تا آرتیفکت اجرا (Playwright report +
  *   ``test-results``) برای دیباگ کافی باشد، بدون هزینهٔ نگهداری همیشگی.
+ *   ویدیو عمداً خاموش است؛ trace خودش تایم‌لاین و اسنپ‌شات دارد و روشن‌کردن
+ *   ویدیو حجم آرتیفکت را چند برابر می‌کند.
  * - مسیر باینری Chromium از ``PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH`` خوانده
  *   می‌شود تا محیط‌هایی که دانلود مرورگر Playwright در آن‌ها ممکن نیست
  *   (محدودیت شبکهٔ sandbox) بتوانند یک Chromium موجود را معرفی کنند؛ وقتی
@@ -38,7 +40,7 @@ export default defineConfig({
   use: {
     trace: "retain-on-failure",
     screenshot: "only-on-failure",
-    video: "retain-on-failure",
+    video: "off",
     ...(chromiumExecutablePath
       ? { launchOptions: { executablePath: chromiumExecutablePath } }
       : {}),

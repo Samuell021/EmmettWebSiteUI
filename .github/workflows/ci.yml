@@ -336,7 +336,18 @@ jobs:
           CI: "true"
           INTERNAL_API_URL: http://127.0.0.1:8000
           PUBLIC_SITE_URL: http://127.0.0.1:3000
-        run: npm run test:e2e
+        run: |
+          set -o pipefail
+          npm run test:e2e 2>&1 | tee "$RUNNER_TEMP/playwright-output.log"
+
+      # عنوان تست‌های failشده به‌صورت annotation روی خود جاب (ADR-0037).
+      - name: Publish Playwright failure summary
+        if: failure()
+        run: |
+          grep -E "^[[:space:]]*[0-9]+\) " "$RUNNER_TEMP/playwright-output.log" | head -50 | while IFS= read -r line; do
+            echo "::error title=playwright-failure::$line"
+          done
+          grep -E "passed|failed|flaky|did not run" "$RUNNER_TEMP/playwright-output.log" | tail -5 >> "$GITHUB_STEP_SUMMARY" || true
 
       - name: Upload Playwright diagnostics (report, traces & responsive screenshots)
         if: always()
