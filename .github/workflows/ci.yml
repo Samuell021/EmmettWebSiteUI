@@ -125,8 +125,30 @@ jobs:
 
       - name: Run pytest with coverage enforcement (≥ 85%)
         run: |
-          coverage run -m pytest -q
-          coverage report --fail-under=85 -m
+          set -o pipefail
+          coverage run -m pytest -q 2>&1 | tee "$RUNNER_TEMP/pytest-output.log"
+          coverage report --fail-under=85 -m 2>&1 | tee "$RUNNER_TEMP/coverage-report.log"
+
+      # نام تست‌های failشده به‌صورت annotation روی خود جاب دیده می‌شود تا
+      # برای فهم شکست لازم نباشد لاگ کامل دانلود شود (ADR-0037).
+      - name: Publish backend test failure summary
+        if: failure()
+        run: |
+          grep -E "^(FAILED|ERROR)" "$RUNNER_TEMP/pytest-output.log" | head -50 | while IFS= read -r line; do
+            echo "::error title=pytest-failure::$line"
+          done
+          tail -n 20 "$RUNNER_TEMP/pytest-output.log" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload backend test output
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-test-output-${{ github.run_id }}
+          path: |
+            ${{ runner.temp }}/pytest-output.log
+            ${{ runner.temp }}/coverage-report.log
+          if-no-files-found: ignore
+          retention-days: 14
 
   # ---------------------------------------------------------------------------
   # ۳) دروازهٔ کیفیت فرانت‌اند: Prettier + ESLint + TypeScript Strict
