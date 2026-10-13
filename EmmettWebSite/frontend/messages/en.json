@@ -26,20 +26,20 @@
     "openMenu": "Open menu",
     "closeMenu": "Close menu",
     "search": "Search",
+    "landmark": "Primary",
+    "menu": "Menu",
     "account": "Account",
     "advisor": "Creative advisor",
-    "estimate": "Project estimate"
+    "estimate": "Project estimate",
+    "startProject": "Start a Project"
   },
-  "theme": {
-    "toggleLabel": "Toggle light/dark theme",
-    "light": "Light",
-    "dark": "Dark",
-    "system": "System"
-  },
+
   "locale": {
     "switchLabel": "Switch language",
     "fa": "فارسی",
-    "en": "English"
+    "en": "English",
+    "shortFa": "فا",
+    "shortEn": "EN"
   },
   "footer": {
     "tagline": "We engineer systems for difficult problems.",
@@ -263,5 +263,444 @@
     "shareLink": "Copy share link",
     "linkCopied": "Link copied",
     "linkCopyError": "Automatic copying is unavailable. Copy the page URL from your browser address bar."
+  },
+  "ui": {
+    "brand": "EMMETT",
+    "brandGroup": "GROUP",
+    "loader": {
+      "initializing": "INITIALIZING",
+      "collective": "EMMETT GROUP · ENGINEERING COLLECTIVE"
+    },
+    "nav": {
+      "openMenu": "Open menu",
+      "closeMenu": "Close menu",
+      "searchPlaceholder": "Search pages, products, commands…",
+      "noResults": "No results found.",
+      "palette": [
+        {
+          "label": "Home",
+          "category": "Page",
+          "href": "/"
+        },
+        {
+          "label": "Services — The Engineering System",
+          "category": "Page",
+          "href": "/services"
+        },
+        {
+          "label": "Products — The Product Lab",
+          "category": "Page",
+          "href": "/products"
+        },
+        {
+          "label": "PenTestor — Security Engineering",
+          "category": "Product",
+          "href": "/products/pentestor"
+        },
+        {
+          "label": "CRM — Business Systems",
+          "category": "Product",
+          "href": "/products/crm"
+        },
+        {
+          "label": "Projects — Proof of Work",
+          "category": "Page",
+          "href": "/projects"
+        },
+        {
+          "label": "Library — Engineering Knowledge",
+          "category": "Page",
+          "href": "/blog"
+        },
+        {
+          "label": "Academy — Learning Paths",
+          "category": "Page",
+          "href": "/academy"
+        },
+        {
+          "label": "About — Who We Are",
+          "category": "Page",
+          "href": "/about"
+        },
+        {
+          "label": "Contact — Start a Project",
+          "category": "Action",
+          "href": "/contact"
+        },
+        {
+          "label": "Creative advisor",
+          "category": "Page",
+          "href": "/advisor"
+        },
+        {
+          "label": "Project estimate",
+          "category": "Page",
+          "href": "/estimate"
+        },
+        {
+          "label": "Search",
+          "category": "Page",
+          "href": "/search"
+        },
+        {
+          "label": "Account",
+          "category": "Page",
+          "href": "/profile"
+        }
+      ]
+    },
+    "hero": {
+      "eyebrow": "Engineering Collective · University of Tehran",
+      "line1": "We engineer",
+      "accent": "intelligent",
+      "line3": "systems.",
+      "sub": "Software, AI, cybersecurity and products built for real-world complexity.",
+      "explore": "Explore our work",
+      "start": "Start a project",
+      "stats": [
+        {
+          "value": "40+",
+          "label": "Systems Shipped"
+        },
+        {
+          "value": "99.97%",
+          "label": "Uptime SLA"
+        },
+        {
+          "value": "12",
+          "label": "Countries"
+        }
+      ],
+      "ai": "AI / ML",
+      "security": "Security",
+      "backend": "Backend",
+      "version": "v4.1.2 · live",
+      "online": "Systems Online",
+      "scroll": "scroll"
+    },
+    "services": {
+      "eyebrow": "Services · 01",
+      "title": "Engineering across the entire stack.",
+      "lead": "From infrastructure to intelligence, we design and build the systems that make ambitious products possible.",
+      "viewSystem": "View full engineering system",
+      "mapTitle": "System Map · Hover to explore",
+      "mapIdle": "Hover a service to activate",
+      "slots": [
+        {
+          "title": "Software Engineering",
+          "copy": "Robust software systems designed for scale, reliability and long-term evolution.",
+          "tags": ["Architecture", "Backend", "APIs", "Distributed Systems"]
+        },
+        {
+          "title": "AI / Machine Learning",
+          "copy": "From data to intelligent systems — we turn machine learning research into usable products.",
+          "tags": ["ML", "Deep Learning", "LLMs", "Computer Vision"]
+        },
+        {
+          "title": "Cybersecurity",
+          "copy": "Security engineered into the system — from attack surface to infrastructure hardening.",
+          "tags": ["Appsec", "Pentesting", "Threat Analysis", "Security Automation"]
+        },
+        {
+          "title": "Product Engineering",
+          "copy": "We transform complex ideas into products people can actually use and build on.",
+          "tags": ["UX", "UI", "Prototyping", "Product Architecture"]
+        },
+        {
+          "title": "Infrastructure",
+          "copy": "The systems beneath the systems. Cloud, DevOps, containers, deployment, observability.",
+          "tags": ["Cloud", "DevOps", "Containers", "Observability"]
+        }
+      ]
+    },
+    "products": {
+      "eyebrow": "Products · 02",
+      "title": "Products born from engineering problems.",
+      "lead": "We build tools and systems because we have encountered problems worth solving ourselves.",
+      "view": "View product",
+      "seeAll": "See all products",
+      "slots": [
+        {
+          "name": "Pentestor",
+          "tagline": "AI-powered security engineering.",
+          "copy": "Transforms complex security assessment into an intelligent, structured workflow. Attack surface mapping, network topology, findings analysis — all in one platform.",
+          "tags": ["Security", "AI Analysis", "Network Topology", "Risk Prioritization"],
+          "pill": "Enterprise Security"
+        },
+        {
+          "name": "CRM Platform",
+          "tagline": "Business systems around real workflows.",
+          "copy": "A flexible CRM and operations platform designed around how teams actually work — not the other way around. Pipeline, contacts, tasks, analytics and automation.",
+          "tags": ["CRM", "Pipeline", "Automation", "Analytics"],
+          "pill": "Business Operations"
+        },
+        {
+          "name": "Property Platform",
+          "tagline": "Data-driven property discovery.",
+          "copy": "Location intelligence, listings, filters and analytics for the modern real estate ecosystem. Built for scale, designed for clarity.",
+          "tags": ["Location Intelligence", "Data", "Maps", "Analytics"],
+          "pill": "PropTech"
+        }
+      ],
+      "pentestor": {
+        "status": "Scan Active",
+        "rows": [
+          {
+            "label": "Attack Surface",
+            "value": "247 endpoints"
+          },
+          {
+            "label": "Critical Findings",
+            "value": "3"
+          },
+          {
+            "label": "AI Risk Score",
+            "value": "7.4 / 10"
+          },
+          {
+            "label": "Remediation",
+            "value": "18 / 21"
+          }
+        ]
+      },
+      "crm": {
+        "title": "Pipeline",
+        "period": "Q3 2026",
+        "stages": ["Qualified", "Proposal", "Negotiation", "Closed Won"]
+      },
+      "property": {
+        "city": "Tehran",
+        "active": "1,247 active",
+        "areas": ["Zafaranieh", "Elahieh", "Farmanieh", "Niavaran"]
+      }
+    },
+    "projects": {
+      "eyebrow": "Projects · 03",
+      "title": "What we've built.",
+      "lead": "Real problems. Real constraints. Real systems.",
+      "outcome": "Outcome",
+      "caseStudy": "Read case study",
+      "viewAll": "View all projects",
+      "shown": "{shown} of {total} projects shown",
+      "shownFallback": "3 of 12 projects shown",
+      "slots": [
+        {
+          "title": "Athena Intelligence Platform",
+          "industry": "Defense & Intelligence",
+          "description": "Distributed intelligence fusion system processing multi-source data streams for real-time situational awareness at national scale.",
+          "tech": ["Go", "Kafka", "Kubernetes", "ML Pipeline", "PostgreSQL"],
+          "outcome": "14ms median latency at 2.4M events/sec",
+          "year": "2025"
+        },
+        {
+          "title": "Meridian Supply Chain",
+          "industry": "Logistics & Operations",
+          "description": "Real-time supply chain visibility and optimization engine covering procurement, manufacturing and last-mile delivery across 40+ countries.",
+          "tech": ["Python", "FastAPI", "Apache Spark", "Redis", "React"],
+          "outcome": "31% reduction in logistics overhead",
+          "year": "2025"
+        },
+        {
+          "title": "Axon Bioinformatics",
+          "industry": "Healthcare & Research",
+          "description": "Genomic analysis pipeline for rare disease diagnosis — sequence alignment, variant calling, and AI-assisted phenotype matching for clinical teams.",
+          "tech": ["Python", "Nextflow", "PyTorch", "PostgreSQL", "Docker"],
+          "outcome": "Reduced analysis time from 72h to 4h",
+          "year": "2024"
+        }
+      ]
+    },
+    "library": {
+      "eyebrow": "Library · 04",
+      "title": "What we're learning, building and thinking about.",
+      "featured": "Featured",
+      "caption": "LLM Throughput Analysis",
+      "taxonomy": "Engineering, AI, Security, Bioinformatics, Systems, Research",
+      "open": "Open Library",
+      "minute": "min",
+      "readSuffix": "{time} read",
+      "slots": [
+        {
+          "category": "AI / ML",
+          "title": "Building production LLM pipelines without the hype",
+          "author": "Ali Karimi",
+          "date": "Aug 2026",
+          "readTime": "14 min",
+          "excerpt": "A practical breakdown of how we designed and deployed a real-time document intelligence system — what worked, what failed, and what we learned building at scale."
+        },
+        {
+          "category": "Cybersecurity",
+          "title": "Attack surface mapping at scale with graph theory",
+          "author": "Sara Tehrani",
+          "date": "Jul 2026",
+          "readTime": "11 min"
+        },
+        {
+          "category": "Systems",
+          "title": "Distributed consensus: beyond Raft and Paxos",
+          "author": "Reza Mohammadi",
+          "date": "Jul 2026",
+          "readTime": "18 min"
+        },
+        {
+          "category": "Engineering",
+          "title": "The cost of premature abstraction in Go microservices",
+          "author": "Ali Karimi",
+          "date": "Jun 2026",
+          "readTime": "9 min"
+        },
+        {
+          "category": "Bioinformatics",
+          "title": "Sequence alignment algorithms for clinical genomics",
+          "author": "Neda Hosseini",
+          "date": "Jun 2026",
+          "readTime": "22 min"
+        }
+      ]
+    },
+    "academy": {
+      "eyebrow": "Academy · 05",
+      "title": "Build your way into deeper knowledge.",
+      "lead": "Courses, paths and practical systems designed around real engineering problems — not artificial curricula.",
+      "graph": "Knowledge Graph · Learning Paths",
+      "available": "Available Paths",
+      "topics": "{count} topics",
+      "start": "Start building",
+      "slots": [
+        {
+          "name": "Software Engineering",
+          "level": "Foundations → Advanced",
+          "topics": 48,
+          "nodes": ["Algorithms", "Data Structures", "System Design", "Distributed", "Architecture"]
+        },
+        {
+          "name": "AI / Machine Learning",
+          "level": "Math → Production",
+          "topics": 56,
+          "nodes": ["Linear Algebra", "ML Fundamentals", "Deep Learning", "LLMs", "MLOps"]
+        },
+        {
+          "name": "Cybersecurity",
+          "level": "Concepts → Expert",
+          "topics": 42,
+          "nodes": ["Networking", "Security Basics", "Appsec", "Pentesting", "Security Eng."]
+        }
+      ]
+    },
+    "contact": {
+      "eyebrow": "Contact · 06",
+      "line1": "Have a difficult",
+      "accent": "problem?",
+      "lead1": "Tell us what you're trying to build.",
+      "lead2": "We'll figure out the system together.",
+      "start": "Start a conversation",
+      "work": "See our work first",
+      "meta": [
+        {
+          "label": "Location",
+          "value": "Tehran, IR"
+        },
+        {
+          "label": "Response time",
+          "value": "< 24h"
+        },
+        {
+          "label": "Languages",
+          "value": "EN · FA"
+        },
+        {
+          "label": "Status",
+          "value": "Accepting projects"
+        }
+      ]
+    },
+    "footer": {
+      "operational": "All systems operational",
+      "copyright": "© {year} Emmett Group",
+      "social": {
+        "github": "GitHub",
+        "linkedin": "LinkedIn",
+        "twitter": "Twitter"
+      },
+      "columns": [
+        {
+          "header": "Company",
+          "links": [
+            {
+              "label": "About",
+              "href": "/about"
+            },
+            {
+              "label": "Careers",
+              "href": "/about"
+            },
+            {
+              "label": "Contact",
+              "href": "/contact"
+            }
+          ]
+        },
+        {
+          "header": "Work",
+          "links": [
+            {
+              "label": "Services",
+              "href": "/services"
+            },
+            {
+              "label": "Products",
+              "href": "/products"
+            },
+            {
+              "label": "Projects",
+              "href": "/projects"
+            }
+          ]
+        },
+        {
+          "header": "Learn",
+          "links": [
+            {
+              "label": "Library",
+              "href": "/blog"
+            },
+            {
+              "label": "Academy",
+              "href": "/academy"
+            },
+            {
+              "label": "Research",
+              "href": "/blog"
+            }
+          ]
+        },
+        {
+          "header": "Legal",
+          "links": [
+            {
+              "label": "Privacy",
+              "href": "#"
+            },
+            {
+              "label": "Terms",
+              "href": "#"
+            },
+            {
+              "label": "Security",
+              "href": "#"
+            }
+          ]
+        }
+      ]
+    },
+    "comingSoon": {
+      "pending": "Phase 2 · Pending",
+      "body": "This page is part of the Emmett digital ecosystem and will be implemented in a future phase, following review and approval of the Home experience.",
+      "back": "Return to Home",
+      "pentestorTitle": "Pentestor",
+      "pentestorSubtitle": "AI-powered security engineering",
+      "crmTitle": "CRM",
+      "crmSubtitle": "Business systems engineered around real workflows"
+    }
   }
 }

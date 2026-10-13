@@ -7,7 +7,6 @@ import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { Button } from "@/components/ui/button";
 import { LocaleSwitcher } from "@/components/molecules/locale-switcher";
-import { ThemeToggle } from "@/components/molecules/theme-toggle";
 import { cn } from "@/lib/utils";
 
 const NAV_ITEMS = [
@@ -32,8 +31,13 @@ const NAV_HREF_OVERRIDES: Partial<Record<(typeof NAV_ITEMS)[number], string>> = 
 
 /**
  * هدر سایت — طبق «Navigation Bar» سند مشخصات طراحی: شفاف روی Hero، هنگام
- * اسکرول (~80px) به حالت تیره+بلور+hairline تبدیل می‌شود (۲۰۰ms ease-out)؛
- * زیر ۱۰۲۴px به منوی کشویی تمام‌صفحه تبدیل می‌شود.
+ * اسکرول (~80px) به حالت تیره+بلور+hairline تبدیل می‌شود (۲۰۰ms ease-out).
+ *
+ * نوار دسکتاپ از 90rem (۱۴۴۰px) دیده می‌شود. کامنت قدیمی «زیر ۱۰۲۴px» را
+ * می‌گفت چون `md` آن‌وقت ۱۰۲۴px بود؛ اندازه‌گیری برچسب‌های fa (۹ لینک + لوگو
+ * + جستجو/حساب/زبان/CTA، وزن ۷۰۰ به‌عنوان سقف) ردیف را حدود ۱۲۳۸px نشان
+ * داد. با padding مربوط به `lg` فقط ظرف ۹۰rem جا می‌شود. زیر این عرض منوی
+ * همبرگری می‌ماند تا سرریز افقی پیش نیاید (بازبینی عرض‌های فاز ۲).
  */
 export function SiteHeader() {
   const t = useTranslations("nav");
@@ -57,12 +61,12 @@ export function SiteHeader() {
           : "border-b border-transparent bg-transparent",
       )}
     >
-      <div className="mx-auto flex h-16 max-w-(--breakpoint-xl) items-center justify-between gap-4 px-4 sm:px-6 lg:px-10">
+      <div className="mx-auto flex h-16 max-w-(--container-site) items-center justify-between gap-4 px-4 sm:px-6 lg:px-10">
         <Link href="/" className="text-base font-semibold tracking-tight text-foreground">
           Emmett
         </Link>
 
-        <nav aria-label="Primary" className="hidden items-center gap-6 md:flex">
+        <nav aria-label="Primary" className="hidden items-center gap-6 min-[90rem]:flex">
           {NAV_ITEMS.map((item) => (
             <Link
               key={item}
@@ -74,7 +78,7 @@ export function SiteHeader() {
           ))}
         </nav>
 
-        <div className="hidden items-center gap-2 md:flex">
+        <div className="hidden items-center gap-2 min-[90rem]:flex">
           <Link
             href="/search"
             aria-label={t("search")}
@@ -90,7 +94,6 @@ export function SiteHeader() {
             <User aria-hidden="true" className="size-4" />
           </Link>
           <LocaleSwitcher />
-          <ThemeToggle />
           <Button asChild size="sm">
             <Link href="/contact">{tCommon("startProject")}</Link>
           </Button>
@@ -102,7 +105,7 @@ export function SiteHeader() {
           aria-expanded={isMenuOpen}
           aria-controls="mobile-nav"
           aria-label={isMenuOpen ? t("closeMenu") : t("openMenu")}
-          className="inline-flex size-11 items-center justify-center rounded-sm text-foreground md:hidden"
+          className="inline-flex size-11 items-center justify-center rounded-sm text-foreground min-[90rem]:hidden"
         >
           {isMenuOpen ? <X aria-hidden="true" /> : <Menu aria-hidden="true" />}
         </button>
@@ -112,7 +115,7 @@ export function SiteHeader() {
         <nav
           id="mobile-nav"
           aria-label="Primary"
-          className="flex flex-col gap-1 border-t border-border bg-background px-4 py-4 md:hidden"
+          className="flex flex-col gap-1 border-t border-border bg-background px-4 py-4 min-[90rem]:hidden"
         >
           {NAV_ITEMS.map((item) => (
             <Link
@@ -126,7 +129,6 @@ export function SiteHeader() {
           ))}
           <div className="mt-2 flex items-center justify-between gap-2 border-t border-border pt-3">
             <LocaleSwitcher />
-            <ThemeToggle />
           </div>
         </nav>
       ) : null}

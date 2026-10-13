@@ -21,7 +21,7 @@ export function SiteFooter() {
 
   return (
     <footer className="border-t border-border bg-background">
-      <div className="mx-auto flex max-w-(--breakpoint-xl) flex-col gap-8 px-4 py-16 sm:px-6 lg:px-10">
+      <div className="mx-auto flex max-w-(--container-site) flex-col gap-8 px-4 py-16 sm:px-6 lg:px-10">
         <div className="flex flex-col gap-6 sm:flex-row sm:items-start sm:justify-between">
           <div className="flex flex-col gap-2">
             <span className="text-base font-semibold text-foreground">Emmett</span>

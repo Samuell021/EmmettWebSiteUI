@@ -15,7 +15,7 @@ export function Hero() {
 
   return (
     <section className="relative overflow-hidden bg-surface-obsidian text-[#F2F1EE]">
-      <div className="mx-auto flex max-w-(--breakpoint-xl) flex-col gap-10 px-4 py-24 sm:px-6 md:min-h-[85vh] md:flex-row md:items-center md:py-32 lg:px-10">
+      <div className="mx-auto flex max-w-(--container-site) flex-col gap-10 px-4 py-24 sm:px-6 md:min-h-[85vh] md:flex-row md:items-center md:py-32 lg:px-10">
         <FadeIn on="mount" className="flex flex-col gap-6 md:basis-7/12">
           <span className="font-technical text-xs uppercase tracking-[0.08em] text-[#A7A9AE]">
             {t("eyebrow")}

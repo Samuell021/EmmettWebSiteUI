@@ -24,10 +24,6 @@ vi.mock("next-intl", () => ({
   useTranslations: () => (key: string) => key,
 }));
 
-vi.mock("next-themes", () => ({
-  useTheme: () => ({ resolvedTheme: "dark", setTheme: vi.fn() }),
-}));
-
 vi.mock("@/i18n/navigation", () => ({
   Link: ({ children, href, ...rest }: { children: ReactNode; href: string }) => (
     <a href={href} {...rest}>

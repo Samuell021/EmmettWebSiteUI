@@ -42,8 +42,11 @@ async function serverFetch<T>(path: string, locale: string, init?: RequestInit):
   }
 }
 
-export const getServices = (locale: string) =>
-  serverFetch<Paginated<ServiceListItem>>("/services/", locale);
+export const getServices = (locale: string, searchParams?: string) =>
+  serverFetch<Paginated<ServiceListItem>>(
+    `/services/${searchParams ? `?${searchParams}` : ""}`,
+    locale,
+  );
 
 export const getService = (locale: string, slug: string) =>
   serverFetch<ServiceDetail>(`/services/${slug}/`, locale);
