@@ -389,6 +389,33 @@ jobs:
               print(f"::error title=playwright-context-{index}::{escaped}")
           PYEOF
 
+      # پاسخ‌های خطادار بک‌اند در طول E2E (مثل 403 CSRF یا 429 throttle) هم
+      # به‌صورت annotation منتشر می‌شوند؛ لاگ جنگو ساخت‌یافته و JSON است.
+      - name: Publish backend API errors seen during E2E
+        if: failure()
+        run: |
+          python3 - <<'PYEOF'
+          import json
+
+          emitted = 0
+          try:
+              raw_lines = open("/tmp/django-e2e.log", encoding="utf-8", errors="ignore").read().splitlines()
+          except FileNotFoundError:
+              raw_lines = []
+          for raw in raw_lines:
+              if emitted >= 10:
+                  break
+              try:
+                  entry = json.loads(raw)
+              except (ValueError, TypeError):
+                  continue
+              code = entry.get("code")
+              if isinstance(code, int) and code >= 400:
+                  body = f"{entry.get('request')} -> {code}"
+                  print(f"::error title=backend-api-error::{body}")
+                  emitted += 1
+          PYEOF
+
       - name: Upload Playwright diagnostics (report, traces & responsive screenshots)
         if: always()
         uses: actions/upload-artifact@v4
