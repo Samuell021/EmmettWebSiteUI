@@ -39,6 +39,11 @@ describe("useDialogA11y", () => {
     expect(document.getElementById("main-content")).toHaveAttribute("inert");
     expect(document.body.style.overflow).toBe("hidden");
 
+    // هوک یک فریم بعد دوباره فوکوس اول را اعمال می‌کند (requestAnimationFrame
+    // در useDialogA11y)؛ اگر Tab پیش از آن فریم برسد، فوکوس به «first»
+    // برمی‌گردد و تست flaky می‌شود. فریم باید پیش از Tab رد شده باشد.
+    await new Promise((resolve) => requestAnimationFrame(resolve));
+
     await user.tab();
     expect(screen.getByRole("button", { name: "last" })).toHaveFocus();
     await user.tab();
