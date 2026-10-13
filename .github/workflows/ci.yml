@@ -123,10 +123,16 @@ jobs:
           echo "DJANGO_SETTINGS_MODULE=ci_test_settings" >> "$GITHUB_ENV"
           echo "PYTHONPATH=$TEST_SETTINGS_DIR:${{ github.workspace }}/EmmettWebSite/backend" >> "$GITHUB_ENV"
 
+      # نکتهٔ ایزولاسیون (ADR-0037): ‎test_backup_db.py‎ مقدار
+      # ‎DATABASES["default"]["ENGINE"]‎ را به MySQL تغییر می‌دهد و برنمی‌گرداند؛
+      # روی runner (که mysqldump دارد) این نشت، تست backup بعدی را به اتصال
+      # واقعی MySQL می‌فرستد. آن فایل در همان CI و با همان گیت پوشش، ولی در
+      # پروسهٔ جدا اجرا می‌شود تا نشت به بقیهٔ سوئیت نرسد — بدون تغییر بک‌اند.
       - name: Run pytest with coverage enforcement (≥ 85%)
         run: |
           set -o pipefail
-          coverage run -m pytest -q 2>&1 | tee "$RUNNER_TEMP/pytest-output.log"
+          coverage run -m pytest -q --ignore=apps/core/tests/test_backup_db.py 2>&1 | tee "$RUNNER_TEMP/pytest-output.log"
+          coverage run --append -m pytest -q apps/core/tests/test_backup_db.py 2>&1 | tee -a "$RUNNER_TEMP/pytest-output.log"
           coverage report --fail-under=85 -m 2>&1 | tee "$RUNNER_TEMP/coverage-report.log"
 
       # نام تست‌های failشده به‌صورت annotation روی خود جاب دیده می‌شود تا
