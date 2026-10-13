@@ -26,7 +26,7 @@ test.describe("مشاور ایده‌پرداز و تخمین‌گر هوشمن�
 
     const firstGoal = page.locator('input[name="goals"]').first();
     await firstGoal.check();
-    await page.getByRole("button", { name: "محاسبهٔ تخمین زمانی" }).click();
+    await page.getByRole("button", { name: "محاسبهٔ زمان اولیه" }).click();
 
     await expect(page.getByRole("heading", { level: 2, name: "برآورد اولیهٔ زمان" })).toBeVisible({
       timeout: 10_000,

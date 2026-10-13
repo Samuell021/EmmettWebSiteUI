@@ -33,10 +33,9 @@ test.describe("خانهٔ پورت‌شده", () => {
     await expect(
       page.getByRole("heading", { level: 2, name: "مهندسی در تمام لایه‌های استک." }),
     ).toBeVisible();
-    await expect(page.getByRole("link", { name: /کارهای ما را ببینید/ })).toHaveAttribute(
-      "href",
-      "/projects",
-    );
+    await expect(
+      page.getByRole("link", { name: "کارهای ما را ببینید", exact: true }),
+    ).toHaveAttribute("href", "/projects");
 
     // دادهٔ زندهٔ بخش محصولات: حداقل یک کارت به جزئیات یک پروژه/محصول لینک می‌دهد.
     await expect(page.locator('a[href^="/projects/"]').first()).toBeVisible();
