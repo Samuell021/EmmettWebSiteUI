@@ -3,9 +3,10 @@
 import { motion, useScroll, useMotionValueEvent } from "motion/react";
 import { useTranslations } from "next-intl";
 import { useState, useEffect, useCallback } from "react";
-import { Link, usePathname, useRouter } from "@/i18n/navigation";
-import { Menu, X, Terminal, ChevronRight, Search } from "lucide-react";
+import { Link, usePathname } from "@/i18n/navigation";
+import { Menu, X, Terminal, ChevronRight } from "lucide-react";
 
+import { CommandPalette, type PaletteItem } from "./command-palette";
 import { useDialogA11y } from "./dialog-a11y";
 import { UiLocaleSwitch } from "./locale-switch";
 
@@ -26,12 +27,9 @@ const navLinks = [
   { key: "about", href: "/about" },
 ] as const;
 
-type PaletteItem = { label: string; category: string; href: string };
-
 export function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const [paletteOpen, setPaletteOpen] = useState(false);
-  const [paletteQuery, setPaletteQuery] = useState("");
   const [scrolled, setScrolled] = useState(false);
   const [hidden, setHidden] = useState(false);
   const [lastScrollY, setLastScrollY] = useState(0);
@@ -39,12 +37,10 @@ export function Navbar() {
   const ui = useTranslations("ui");
   const palette = useTranslations("ui.nav");
   const paletteItems = palette.raw("palette") as PaletteItem[];
-  const router = useRouter();
   const pathname = usePathname();
   const closeMenu = useCallback(() => setIsOpen(false), []);
   const closePalette = useCallback(() => setPaletteOpen(false), []);
   const menuRef = useDialogA11y(isOpen, closeMenu);
-  const paletteRef = useDialogA11y(paletteOpen, closePalette);
 
   /**
    * معادل `isActive` در `NavLink` بستهٔ UI (تطبیق مسیر دقیق یا زیرمسیر آن؛
@@ -81,14 +77,6 @@ export function Navbar() {
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [handleKeyDown]);
-
-  const filtered = paletteQuery
-    ? paletteItems.filter(
-        (i) =>
-          i.label.toLowerCase().includes(paletteQuery.toLowerCase()) ||
-          i.category.toLowerCase().includes(paletteQuery.toLowerCase()),
-      )
-    : paletteItems;
 
   return (
     <>
@@ -240,77 +228,7 @@ export function Navbar() {
         </motion.div>
       )}
 
-      {/* Command Palette */}
-      {paletteOpen && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          className="fixed inset-0 z-50 flex items-start justify-center pt-[18vh] px-4"
-          onClick={() => setPaletteOpen(false)}
-        >
-          <div className="absolute inset-0 bg-[#07130F]/75 backdrop-blur-sm" />
-          <motion.div
-            ref={paletteRef}
-            id="command-palette"
-            role="dialog"
-            aria-modal="true"
-            aria-label={t("search")}
-            initial={{ scale: 0.96, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            transition={{ duration: 0.18 }}
-            className="relative w-full max-w-[560px] rounded-xl border border-[rgba(31,174,110,0.15)] overflow-hidden shadow-[0_32px_64px_rgba(0,0,0,0.5)]"
-            style={{ background: "rgba(11,31,24,0.98)" }}
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="flex items-center gap-3 px-4 py-4 border-b border-[rgba(31,174,110,0.1)]">
-              <Search className="w-4 h-4 text-[rgba(243,250,246,0.3)] flex-shrink-0" aria-hidden />
-              <input
-                autoFocus
-                value={paletteQuery}
-                onChange={(e) => setPaletteQuery(e.target.value)}
-                placeholder={palette("searchPlaceholder")}
-                aria-label={palette("searchPlaceholder")}
-                className="flex-1 bg-transparent text-[#F3FAF6] font-mono text-sm placeholder:text-[rgba(243,250,246,0.2)] outline-none"
-              />
-              <kbd className="text-[10px] font-mono text-[rgba(243,250,246,0.2)] border border-[rgba(31,174,110,0.12)] rounded px-1.5 py-0.5">
-                ESC
-              </kbd>
-            </div>
-
-            <div className="max-h-72 overflow-y-auto py-2">
-              {filtered.length === 0 ? (
-                <div className="px-4 py-8 text-center text-sm text-[rgba(243,250,246,0.3)] font-mono">
-                  {palette("noResults")}
-                </div>
-              ) : (
-                filtered.map((item, i) => (
-                  <button
-                    key={i}
-                    type="button"
-                    onClick={() => {
-                      router.push(item.href);
-                      setPaletteOpen(false);
-                      setPaletteQuery("");
-                    }}
-                    className="w-full flex items-center justify-between px-4 py-3 hover:bg-[rgba(31,174,110,0.06)] transition-colors group text-start"
-                  >
-                    <div className="flex items-center gap-3">
-                      <ChevronRight className="w-3 h-3 text-[rgba(243,250,246,0.18)] group-hover:text-[#1FAE6E] transition-colors rtl:-scale-x-100" />
-                      <span className="text-sm text-[rgba(243,250,246,0.55)] group-hover:text-[#F3FAF6] transition-colors font-mono">
-                        {item.label}
-                      </span>
-                    </div>
-                    <span className="text-[10px] font-mono text-[rgba(243,250,246,0.2)] uppercase tracking-widest">
-                      {item.category}
-                    </span>
-                  </button>
-                ))
-              )}
-            </div>
-          </motion.div>
-        </motion.div>
-      )}
+      <CommandPalette open={paletteOpen} onClose={closePalette} items={paletteItems} />
     </>
   );
 }

@@ -277,6 +277,11 @@
       "closeMenu": "Close menu",
       "searchPlaceholder": "Search pages, products, commands…",
       "noResults": "No results found.",
+      "pagesHeading": "Pages",
+      "resultsHeading": "Search results",
+      "searching": "Searching…",
+      "searchError": "Search failed; page results are still available.",
+      "viewAllResults": "View all results for “{query}”",
       "palette": [
         {
           "label": "Home",

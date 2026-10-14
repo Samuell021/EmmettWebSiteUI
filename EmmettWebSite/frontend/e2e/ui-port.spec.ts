@@ -6,9 +6,9 @@ import { expect, test, type Page } from "@playwright/test";
  * سوئیت‌های قدیمی فاز ۴ (``public-pages`` و…) مسیرهای داخلی را می‌سنجند؛ این
  * فایل قرارداد رفتاری خودِ پوستهٔ پورت‌شده را قفل می‌کند: خانه با بخش‌های
  * زنده‌اش، دو صفحهٔ محصولی که پورت ساخت (``/products/pentestor`` و
- * ``/products/crm``)، پالت ⌘K (فقط فیلتر فهرست داخلی صفحات — اتصال به
- * جست‌وجوی API عمداً خارج از فاز ۸ است و جست‌وجوی واقعی صفحهٔ ``/search``
- * می‌ماند)، کشوی موبایل به‌صورت دیالوگ، و احترام لودر به
+ * ``/products/crm``)، پالت ⌘K (فهرست ثابت صفحات + نتایج FTS بک‌اند با
+ * debounce و ناوبری کیبورد؛ جست‌وجوی کامل همان صفحهٔ ``/search`` است —
+ * ADR-0037)، کشوی موبایل به‌صورت دیالوگ، و احترام لودر به
  * ``prefers-reduced-motion``.
  *
  * فرض داده: بک‌اند با ``seed_demo_data`` بالا آمده است (همان پیش‌شرط بقیهٔ
@@ -81,7 +81,7 @@ test.describe("صفحات محصول پورت (ComingSoon)", () => {
   }
 });
 
-test.describe("پالت ⌘K (فهرست داخلی صفحات)", () => {
+test.describe("پالت ⌘K (صفحات + جست‌وجوی API)", () => {
   test("با Ctrl/⌘K باز می‌شود، فیلتر می‌کند و به صفحهٔ محصول می‌رود", async ({ page }) => {
     await page.goto("/");
     await waitForLoader(page);
@@ -103,6 +103,55 @@ test.describe("پالت ⌘K (فهرست داخلی صفحات)", () => {
     await crmItem.click();
     await expect(page).toHaveURL(/\/products\/crm$/);
     await expect(page.getByRole("heading", { level: 1, name: "CRM" })).toBeVisible();
+  });
+
+  test("نتایج FTS بک‌اند را نشان می‌دهد و به صفحهٔ نتیجه می‌رود", async ({ page }) => {
+    await page.goto("/");
+    await waitForLoader(page);
+
+    await page.keyboard.press("ControlOrMeta+k");
+    const palette = page.locator("#command-palette");
+    const input = page.getByPlaceholder("جست‌وجوی صفحه، محصول، فرمان…");
+    await input.fill("Django");
+
+    // نتیجهٔ واقعی API سید CI: دورهٔ «ساخت API با جنگو» (همان دادهٔ صفحهٔ
+    // /search). debounce و پاسخ شبکه صبر می‌خواهد؛ expect خودش poll می‌کند.
+    const apiResult = palette.getByRole("option", { name: /ساخت API با جنگو/ });
+    await expect(apiResult).toBeVisible({ timeout: 10_000 });
+    await expect(palette.getByText("نتایج جست‌وجو")).toBeVisible();
+
+    await apiResult.click();
+    await expect(page).toHaveURL(/\/academy\/django-rest-api$/);
+  });
+
+  test("با جهت‌نما و Enter روی نتیجهٔ ثابت حرکت می‌کند", async ({ page }) => {
+    await page.goto("/");
+    await waitForLoader(page);
+
+    await page.keyboard.press("ControlOrMeta+k");
+    const palette = page.locator("#command-palette");
+    const input = page.getByPlaceholder("جست‌وجوی صفحه، محصول، فرمان…");
+    await input.fill("CRM");
+
+    const crmItem = palette.locator("button", { hasText: "CRM — سیستم‌های کسب‌وکار" });
+    await expect(crmItem).toBeVisible();
+
+    await page.keyboard.press("ArrowDown");
+    await expect(crmItem).toBeFocused();
+    await page.keyboard.press("Enter");
+    await expect(page).toHaveURL(/\/products\/crm$/);
+  });
+
+  test("لینک «مشاهدهٔ همهٔ نتایج» جست‌وجو را به صفحهٔ /search می‌سپارد", async ({ page }) => {
+    await page.goto("/");
+    await waitForLoader(page);
+
+    await page.keyboard.press("ControlOrMeta+k");
+    const palette = page.locator("#command-palette");
+    await page.getByPlaceholder("جست‌وجوی صفحه، محصول، فرمان…").fill("Django");
+
+    await palette.getByRole("button", { name: /مشاهدهٔ همهٔ نتایج/ }).click();
+    await expect(page).toHaveURL(/\/search\?q=Django$/);
   });
 
   test("عبارت بی‌نتیجه پیام خالی نشان می‌دهد و Escape پالت را می‌بندد", async ({ page }) => {

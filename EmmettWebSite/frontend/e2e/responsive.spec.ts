@@ -14,7 +14,10 @@ import { expect, test, type Page } from "@playwright/test";
  * ۱) هیچ اسکرول افقی در سطح سند نیست؛
  * ۲) حالت ناوبری درست است — زیر ``lg`` همبرگر و از ``lg`` به بالا ناوبری
  *    دسکتاپ (قرارداد ``navbar.tsx`` پورت)؛
- * ۳) تیتر اصلی دیده می‌شود.
+ * ۳) تیتر اصلی دیده می‌شود و متنش نه بریده می‌شود نه از کادرش بیرون
+ *    می‌زند (``scrollWidth`` تیتر از پهنای مرئی‌اش بزرگ‌تر نیست و جعبه‌اش
+ *    داخل viewport می‌ماند) — برای فارسی و انگلیسی این همان «نچسبیدن/
+ *    نبریدن» متن است، چون شکست خط و جهت از خود سند می‌آید.
  *
  * اسکرین‌شات تمام‌صفحهٔ خانه و نمای داخلی در هر عرض به گزارش Playwright
  * پیوست می‌شود تا بازبینی چشمی از آرتیفکت همان اجرای CI ممکن باشد.
@@ -41,6 +44,24 @@ async function waitForLoader(page: Page) {
   await expect(page.locator(".ui-loader")).toBeHidden({ timeout: 15_000 });
 }
 
+/** متن تیتر نباید بریده یا از جعبه‌اش بیرون زده باشد و جعبه باید داخل نما بماند. */
+async function expectTextFits(page: Page, width: number) {
+  const heading = page.locator("h1");
+  const metrics = await heading.evaluate((el) => ({
+    scrollWidth: el.scrollWidth,
+    clientWidth: el.clientWidth,
+  }));
+  expect(
+    metrics.scrollWidth,
+    `متن تیتر در عرض ${width} بریده شده: scrollWidth=${metrics.scrollWidth} clientWidth=${metrics.clientWidth}`,
+  ).toBeLessThanOrEqual(metrics.clientWidth + 1);
+
+  const box = await heading.boundingBox();
+  expect(box).not.toBeNull();
+  expect(box!.x).toBeGreaterThanOrEqual(-1);
+  expect(box!.x + box!.width).toBeLessThanOrEqual(width + 1);
+}
+
 test.describe("عرض‌های مرزی — خانه", () => {
   for (const width of WIDTHS) {
     test(`خانه در عرض ${width} بدون سرریز و با ناوبری درست رندر می‌شود`, async ({
@@ -51,6 +72,7 @@ test.describe("عرض‌های مرزی — خانه", () => {
       await waitForLoader(page);
 
       await expect(page.locator("h1")).toContainText("هوشمند.");
+      await expectTextFits(page, width);
       await expectNoHorizontalOverflow(page, width);
 
       const nav = page.getByRole("navigation", { name: "ناوبری اصلی" });
@@ -82,6 +104,7 @@ test.describe("عرض‌های مرزی — صفحهٔ داخلی (خدمات)",
       await waitForLoader(page);
 
       await expect(page.getByRole("heading", { level: 1, name: "خدمات" })).toBeVisible();
+      await expectTextFits(page, width);
       await expectNoHorizontalOverflow(page, width);
 
       await testInfo.attach(`services-${width}`, {
