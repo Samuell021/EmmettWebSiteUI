@@ -24,17 +24,37 @@ export function Loader() {
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
       return;
     }
-    const interval = setInterval(() => {
-      setProgress((prev) => {
-        if (prev >= 100) {
-          clearInterval(interval);
-          setTimeout(() => setVisible(false), 300);
-          return 100;
-        }
-        return prev + 2;
-      });
+    // پیشرفت ظاهری سقف دارد (همان ۱٫۲۵ ثانیهٔ بستهٔ UI)، اما اگر بارگذاری
+    // واقعی صفحه زودتر تمام شده باشد، نگه‌داشتن پوشش تا پایان شمارندهٔ
+    // ساختگی فقط تأخیر است: با رویداد load بلافاصله کامل می‌شود. روی
+    // اتصال‌های کند همان رفتار قبلی (پایان شمارنده) حاکم است.
+    let finished = false;
+    let current = 0;
+    let hideTimer: number | undefined;
+    const interval = window.setInterval(() => {
+      current = Math.min(100, current + 2);
+      setProgress(current);
+      if (current >= 100) {
+        finish();
+      }
     }, 25);
-    return () => clearInterval(interval);
+    function finish() {
+      if (finished) return;
+      finished = true;
+      window.clearInterval(interval);
+      setProgress(100);
+      hideTimer = window.setTimeout(() => setVisible(false), 300);
+    }
+    if (document.readyState === "complete") {
+      finish();
+    } else {
+      window.addEventListener("load", finish, { once: true });
+    }
+    return () => {
+      window.clearInterval(interval);
+      window.clearTimeout(hideTimer);
+      window.removeEventListener("load", finish);
+    };
   }, []);
 
   return (

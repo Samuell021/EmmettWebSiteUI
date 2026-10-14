@@ -8,7 +8,9 @@ import { Link } from "@/i18n/navigation";
 import type { HomeArticle } from "./home-data";
 import { ForwardMark } from "./forward-mark";
 
-const categoryColors = ["#1FAE6E", "#4C9BE8", "#0B6B48", "#35C98A", "#7DD8B4"] as const;
+// همان خانوادهٔ رنگی بستهٔ UI، تیره‌شده تا روی پس‌زمینهٔ روشن کنتراست
+// WCAG AA (≥۴٫۵) داشته باشد (Lighthouse: color-contrast).
+const categoryColors = ["#0B6B48", "#1D6FB8", "#0E7A6D", "#8A5A00", "#6C4BD8"] as const;
 
 type ArticleCopy = {
   category: string;
@@ -61,7 +63,7 @@ export function LibrarySection({ articles: items }: { articles: HomeArticle[] | 
             className="flex items-center gap-3 mb-5"
           >
             <div className="w-6 h-px bg-[#1FAE6E]" />
-            <span className="text-[10px] font-mono tracking-[0.22em] uppercase text-[#1FAE6E]">
+            <span className="text-[10px] font-mono tracking-[0.22em] uppercase text-[#0B6B48]">
               {t("eyebrow")}
             </span>
           </motion.div>
@@ -95,7 +97,7 @@ export function LibrarySection({ articles: items }: { articles: HomeArticle[] | 
                   >
                     {featured.category}
                   </span>
-                  <span className="text-[10px] font-mono text-[rgba(16,42,32,0.3)] tracking-widest">
+                  <span className="text-[10px] font-mono text-[rgba(16,42,32,0.68)] tracking-widest">
                     {t("featured")}
                   </span>
                 </div>
@@ -103,24 +105,24 @@ export function LibrarySection({ articles: items }: { articles: HomeArticle[] | 
                 <h3 className="font-editorial text-[clamp(1.5rem,3vw,2.2rem)] font-medium text-[#102A20] leading-tight mb-4">
                   {featured.title}
                 </h3>
-                <p className="text-sm text-[rgba(16,42,32,0.55)] leading-relaxed mb-5">
+                <p className="text-sm text-[rgba(16,42,32,0.68)] leading-relaxed mb-5">
                   {featured.excerpt}
                 </p>
                 <div className="flex items-center gap-4">
                   <div className="flex items-center gap-2">
                     <div className="w-5 h-5 rounded-full bg-[rgba(16,42,32,0.15)] flex items-center justify-center">
-                      <span className="text-[8px] font-mono text-[rgba(16,42,32,0.5)]">AK</span>
+                      <span className="text-[8px] font-mono text-[rgba(16,42,32,0.68)]">AK</span>
                     </div>
-                    <span className="text-xs font-mono text-[rgba(16,42,32,0.5)]">
+                    <span className="text-xs font-mono text-[rgba(16,42,32,0.68)]">
                       {featured.author}
                     </span>
                   </div>
-                  <span className="text-[rgba(16,42,32,0.2)]">·</span>
-                  <span className="text-xs font-mono text-[rgba(16,42,32,0.38)]">
+                  <span className="text-[rgba(16,42,32,0.68)]">·</span>
+                  <span className="text-xs font-mono text-[rgba(16,42,32,0.68)]">
                     {featured.date}
                   </span>
-                  <span className="text-[rgba(16,42,32,0.2)]">·</span>
-                  <span className="text-xs font-mono text-[rgba(16,42,32,0.38)]">
+                  <span className="text-[rgba(16,42,32,0.68)]">·</span>
+                  <span className="text-xs font-mono text-[rgba(16,42,32,0.68)]">
                     {t("readSuffix", { time: featured.readTime })}
                   </span>
                 </div>
@@ -168,7 +170,7 @@ export function LibrarySection({ articles: items }: { articles: HomeArticle[] | 
                     ))}
                   </svg>
                 </div>
-                <div className="absolute bottom-3 end-3 text-[9px] font-mono text-[rgba(16,42,32,0.3)] tracking-widest uppercase">
+                <div className="absolute bottom-3 end-3 text-[9px] font-mono text-[rgba(16,42,32,0.68)] tracking-widest uppercase">
                   {t("caption")}
                 </div>
               </div>
@@ -204,18 +206,18 @@ export function LibrarySection({ articles: items }: { articles: HomeArticle[] | 
                 <h4 className="text-sm font-medium text-[#102A20] group-hover:text-[#0B6B48] transition-colors duration-150 pe-4">
                   <Link href={article.href}>{article.title}</Link>
                 </h4>
-                <span className="text-xs font-mono text-[rgba(16,42,32,0.4)] hidden lg:block">
+                <span className="text-xs font-mono text-[rgba(16,42,32,0.68)] hidden lg:block">
                   {article.author}
                 </span>
-                <span className="text-xs font-mono text-[rgba(16,42,32,0.3)] hidden lg:block">
+                <span className="text-xs font-mono text-[rgba(16,42,32,0.68)] hidden lg:block">
                   {article.date}
                 </span>
                 <div className="flex items-center justify-between lg:justify-end gap-4">
-                  <span className="text-xs font-mono text-[rgba(16,42,32,0.3)]">
+                  <span className="text-xs font-mono text-[rgba(16,42,32,0.68)]">
                     {article.readTime}
                   </span>
                   <span
-                    className="text-sm text-[rgba(16,42,32,0.3)] group-hover:text-[#1FAE6E] transition-colors duration-150"
+                    className="text-sm text-[rgba(16,42,32,0.68)] group-hover:text-[#0B6B48] transition-colors duration-150"
                     aria-hidden
                   >
                     <ForwardMark />
@@ -227,10 +229,10 @@ export function LibrarySection({ articles: items }: { articles: HomeArticle[] | 
         </div>
 
         <div className="border-t border-[rgba(16,42,32,0.1)] pt-8 mt-0 flex items-center justify-between">
-          <span className="text-xs font-mono text-[rgba(16,42,32,0.35)]">{t("taxonomy")}</span>
+          <span className="text-xs font-mono text-[rgba(16,42,32,0.68)]">{t("taxonomy")}</span>
           <Link
             href="/blog"
-            className="text-sm font-mono text-[#1FAE6E] hover:text-[#35C98A] transition-colors"
+            className="text-sm font-mono text-[#0B6B48] hover:text-[#35C98A] transition-colors"
           >
             {t("open")} <ForwardMark />
           </Link>

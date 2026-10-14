@@ -64,7 +64,8 @@ test.describe("آکادمی", () => {
     await page.goto("/academy");
     await expect(page.getByRole("heading", { level: 1, name: "آکادمی" })).toBeVisible();
 
-    const firstCard = page.locator('a[href^="/academy/"]').first();
+    // لینک خوراک RSS بالای فهرست هم با /academy/ شروع می‌شود؛ کارت دوره نیست.
+    const firstCard = page.locator('a[href^="/academy/"]:not([href$="/rss"])').first();
     await firstCard.click();
 
     await expect(page).toHaveURL(/\/academy\/[a-z0-9-]+$/);
@@ -82,7 +83,8 @@ test.describe("کتابخانه (بلاگ)", () => {
     await page.goto("/blog");
     await expect(page.getByRole("heading", { level: 1, name: "کتابخانه" })).toBeVisible();
 
-    const firstCard = page.locator('a[href^="/blog/"]').first();
+    // لینک خوراک RSS بالای فهرست هم با /blog/ شروع می‌شود؛ کارت مقاله نیست.
+    const firstCard = page.locator('a[href^="/blog/"]:not([href$="/rss"])').first();
     await firstCard.click();
 
     await expect(page).toHaveURL(/\/blog\/[a-z0-9-]+$/);

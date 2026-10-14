@@ -79,7 +79,7 @@ export function ProjectsSection({
             whileInView={{ opacity: 1 }}
             viewport={{ once: true }}
             transition={{ delay: 0.1 }}
-            className="text-base text-[rgba(16,42,32,0.55)] leading-relaxed max-w-[40ch] lg:text-end lg:ms-auto"
+            className="text-base text-[rgba(16,42,32,0.68)] leading-relaxed max-w-[40ch] lg:text-end lg:ms-auto"
           >
             {t("lead")}
           </motion.p>
@@ -101,7 +101,12 @@ export function ProjectsSection({
               <div className="grid lg:grid-cols-[80px_1fr_280px] gap-6 items-start">
                 {/* Number */}
                 <div className="pt-1">
-                  <span className="text-[clamp(1.8rem,4vw,3rem)] font-mono font-bold text-[rgba(16,42,32,0.12)] leading-none select-none">
+                  {/* شمارهٔ تزئینی بزرگ؛ از درخت دسترس‌پذیری بیرون است تا
+                      کنتراستِ عمداً محو آن audit نشود. */}
+                  <span
+                    aria-hidden="true"
+                    className="text-[clamp(1.8rem,4vw,3rem)] font-mono font-bold text-[rgba(16,42,32,0.12)] leading-none select-none"
+                  >
                     {p.num}
                   </span>
                 </div>
@@ -109,11 +114,11 @@ export function ProjectsSection({
                 {/* Content */}
                 <div>
                   <div className="flex items-center gap-3 mb-3">
-                    <span className="text-[10px] font-mono tracking-widest uppercase text-[rgba(16,42,32,0.4)]">
+                    <span className="text-[10px] font-mono tracking-widest uppercase text-[rgba(16,42,32,0.68)]">
                       {p.industry}
                     </span>
-                    <span className="text-[rgba(16,42,32,0.2)] text-sm">·</span>
-                    <span className="text-[10px] font-mono text-[rgba(16,42,32,0.3)]">
+                    <span className="text-[rgba(16,42,32,0.68)] text-sm">·</span>
+                    <span className="text-[10px] font-mono text-[rgba(16,42,32,0.68)]">
                       {p.year}
                     </span>
                   </div>
@@ -123,14 +128,14 @@ export function ProjectsSection({
                   >
                     {p.title}
                   </h3>
-                  <p className="text-sm text-[rgba(16,42,32,0.55)] leading-relaxed max-w-[52ch] mb-4">
+                  <p className="text-sm text-[rgba(16,42,32,0.68)] leading-relaxed max-w-[52ch] mb-4">
                     {p.description}
                   </p>
                   <div className="flex flex-wrap gap-1.5">
                     {p.tech.map((t) => (
                       <span
                         key={t}
-                        className="text-[9px] font-mono tracking-widest uppercase px-2 py-0.5 rounded border border-[rgba(16,42,32,0.15)] text-[rgba(16,42,32,0.45)] bg-[rgba(16,42,32,0.04)]"
+                        className="text-[9px] font-mono tracking-widest uppercase px-2 py-0.5 rounded border border-[rgba(16,42,32,0.15)] text-[rgba(16,42,32,0.68)] bg-[rgba(16,42,32,0.04)]"
                       >
                         {t}
                       </span>
@@ -141,7 +146,7 @@ export function ProjectsSection({
                 {/* Outcome */}
                 <div className="lg:text-end">
                   <div className="inline-block text-start lg:text-end">
-                    <span className="text-[10px] font-mono tracking-widest uppercase text-[rgba(16,42,32,0.3)] block mb-2">
+                    <span className="text-[10px] font-mono tracking-widest uppercase text-[rgba(16,42,32,0.68)] block mb-2">
                       {t("outcome")}
                     </span>
                     <p
@@ -160,7 +165,7 @@ export function ProjectsSection({
                     >
                       <Link
                         href={p.href}
-                        className="text-[11px] font-mono text-[#0B6B48] hover:text-[#1FAE6E] transition-colors"
+                        className="text-[11px] font-mono text-[#0B6B48] hover:text-[#0B6B48] transition-colors"
                       >
                         {t("caseStudy")} <ForwardMark />
                       </Link>
@@ -173,12 +178,12 @@ export function ProjectsSection({
         </div>
 
         <div className="border-t border-[rgba(16,42,32,0.12)] pt-8 mt-0 flex items-center justify-between">
-          <span className="text-sm font-mono text-[rgba(16,42,32,0.4)]">
+          <span className="text-sm font-mono text-[rgba(16,42,32,0.68)]">
             {items === null ? t("shownFallback") : t("shown", { shown: projects.length, total })}
           </span>
           <Link
             href="/projects"
-            className="inline-flex items-center gap-2 text-sm font-mono text-[#0B6B48] hover:text-[#1FAE6E] transition-colors"
+            className="inline-flex items-center gap-2 text-sm font-mono text-[#0B6B48] hover:text-[#0B6B48] transition-colors"
           >
             {t("viewAll")} <ForwardMark />
           </Link>

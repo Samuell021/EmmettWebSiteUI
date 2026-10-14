@@ -143,7 +143,7 @@ export function AcademySection({ courses }: { courses: HomeCourse[] | null }) {
             whileInView={{ opacity: 1 }}
             viewport={{ once: true }}
             transition={{ delay: 0.1 }}
-            className="text-base text-[rgba(243,250,246,0.45)] leading-relaxed max-w-[40ch] lg:ms-auto"
+            className="text-base text-[rgba(243,250,246,0.58)] leading-relaxed max-w-[40ch] lg:ms-auto"
           >
             {t("lead")}
           </motion.p>
@@ -160,7 +160,7 @@ export function AcademySection({ courses }: { courses: HomeCourse[] | null }) {
             style={{ background: "rgba(7,19,15,0.5)", aspectRatio: "16/9" }}
           >
             <div className="flex items-center justify-between mb-3">
-              <span className="text-[10px] font-mono text-[rgba(243,250,246,0.3)] tracking-widest uppercase">
+              <span className="text-[10px] font-mono text-[rgba(243,250,246,0.58)] tracking-widest uppercase">
                 {t("graph")}
               </span>
               {activePath && (
@@ -279,7 +279,7 @@ export function AcademySection({ courses }: { courses: HomeCourse[] | null }) {
 
           {/* Learning paths list */}
           <div className="space-y-4">
-            <p className="text-[10px] font-mono text-[rgba(243,250,246,0.3)] tracking-widest uppercase mb-6">
+            <p className="text-[10px] font-mono text-[rgba(243,250,246,0.58)] tracking-widest uppercase mb-6">
               {t("available")}
             </p>
             {paths.map((path, i) => (
@@ -305,18 +305,20 @@ export function AcademySection({ courses }: { courses: HomeCourse[] | null }) {
                         className="w-1.5 h-1.5 rounded-full"
                         style={{ background: path.color }}
                       />
-                      <h4
+                      {/* h3: عنوان کارت مستقیم زیر h2 بخش می‌آید؛ h4 ترتیب
+                          سرفصل‌ها را می‌شکست (Lighthouse: heading-order). */}
+                      <h3
                         className="text-sm font-semibold transition-colors duration-150"
                         style={{ color: activePathId === path.id ? path.color : "#F3FAF6" }}
                       >
                         <Link href={path.href}>{path.name}</Link>
-                      </h4>
+                      </h3>
                     </div>
-                    <p className="text-xs font-mono text-[rgba(243,250,246,0.35)] ms-3.5">
+                    <p className="text-xs font-mono text-[rgba(243,250,246,0.58)] ms-3.5">
                       {path.level}
                     </p>
                   </div>
-                  <span className="text-xs font-mono text-[rgba(243,250,246,0.28)] flex-shrink-0">
+                  <span className="text-xs font-mono text-[rgba(243,250,246,0.58)] flex-shrink-0">
                     {t("topics", { count: path.topics })}
                   </span>
                 </div>

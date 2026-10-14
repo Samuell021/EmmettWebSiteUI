@@ -135,7 +135,7 @@ export function ContactSection() {
           whileInView={{ opacity: 1 }}
           viewport={{ once: true }}
           transition={{ delay: 0.15 }}
-          className="text-lg text-[rgba(243,250,246,0.5)] max-w-[42ch] mx-auto leading-relaxed mb-12"
+          className="text-lg text-[rgba(243,250,246,0.58)] max-w-[42ch] mx-auto leading-relaxed mb-12"
         >
           {t("lead1")}
           <br />
@@ -158,7 +158,7 @@ export function ContactSection() {
           </Link>
           <Link
             href="/projects"
-            className="inline-flex items-center gap-2 px-8 py-4 border border-[rgba(31,174,110,0.2)] rounded-lg text-[rgba(243,250,246,0.55)] font-mono text-sm hover:border-[rgba(31,174,110,0.4)] hover:text-[#F3FAF6] transition-all duration-150"
+            className="inline-flex items-center gap-2 px-8 py-4 border border-[rgba(31,174,110,0.2)] rounded-lg text-[rgba(243,250,246,0.58)] font-mono text-sm hover:border-[rgba(31,174,110,0.4)] hover:text-[#F3FAF6] transition-all duration-150"
           >
             {t("work")}
           </Link>
@@ -174,10 +174,10 @@ export function ContactSection() {
         >
           {meta.map((item) => (
             <div key={item.label} className="text-center">
-              <div className="text-[9px] font-mono text-[rgba(243,250,246,0.2)] tracking-widest uppercase mb-1">
+              <div className="text-[9px] font-mono text-[rgba(243,250,246,0.58)] tracking-widest uppercase mb-1">
                 {item.label}
               </div>
-              <div className="text-xs font-mono text-[rgba(243,250,246,0.45)]">{item.value}</div>
+              <div className="text-xs font-mono text-[rgba(243,250,246,0.58)]">{item.value}</div>
             </div>
           ))}
         </motion.div>

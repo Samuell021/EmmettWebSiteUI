@@ -31,7 +31,7 @@ function PentestorUI() {
           key={row.label}
           className="flex items-center justify-between px-3 py-2 rounded-lg bg-[rgba(16,42,32,0.4)] border border-[rgba(31,174,110,0.06)]"
         >
-          <span className="text-[10px] font-mono text-[rgba(243,250,246,0.4)]">{row.label}</span>
+          <span className="text-[10px] font-mono text-[rgba(243,250,246,0.58)]">{row.label}</span>
           <span
             className={`text-[10px] font-mono font-semibold ${
               status[index] === "alert"
@@ -61,7 +61,7 @@ function CrmUI() {
   return (
     <div className="space-y-2 p-4 rounded-xl bg-[rgba(31,174,110,0.04)] border border-[rgba(31,174,110,0.1)]">
       <div className="flex items-center justify-between mb-3">
-        <span className="text-[10px] font-mono text-[rgba(243,250,246,0.4)] tracking-widest uppercase">
+        <span className="text-[10px] font-mono text-[rgba(243,250,246,0.58)] tracking-widest uppercase">
           {t("title")}
         </span>
         <span className="text-[10px] font-mono text-[#1FAE6E]">{t("period")}</span>
@@ -69,7 +69,7 @@ function CrmUI() {
       {stages.map((row) => (
         <div key={row.stage} className="space-y-1">
           <div className="flex items-center justify-between">
-            <span className="text-[10px] font-mono text-[rgba(243,250,246,0.4)]">{row.stage}</span>
+            <span className="text-[10px] font-mono text-[rgba(243,250,246,0.58)]">{row.stage}</span>
             <span className="text-[10px] font-mono text-[rgba(243,250,246,0.6)]">{row.count}</span>
           </div>
           <div className="h-1 rounded-full bg-[rgba(31,174,110,0.12)]">
@@ -93,7 +93,7 @@ function PropertyUI() {
   return (
     <div className="space-y-2 p-4 rounded-xl bg-[rgba(31,174,110,0.04)] border border-[rgba(31,174,110,0.1)]">
       <div className="flex items-center justify-between mb-3">
-        <span className="text-[10px] font-mono text-[rgba(243,250,246,0.4)] tracking-widest uppercase">
+        <span className="text-[10px] font-mono text-[rgba(243,250,246,0.58)] tracking-widest uppercase">
           {t("city")}
         </span>
         <span className="text-[10px] font-mono text-[#1FAE6E]">{t("active")}</span>
@@ -103,9 +103,9 @@ function PropertyUI() {
           key={row.area}
           className="flex items-center justify-between px-3 py-2 rounded-lg bg-[rgba(16,42,32,0.4)] border border-[rgba(31,174,110,0.06)]"
         >
-          <span className="text-[10px] font-mono text-[rgba(243,250,246,0.5)]">{row.area}</span>
+          <span className="text-[10px] font-mono text-[rgba(243,250,246,0.58)]">{row.area}</span>
           <div className="flex items-center gap-3">
-            <span className="text-[10px] font-mono text-[rgba(243,250,246,0.35)]">
+            <span className="text-[10px] font-mono text-[rgba(243,250,246,0.58)]">
               ₺ {row.price}
             </span>
             <span className="text-[10px] font-mono font-semibold text-[#1FAE6E]">{row.score}</span>
@@ -172,7 +172,7 @@ export function ProductsSection({ products: items }: { products: HomeProduct[] |
             whileInView={{ opacity: 1 }}
             viewport={{ once: true }}
             transition={{ delay: 0.12 }}
-            className="mt-4 text-base text-[rgba(243,250,246,0.5)] max-w-[52ch] leading-relaxed"
+            className="mt-4 text-base text-[rgba(243,250,246,0.58)] max-w-[52ch] leading-relaxed"
           >
             {t("lead")}
           </motion.p>
@@ -191,7 +191,7 @@ export function ProductsSection({ products: items }: { products: HomeProduct[] |
             >
               <div className="p-6 pb-4">
                 <div className="flex items-start justify-between mb-4">
-                  <span className="text-[10px] font-mono text-[rgba(243,250,246,0.28)] tracking-widest">
+                  <span className="text-[10px] font-mono text-[rgba(243,250,246,0.58)] tracking-widest">
                     {p.num}
                   </span>
                   <span className="text-[10px] font-mono px-2 py-0.5 rounded border border-[rgba(31,174,110,0.2)] text-[rgba(31,174,110,0.6)] tracking-wider">
@@ -199,8 +199,8 @@ export function ProductsSection({ products: items }: { products: HomeProduct[] |
                   </span>
                 </div>
                 <h3 className="text-xl font-semibold text-[#F3FAF6] mb-1">{p.name}</h3>
-                <p className="text-sm text-[rgba(243,250,246,0.5)] mb-3 italic">{p.tagline}</p>
-                <p className="text-sm text-[rgba(243,250,246,0.4)] leading-relaxed">{p.copy}</p>
+                <p className="text-sm text-[rgba(243,250,246,0.58)] mb-3 italic">{p.tagline}</p>
+                <p className="text-sm text-[rgba(243,250,246,0.58)] leading-relaxed">{p.copy}</p>
               </div>
 
               <div className="px-6 py-3 flex-1">
@@ -238,7 +238,7 @@ export function ProductsSection({ products: items }: { products: HomeProduct[] |
         >
           <Link
             href="/products"
-            className="text-sm font-mono text-[rgba(243,250,246,0.35)] hover:text-[rgba(243,250,246,0.65)] transition-colors"
+            className="text-sm font-mono text-[rgba(243,250,246,0.58)] hover:text-[rgba(243,250,246,0.65)] transition-colors"
           >
             {t("seeAll")} <ForwardMark />
           </Link>

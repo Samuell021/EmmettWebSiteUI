@@ -95,7 +95,8 @@
     "title": "Services",
     "description": "What we build, how we build it, and why it holds up under pressure.",
     "empty": "No services found.",
-    "backToList": "Back to services"
+    "backToList": "Back to services",
+    "listHeading": "All services"
   },
   "projects": {
     "title": "Projects",
@@ -276,6 +277,11 @@
       "closeMenu": "Close menu",
       "searchPlaceholder": "Search pages, products, commands…",
       "noResults": "No results found.",
+      "pagesHeading": "Pages",
+      "resultsHeading": "Search results",
+      "searching": "Searching…",
+      "searchError": "Search failed; page results are still available.",
+      "viewAllResults": "View all results for “{query}”",
       "palette": [
         {
           "label": "Home",

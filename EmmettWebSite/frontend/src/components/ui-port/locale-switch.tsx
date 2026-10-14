@@ -31,7 +31,7 @@ export function UiLocaleSwitch() {
               hrefLang={locale}
               aria-current={isActive ? "true" : undefined}
               className={`font-mono text-[10px] tracking-widest uppercase transition-colors ${
-                isActive ? "text-[#1FAE6E]" : "text-[rgba(243,250,246,0.35)] hover:text-[#F3FAF6]"
+                isActive ? "text-[#1FAE6E]" : "text-[rgba(243,250,246,0.58)] hover:text-[#F3FAF6]"
               }`}
             >
               {locale === "fa" ? t("shortFa") : t("shortEn")}

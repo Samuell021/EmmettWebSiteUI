@@ -95,7 +95,8 @@
     "title": "خدمات",
     "description": "آنچه می‌سازیم، چگونه می‌سازیم و چرا زیر فشار واقعی هم کار می‌کند.",
     "empty": "خدمتی یافت نشد.",
-    "backToList": "بازگشت به خدمات"
+    "backToList": "بازگشت به خدمات",
+    "listHeading": "فهرست خدمات"
   },
   "projects": {
     "title": "پروژه‌ها",
@@ -276,6 +277,11 @@
       "closeMenu": "بستن منو",
       "searchPlaceholder": "جست‌وجوی صفحه، محصول، فرمان…",
       "noResults": "نتیجه‌ای پیدا نشد.",
+      "pagesHeading": "صفحات",
+      "resultsHeading": "نتایج جست‌وجو",
+      "searching": "در حال جست‌وجو…",
+      "searchError": "جست‌وجو ناموفق بود؛ نتایج صفحات در دسترس است.",
+      "viewAllResults": "مشاهدهٔ همهٔ نتایج برای «{query}»",
       "palette": [
         {
           "label": "خانه",

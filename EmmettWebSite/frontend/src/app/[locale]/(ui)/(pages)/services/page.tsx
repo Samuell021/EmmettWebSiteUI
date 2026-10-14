@@ -47,19 +47,25 @@ export default async function ServicesPage({ params }: { params: Promise<{ local
       {services.length === 0 ? (
         <p className="mt-10 text-muted-foreground">{t("empty")}</p>
       ) : (
-        <div className="mt-12 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {services.map((service) => (
-            <Link key={service.public_id} href={`/services/${service.slug}`} className="block">
-              <Card className="h-full">
-                <CardHeader>
-                  {service.is_featured ? <Badge variant="accent">★</Badge> : null}
-                  <CardTitle>{service.title}</CardTitle>
-                  <CardDescription>{service.summary}</CardDescription>
-                </CardHeader>
-              </Card>
-            </Link>
-          ))}
-        </div>
+        <>
+          {/* سرفصل سطح ۲ برای فهرست: عنوان کارت‌ها h3 است و بدون این پل،
+              ترتیب سرفصل از h1 مستقیم به h3 می‌پرد (Lighthouse: heading-order).
+              از نظر بصری همان چیدمان قبلی است (sr-only). */}
+          <h2 className="sr-only">{t("listHeading")}</h2>
+          <div className="mt-12 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {services.map((service) => (
+              <Link key={service.public_id} href={`/services/${service.slug}`} className="block">
+                <Card className="h-full">
+                  <CardHeader>
+                    {service.is_featured ? <Badge variant="accent">★</Badge> : null}
+                    <CardTitle>{service.title}</CardTitle>
+                    <CardDescription>{service.summary}</CardDescription>
+                  </CardHeader>
+                </Card>
+              </Link>
+            ))}
+          </div>
+        </>
       )}
     </div>
   );

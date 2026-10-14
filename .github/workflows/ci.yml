@@ -1,0 +1,584 @@
+name: Emmett Quality & CI Pipeline
+
+# این فایل عمداً در ریشهٔ ریپو است: GitHub Actions فقط .github/workflows/
+# ریشه را می‌شناسد. نسخهٔ قبلی داخل EmmettWebSite/.github بود و هرگز اجرا
+# نمی‌شد (ADR-0037). همهٔ مسیرهای زیر بر همین اساس پیشوند EmmettWebSite/
+# دارند؛ پروژهٔ واقعی داخل آن زیرپوشه است.
+
+on:
+  push:
+    branches: ["main", "arena/**"]
+  pull_request:
+    branches: ["main"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # ---------------------------------------------------------------------------
+  # ۱) دروازهٔ کیفیت بک‌اند: Ruff + Black + mypy strict + i18n + OpenAPI Schema
+  # ---------------------------------------------------------------------------
+  backend-quality:
+    name: "Backend: Lint, Format, Mypy Strict & OpenAPI"
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: EmmettWebSite/backend
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+          cache-dependency-path: |
+            EmmettWebSite/backend/requirements.txt
+            EmmettWebSite/backend/requirements-dev.txt
+
+      - name: Install backend dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements-dev.txt
+
+      - name: Ruff lint check
+        run: ruff check .
+
+      - name: Ruff format check
+        run: ruff format --check .
+
+      - name: Black format check
+        run: black --check .
+
+      - name: Mypy strict type check (Rule 7)
+        run: mypy apps config
+
+      - name: Django system checks & migration drift check
+        env:
+          DJANGO_SETTINGS_MODULE: config.settings.dev
+        run: |
+          python manage.py check
+          python manage.py makemigrations --check --dry-run
+
+      - name: Gettext i18n catalog & .mo freshness check (Rule 9)
+        run: python scripts/i18n.py check
+
+      - name: Validate OpenAPI 3.0 Schema (Rule 8)
+        env:
+          DJANGO_SETTINGS_MODULE: config.settings.dev
+        run: python manage.py spectacular --file /tmp/openapi-schema.yaml --validate --fail-on-warn
+
+  # ---------------------------------------------------------------------------
+  # ۲) تست‌های واحد و یکپارچهٔ بک‌اند + گیت پوشش ≥ ۸۵٪
+  # ---------------------------------------------------------------------------
+  backend-test:
+    name: "Backend: Pytest & Coverage (≥ 85%)"
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: EmmettWebSite/backend
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+          cache-dependency-path: |
+            EmmettWebSite/backend/requirements.txt
+            EmmettWebSite/backend/requirements-dev.txt
+
+      - name: Install backend dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements-dev.txt
+
+      # تنظیمات مخصوص تست در CI (ADR-0037): تست‌های ادمین URLهای سادهٔ
+      # ‎/static/...‎ را assert می‌کنند و قالب Jazzmin یک دایرکتوری را با
+      # ‎{% static %}‎ صدا می‌زند؛ هر دو با Manifest Storage ناسازگارند و روی
+      # checkout تمیز همهٔ صفحات ادمین 500 می‌گیرند. این shim فقط در CI و
+      # فقط برای تست‌هاست (storage سادهٔ استاتیک)؛ production دست‌نخورده
+      # می‌ماند و هیچ فایل بک‌اندی تغییر نمی‌کند.
+      - name: Prepare CI-only test settings (plain static storage)
+        run: |
+          TEST_SETTINGS_DIR="$RUNNER_TEMP/ci-test-settings"
+          mkdir -p "$TEST_SETTINGS_DIR"
+          cat > "$TEST_SETTINGS_DIR/ci_test_settings.py" <<'PYEOF'
+          from config.settings.dev import *  # noqa: F401,F403
+
+          STORAGES = {
+              "default": {"BACKEND": "django.core.files.storage.FileSystemStorage"},
+              "staticfiles": {"BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage"},
+          }
+          STATICFILES_STORAGE = "django.contrib.staticfiles.storage.StaticFilesStorage"
+          PYEOF
+          echo "DJANGO_SETTINGS_MODULE=ci_test_settings" >> "$GITHUB_ENV"
+          echo "PYTHONPATH=$TEST_SETTINGS_DIR:${{ github.workspace }}/EmmettWebSite/backend" >> "$GITHUB_ENV"
+
+      # نکتهٔ ایزولاسیون (ADR-0037): ‎test_backup_db.py‎ مقدار
+      # ‎DATABASES["default"]["ENGINE"]‎ را به MySQL تغییر می‌دهد و برنمی‌گرداند؛
+      # روی runner (که mysqldump دارد) این نشت، تست backup بعدی را به اتصال
+      # واقعی MySQL می‌فرستد. آن فایل در همان CI و با همان گیت پوشش، ولی در
+      # پروسهٔ جدا اجرا می‌شود تا نشت به بقیهٔ سوئیت نرسد — بدون تغییر بک‌اند.
+      - name: Run pytest with coverage enforcement (≥ 85%)
+        run: |
+          set -o pipefail
+          coverage run -m pytest -q --ignore=apps/core/tests/test_backup_db.py 2>&1 | tee "$RUNNER_TEMP/pytest-output.log"
+          coverage run --append -m pytest -q apps/core/tests/test_backup_db.py 2>&1 | tee -a "$RUNNER_TEMP/pytest-output.log"
+          coverage report --fail-under=85 -m 2>&1 | tee "$RUNNER_TEMP/coverage-report.log"
+
+      # نام تست‌های failشده به‌صورت annotation روی خود جاب دیده می‌شود تا
+      # برای فهم شکست لازم نباشد لاگ کامل دانلود شود (ADR-0037).
+      - name: Publish backend test failure summary
+        if: failure()
+        run: |
+          grep -E "^(FAILED|ERROR)" "$RUNNER_TEMP/pytest-output.log" | head -50 | while IFS= read -r line; do
+            echo "::error title=pytest-failure::$line"
+          done
+          tail -n 20 "$RUNNER_TEMP/pytest-output.log" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload backend test output
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-test-output-${{ github.run_id }}
+          path: |
+            ${{ runner.temp }}/pytest-output.log
+            ${{ runner.temp }}/coverage-report.log
+          if-no-files-found: ignore
+          retention-days: 14
+
+  # ---------------------------------------------------------------------------
+  # ۳) دروازهٔ کیفیت فرانت‌اند: Prettier + ESLint + TypeScript Strict
+  # ---------------------------------------------------------------------------
+  frontend-quality:
+    name: "Frontend: Prettier, ESLint & TypeScript Strict"
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: EmmettWebSite/frontend
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "npm"
+          cache-dependency-path: EmmettWebSite/frontend/package-lock.json
+
+      - name: Install frontend dependencies
+        run: npm ci
+
+      - name: Prettier format check
+        run: npm run format:check
+
+      - name: ESLint check
+        run: npm run lint
+
+      - name: TypeScript strict check (Rule 7)
+        run: npm run typecheck
+
+  # ---------------------------------------------------------------------------
+  # ۴) تست واحد/کامپوننت فرانت‌اند (Coverage ≥ 85%) + بیلد Production Next.js
+  # ---------------------------------------------------------------------------
+  frontend-test-build:
+    name: "Frontend: Vitest Coverage (≥ 85%) & Next.js Build"
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: EmmettWebSite/frontend
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "npm"
+          cache-dependency-path: EmmettWebSite/frontend/package-lock.json
+
+      - name: Install frontend dependencies
+        run: npm ci
+
+      - name: Run Vitest unit & component tests with coverage (≥ 85%)
+        run: npm run test:coverage
+
+      - name: Build Next.js production application
+        env:
+          PUBLIC_SITE_URL: https://emmett.ir
+          INTERNAL_API_URL: http://127.0.0.1:8000
+        run: npm run build
+
+  # ---------------------------------------------------------------------------
+  # ۵) اسکن امنیتی: اسکن رازها + Bandit SAST + Django Deploy Check + npm audit
+  # ---------------------------------------------------------------------------
+  security-scan:
+    name: "Security: Secret Scan, Bandit, Django Deploy & NPM Audit"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+          cache-dependency-path: |
+            EmmettWebSite/backend/requirements.txt
+            EmmettWebSite/backend/requirements-dev.txt
+
+      - name: Set up Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "npm"
+          cache-dependency-path: EmmettWebSite/frontend/package-lock.json
+
+      - name: Scan repository for leaked secrets or .env files (Rule 5)
+        run: python3 EmmettWebSite/scripts/check_secrets.py
+
+      - name: Install backend dev tools & run Bandit SAST
+        working-directory: EmmettWebSite/backend
+        run: |
+          pip install -r requirements-dev.txt
+          bandit -c pyproject.toml -r apps config -ll
+
+      - name: Verify Django production security posture
+        working-directory: EmmettWebSite/backend
+        env:
+          DJANGO_SETTINGS_MODULE: config.settings.production
+          DJANGO_SECRET_KEY: "ci-production-verification-key-with-more-than-50-chars-entropy-987654"
+          DJANGO_ALLOWED_HOSTS: "emmett.ir,www.emmett.ir"
+          DJANGO_CSRF_TRUSTED_ORIGINS: "https://emmett.ir"
+          PUBLIC_SITE_URL: "https://emmett.ir"
+          ADMIN_2FA_REQUIRED: "True"
+          DJANGO_CSP_ENABLED: "True"
+          DJANGO_FRAME_ANCESTORS: "'none'"
+          MYSQL_DATABASE: "emmett_prod"
+          MYSQL_USER: "emmett_user"
+          MYSQL_PASSWORD: "ci-dummy-db-password"
+        run: |
+          mkdir -p backups
+          python manage.py check --deploy --fail-level ERROR
+
+      - name: Audit production frontend dependencies
+        working-directory: EmmettWebSite/frontend
+        run: |
+          npm ci
+          npm audit --omit=dev --audit-level=moderate
+
+  # ---------------------------------------------------------------------------
+  # ۶) تست‌های E2E (Playwright) و بودجهٔ کارایی Lighthouse CI (هدف ≥ 95)
+  # ---------------------------------------------------------------------------
+  e2e-and-lighthouse:
+    name: "E2E (Playwright) & Lighthouse CI (≥ 95)"
+    runs-on: ubuntu-latest
+    needs: [backend-quality, backend-test, frontend-quality, frontend-test-build]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+          cache-dependency-path: |
+            EmmettWebSite/backend/requirements.txt
+            EmmettWebSite/backend/requirements-dev.txt
+
+      - name: Set up Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "npm"
+          cache-dependency-path: EmmettWebSite/frontend/package-lock.json
+
+      - name: Install & start seeded Django backend
+        working-directory: EmmettWebSite/backend
+        env:
+          DJANGO_SETTINGS_MODULE: config.settings.dev
+          PUBLIC_SITE_URL: http://127.0.0.1:3000
+          # نام واقعی متغیر در settings‏ DJANGO_CSRF_TRUSTED_ORIGINS است؛ بدون
+          # آن، Origin مرورگر (127.0.0.1:3000) در همهٔ POSTهای سمت کاربر
+          # (ثبت‌نام/تماس/خبرنامه/تخمین‌گر) با 403 CSRF رد می‌شود (ADR-0037).
+          DJANGO_CSRF_TRUSTED_ORIGINS: "http://127.0.0.1:3000,http://localhost:3000"
+          CORS_ALLOWED_ORIGINS: "http://127.0.0.1:3000"
+          # سقف‌های throttle پیش‌فرض (anon ‏100/hour و…) برای ترافیک واقعی
+          # اینترنت‌اند؛ در E2E همهٔ درخواست‌ها (SSR نکست + مرورگر) از یک IP
+          # لوکال می‌آیند و سقف در چند دقیقه پر می‌شود (شواهد CI: صدها 429
+          # روی /seo/redirects و فهرست‌ها). فقط در همین محیط CI با knobهای
+          # رسمی خود settings بالا می‌روند؛ production دست‌نخورده است.
+          THROTTLE_RATE_ANON: "100000/hour"
+          THROTTLE_RATE_USER: "100000/hour"
+          THROTTLE_RATE_CONTACT: "10000/day"
+          THROTTLE_RATE_AI: "10000/hour"
+          THROTTLE_RATE_AUTH: "10000/hour"
+          THROTTLE_RATE_NEWSLETTER: "10000/day"
+        run: |
+          pip install -r requirements-dev.txt
+          python manage.py migrate --noinput
+          python manage.py seed_demo_data
+          nohup python manage.py runserver 127.0.0.1:8000 --noreload > /tmp/django-e2e.log 2>&1 &
+          for i in $(seq 1 30); do
+            if curl -fsS http://127.0.0.1:8000/api/v1/health/ >/dev/null; then
+              echo "Django backend is healthy."
+              break
+            fi
+            sleep 1
+          done
+
+      - name: Install frontend dependencies & Playwright Chromium
+        working-directory: EmmettWebSite/frontend
+        run: |
+          npm ci
+          npx playwright install --with-deps chromium
+
+      - name: Run Playwright E2E test suite
+        working-directory: EmmettWebSite/frontend
+        env:
+          CI: "true"
+          INTERNAL_API_URL: http://127.0.0.1:8000
+          PUBLIC_SITE_URL: http://127.0.0.1:3000
+        run: |
+          set -o pipefail
+          npm run test:e2e 2>&1 | tee "$RUNNER_TEMP/playwright-output.log"
+
+      # عنوان تست‌های failشده + متن کامل خطا (چندخطی) به‌صورت annotation روی
+      # خود جاب (ADR-0037) تا برای دیباگ لازم نباشد آرتیفکت دانلود شود.
+      - name: Publish Playwright failure summary
+        if: failure()
+        run: |
+          python3 - "$RUNNER_TEMP/playwright-output.log" <<'PYEOF'
+          import re
+          import sys
+
+          lines = open(sys.argv[1], encoding="utf-8", errors="ignore").read().splitlines()
+          failures: list[tuple[str, list[str]]] = []
+          current: tuple[str, list[str]] | None = None
+          for line in lines:
+              if re.match(r"^\s*\d+\) \[", line):
+                  current = (line.strip(), [])
+                  failures.append(current)
+              elif current is not None and len(current[1]) < 22:
+                  current[1].append(line.rstrip())
+          for title, block in failures[:10]:
+              body = "\n".join([title, *block])
+              escaped = body.replace("%", "%25").replace("\r", "%0D").replace("\n", "%0A")
+              print(f"::error title=playwright-failure::{escaped}")
+          PYEOF
+          grep -E "passed|failed|flaky|did not run" "$RUNNER_TEMP/playwright-output.log" | tail -5 >> "$GITHUB_STEP_SUMMARY" || true
+          grep -E "passed|failed|flaky|did not run" "$RUNNER_TEMP/playwright-output.log" | tail -5 | while IFS= read -r line; do
+            echo "::notice title=playwright-summary::$line"
+          done
+
+      # اسنپ‌شات دسترس‌پذیری صفحه در لحظهٔ شکست (error-context.md) هم به‌صورت
+      # annotation منتشر می‌شود تا وضعیت واقعی DOM بدون دانلود آرتیفکت معلوم باشد.
+      - name: Publish Playwright page snapshots
+        if: failure()
+        working-directory: EmmettWebSite/frontend
+        run: |
+          python3 - <<'PYEOF'
+          import glob
+
+          for index, path in enumerate(sorted(glob.glob("test-results/**/error-context.md", recursive=True))[:10], 1):
+              text = open(path, encoding="utf-8", errors="ignore").read()
+              yaml_text = text.split("```yaml", 1)[-1]
+              lines = [line.rstrip() for line in yaml_text.splitlines() if line.strip()]
+              main_at = next((i for i, line in enumerate(lines) if line.startswith("- main:")), 0)
+              lines = lines[main_at:] if main_at else lines
+              body = "\n".join([path, *lines[:80]])[:3800]
+              escaped = body.replace("%", "%25").replace("\r", "%0D").replace("\n", "%0A")
+              print(f"::error title=playwright-context-{index}::{escaped}")
+          PYEOF
+
+      # پاسخ‌های خطادار بک‌اند در طول E2E (مثل 403 CSRF یا 429 throttle) هم
+      # به‌صورت annotation منتشر می‌شوند؛ لاگ جنگو ساخت‌یافته و JSON است.
+      - name: Publish backend API errors seen during E2E
+        if: failure()
+        run: |
+          python3 - <<'PYEOF'
+          import json
+
+          from collections import Counter
+
+          counts: Counter = Counter()
+          try:
+              raw_lines = open("/tmp/django-e2e.log", encoding="utf-8", errors="ignore").read().splitlines()
+          except FileNotFoundError:
+              raw_lines = []
+          for raw in raw_lines:
+              try:
+                  entry = json.loads(raw)
+              except (ValueError, TypeError):
+                  continue
+              code = entry.get("code")
+              if isinstance(code, int) and code >= 400:
+                  counts[(entry.get("request"), code)] += 1
+          for (request, code), total in counts.most_common(10):
+              print(f"::error title=backend-api-error::{request} -> {code} x{total}")
+          PYEOF
+
+      - name: Upload Playwright diagnostics (report, traces & responsive screenshots)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-diagnostics-${{ github.run_id }}
+          path: |
+            EmmettWebSite/frontend/playwright-report
+            EmmettWebSite/frontend/test-results
+            /tmp/django-e2e.log
+          if-no-files-found: ignore
+          retention-days: 14
+
+      - name: Run Lighthouse CI (target ≥ 95 across all categories)
+        working-directory: EmmettWebSite/frontend
+        env:
+          INTERNAL_API_URL: http://127.0.0.1:8000
+          PUBLIC_SITE_URL: http://127.0.0.1:3000
+        run: |
+          # LHCI همان Chromium پلی‌رایت را استفاده می‌کند (ADR-0037) تا
+          # باینری دوم لازم نباشد و مرورگرِ سبزِ E2E همان مرورگر Lighthouse باشد.
+          CHROME_PATH="$(node -e "console.log(require('playwright-core').chromium.executablePath())")"
+          test -x "$CHROME_PATH"
+          echo "Lighthouse Chrome: $CHROME_PATH"
+          export CHROME_PATH
+          nohup npm run start -- -p 3000 -H 127.0.0.1 > /tmp/next-lhci.log 2>&1 &
+          for i in $(seq 1 30); do
+            if curl -fsS http://127.0.0.1:3000/ >/dev/null; then
+              break
+            fi
+            sleep 1
+          done
+          set -o pipefail
+          npx --yes @lhci/cli@0.14.x autorun --config=../.lighthouserc.json 2>&1 | tee "$RUNNER_TEMP/lhci-output.log"
+
+      # خلاصهٔ امتیازهای Lighthouse (از manifest.json خود LHCI) به‌صورت
+      # annotation؛ هم خطاهای زیرِ ۰٫۹۵ و هم خطاهای زیرساختی collect معلوم‌اند.
+      - name: Publish Lighthouse failure summary
+        if: failure()
+        working-directory: EmmettWebSite/frontend
+        run: |
+          python3 - "$RUNNER_TEMP/lhci-output.log" <<'PYEOF'
+          import glob
+          import json
+          import sys
+
+          emitted = 0
+          for manifest_path in glob.glob(".lighthouseci/manifest.json"):
+              try:
+                  manifest = json.load(open(manifest_path, encoding="utf-8"))
+              except (ValueError, OSError):
+                  continue
+              for entry in manifest:
+                  if not entry.get("isRepresentativeRun"):
+                      continue
+                  url = entry.get("url", "?")
+                  for category, score in sorted(entry.get("summary", {}).items()):
+                      if isinstance(score, (int, float)) and score < 0.95 and emitted < 10:
+                          print(f"::error title=lighthouse-score::{url} {category}={score:.2f} (< 0.95)")
+                          emitted += 1
+                  # auditهای مشخصِ failشده در همان گزارش نماینده، تا اصلاح
+                  # هدفمند باشد نه حدسی.
+                  try:
+                      report = json.load(open(entry["jsonPath"], encoding="utf-8"))
+                  except (KeyError, ValueError, OSError):
+                      continue
+                  audits = report.get("audits", {})
+                  for category_id in ("accessibility", "performance"):
+                      category = report.get("categories", {}).get(category_id, {})
+                      for ref in category.get("auditRefs", []):
+                          if emitted >= 10:
+                              break
+                          audit = audits.get(ref.get("id"), {})
+                          score = audit.get("score")
+                          if score is not None and score < 1 and audit.get("scoreDisplayMode") in ("binary", "numeric"):
+                              detail = audit.get("displayValue", "")
+                              print(
+                                  f"::error title=lighthouse-audit::{url} {category_id}/{ref.get('id')}={score} {detail}".strip()
+                              )
+                              emitted += 1
+
+          if emitted == 0:
+              # امتیاز زیر آستانه‌ای در manifest نیست؛ پس شکست زیرساختی است و
+              # خطوط معنادار لاگ LHCI را منتشر می‌کنیم.
+              try:
+                  log_lines = open(sys.argv[1], encoding="utf-8", errors="ignore").read().splitlines()
+              except OSError:
+                  log_lines = []
+              interesting = [
+                  line.strip()
+                  for line in log_lines
+                  if any(key in line for key in ("Error", "error", "Failed", "failed", "ECONN", "Chrome", "lighthouse"))
+              ]
+              for line in interesting[-10:]:
+                  print(f"::error title=lighthouse-infra::{line[:300]}")
+          PYEOF
+
+      # گره‌های مشخص failشده در auditهای دسترس‌پذیری/bf-cache (گام جدا، چون
+      # سقف annotation هر step ده‌تاست).
+      - name: Publish Lighthouse failing nodes
+        if: failure()
+        working-directory: EmmettWebSite/frontend
+        run: |
+          python3 - <<'PYEOF'
+          import glob
+          import json
+
+          emitted = 0
+          for manifest_path in glob.glob(".lighthouseci/manifest.json"):
+              try:
+                  manifest = json.load(open(manifest_path, encoding="utf-8"))
+              except (ValueError, OSError):
+                  continue
+              for entry in manifest:
+                  if not entry.get("isRepresentativeRun") or emitted >= 10:
+                      continue
+                  try:
+                      report = json.load(open(entry["jsonPath"], encoding="utf-8"))
+                  except (KeyError, ValueError, OSError):
+                      continue
+                  audits = report.get("audits", {})
+                  url = entry.get("url", "?")
+                  for audit_id, limit in (
+                      ("color-contrast", 5),
+                      ("heading-order", 2),
+                      ("label-content-name-mismatch", 2),
+                      ("bf-cache", 2),
+                  ):
+                      if emitted >= 10:
+                          break
+                      audit = audits.get(audit_id, {})
+                      if audit.get("score") in (None, 1):
+                          continue
+                      for item in audit.get("details", {}).get("items", [])[:limit]:
+                          if emitted >= 10:
+                              break
+                          node = item.get("node", {}) if isinstance(item, dict) else {}
+                          snippet = node.get("selector") or node.get("snippet") or item.get("reason") or str(item)[:160]
+                          print(f"::error title=lighthouse-node::{url} {audit_id}: {str(snippet)[:220]}")
+                          emitted += 1
+          PYEOF
+
+      - name: Upload Lighthouse reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: lighthouse-reports-${{ github.run_id }}
+          path: |
+            EmmettWebSite/frontend/.lighthouseci
+            /tmp/next-lhci.log
+          if-no-files-found: ignore
+          retention-days: 14
