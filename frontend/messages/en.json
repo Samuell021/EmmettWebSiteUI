@@ -1,0 +1,712 @@
+{
+  "metadata": {
+    "siteName": "Emmett",
+    "defaultTitle": "Emmett — Software Engineering Studio",
+    "defaultDescription": "Emmett is an engineering studio that solves difficult, systems-level problems with the same rigor an architecture practice brings to a building.",
+    "ogTitle": "Emmett",
+    "ogSubtitle": "Engineering studio — design and build of complex systems",
+    "ogBrand": "EMMETT"
+  },
+  "common": {
+    "skipToContent": "Skip to main content",
+    "startProject": "Start a project",
+    "loading": "Loading…",
+    "readMore": "Read more",
+    "viewAll": "View all"
+  },
+  "nav": {
+    "home": "Home",
+    "services": "Services",
+    "products": "Products",
+    "projects": "Projects",
+    "library": "Library",
+    "academy": "Academy",
+    "about": "About",
+    "contact": "Contact",
+    "openMenu": "Open menu",
+    "closeMenu": "Close menu",
+    "search": "Search",
+    "landmark": "Primary",
+    "menu": "Menu",
+    "account": "Account",
+    "advisor": "Creative advisor",
+    "estimate": "Project estimate",
+    "startProject": "Start a Project"
+  },
+
+  "locale": {
+    "switchLabel": "Switch language",
+    "fa": "فارسی",
+    "en": "English",
+    "shortFa": "فا",
+    "shortEn": "EN"
+  },
+  "footer": {
+    "tagline": "We engineer systems for difficult problems.",
+    "rights": "All rights reserved.",
+    "builtBy": "Designed and built by the Emmett engineering team"
+  },
+  "hero": {
+    "eyebrow": "Emmett Group / Engineering Studio",
+    "headline": "We engineer systems for difficult problems.",
+    "subtext": "Software, AI/ML, cybersecurity, and infrastructure — with the same rigor an architecture practice brings to a building.",
+    "primaryCta": "Explore our work",
+    "secondaryCta": "Start a project"
+  },
+  "designSystem": {
+    "title": "Design System",
+    "description": "A living sample page for Phase 3 tokens and components — for design review, not final site content.",
+    "colors": "Colors",
+    "typography": "Typography",
+    "spacing": "Spacing",
+    "buttons": "Buttons",
+    "formElements": "Form elements",
+    "cards": "Cards",
+    "dateNumberSample": "Date & number sample",
+    "today": "Today",
+    "sampleAmount": "Sample amount",
+    "buttonVariant": {
+      "primary": "Primary button",
+      "secondary": "Secondary button",
+      "ghost": "Ghost button",
+      "loading": "Submitting…",
+      "disabled": "Disabled"
+    },
+    "badges": "Badges",
+    "avatar": "Avatar",
+    "breadcrumb": "Breadcrumb"
+  },
+  "form": {
+    "nameLabel": "Name",
+    "namePlaceholder": "Enter your name",
+    "emailLabel": "Email",
+    "emailPlaceholder": "you@example.com",
+    "messageLabel": "Message",
+    "messagePlaceholder": "Tell us what you're building…",
+    "submit": "Submit",
+    "requiredError": "This field is required."
+  },
+  "pagination": {
+    "previous": "Previous",
+    "next": "Next",
+    "pageOf": "Page {current} of {total}"
+  },
+  "services": {
+    "title": "Services",
+    "description": "What we build, how we build it, and why it holds up under pressure.",
+    "empty": "No services found.",
+    "backToList": "Back to services",
+    "listHeading": "All services"
+  },
+  "projects": {
+    "title": "Projects",
+    "description": "Case studies and products we've shipped for real clients.",
+    "products": "Products",
+    "productsDescription": "Internal products we built and now run ourselves.",
+    "empty": "No projects found.",
+    "filterByTechnology": "Technology",
+    "filterByIndustry": "Industry",
+    "allTechnologies": "All technologies",
+    "allIndustries": "All industries",
+    "client": "Client",
+    "year": "Year",
+    "challenge": "Challenge",
+    "approach": "Approach",
+    "result": "Result",
+    "technologyStack": "Technology stack",
+    "backToList": "Back to projects"
+  },
+  "academy": {
+    "title": "Academy",
+    "description": "Courses to level up your engineering and security skills.",
+    "empty": "No courses found.",
+    "level": "Level",
+    "levels": {
+      "beginner": "Beginner",
+      "intermediate": "Intermediate",
+      "advanced": "Advanced"
+    },
+    "instructor": "Instructor",
+    "duration": "Duration",
+    "hours": "hours",
+    "curriculum": "Curriculum",
+    "lessons": "lessons",
+    "minutes": "min",
+    "preview": "Preview",
+    "enroll": "Enroll in this course",
+    "enrolled": "You're enrolled in this course",
+    "enrollRequiresLogin": "Sign in to enroll",
+    "backToList": "Back to academy",
+    "rssFeed": "Courses RSS feed"
+  },
+  "blog": {
+    "title": "Library",
+    "description": "Articles on engineering, security, and product craft.",
+    "empty": "No articles found.",
+    "readingTime": "{minutes} min read",
+    "tableOfContents": "On this page",
+    "relatedPosts": "Related articles",
+    "comments": "Comments",
+    "noComments": "No comments yet.",
+    "addComment": "Add a comment",
+    "commentPlaceholder": "Share your thoughts…",
+    "commentSubmit": "Post comment",
+    "commentPending": "Your comment was submitted and is awaiting moderation.",
+    "commentLoginRequired": "Sign in to leave a comment.",
+    "rssFeed": "RSS feed",
+    "backToList": "Back to library",
+    "aiSummary": "AI-assisted summary",
+    "aiSummaryReviewed": "Reviewed by the editorial team before publication."
+  },
+  "team": {
+    "title": "About us",
+    "description": "The people behind Emmett, and what our clients say.",
+    "teamHeading": "Team",
+    "testimonialsHeading": "What clients say"
+  },
+  "contact": {
+    "title": "Contact",
+    "description": "Tell us about your project and we'll get back to you shortly.",
+    "nameLabel": "Name",
+    "emailLabel": "Email",
+    "phoneLabel": "Phone",
+    "projectTypeLabel": "Project type",
+    "budgetLabel": "Budget range",
+    "timelineLabel": "Timeline",
+    "messageLabel": "Message",
+    "consentLabel": "I agree to be contacted about my request.",
+    "submit": "Send message",
+    "submitting": "Sending…",
+    "success": "Thanks! We've received your message and will be in touch soon.",
+    "error": "Something went wrong. Please try again.",
+    "newsletterTitle": "Subscribe to our newsletter",
+    "newsletterPlaceholder": "you@example.com",
+    "newsletterSubmit": "Subscribe",
+    "newsletterSuccess": "You're subscribed!",
+    "catalogUnavailable": "Form options are temporarily unavailable. Please try again shortly."
+  },
+  "search": {
+    "title": "Search",
+    "placeholder": "Search services, projects, courses, articles…",
+    "submit": "Search",
+    "resultsCount": "{count} results for \"{query}\"",
+    "empty": "No results found.",
+    "prompt": "Start typing to search the whole site."
+  },
+  "profile": {
+    "title": "Account",
+    "loginTitle": "Sign in",
+    "registerTitle": "Create an account",
+    "loginTab": "Sign in",
+    "registerTab": "Create account",
+    "emailLabel": "Email",
+    "passwordLabel": "Password",
+    "firstNameLabel": "First name",
+    "lastNameLabel": "Last name",
+    "loginSubmit": "Sign in",
+    "registerSubmit": "Create account",
+    "logout": "Sign out",
+    "welcome": "Welcome back, {name}",
+    "favoritesHeading": "Favorites",
+    "noFavorites": "You haven't saved anything yet.",
+    "enrollmentsHeading": "My courses",
+    "noEnrollments": "You haven't enrolled in any course yet.",
+    "error": "Something went wrong. Please check your details."
+  },
+  "errors": {
+    "notFoundTitle": "Page not found",
+    "notFoundDescription": "The page you're looking for doesn't exist or has moved.",
+    "notFoundCta": "Back to home",
+    "serverErrorTitle": "Something went wrong",
+    "serverErrorDescription": "An unexpected error occurred. Our team has been notified.",
+    "serverErrorCta": "Try again"
+  },
+  "ai": {
+    "eyebrow": "Emmett Product Studio",
+    "advisorTitle": "Creative advisor",
+    "advisorDescription": "Choose a few structured details about your business to receive up to three software concepts for an initial review.",
+    "estimatorTitle": "Project estimator",
+    "estimatorDescription": "Choose the scope of a first release to see an optimistic, non-binding minimum timeline based on current rules.",
+    "jobRoleLabel": "Your role",
+    "businessSizeLabel": "Business size",
+    "cityScaleLabel": "City scale",
+    "budgetLabel": "Approximate project budget",
+    "teamSizeLabel": "Relevant team size",
+    "goalsLabel": "Primary goals",
+    "goalsHint": "Select one to five options.",
+    "catalogUnavailable": "The required options are temporarily unavailable. Please try again shortly.",
+    "goalsRequired": "Select at least one goal to continue.",
+    "requestError": "We could not process the request. Please try again later.",
+    "privacyNote": "Only structured choices from this form are used to generate ideas; your name, contact details, and free text are never sent to the model.",
+    "generateIdeas": "Generate preliminary ideas",
+    "generating": "Generating ideas…",
+    "preliminaryDisclaimer": "These are preliminary concepts for discussion, not ready products or delivery commitments. No numerical price is shown; submit a request for human review and pricing.",
+    "estimatorPrompt": "For an initial timeline,",
+    "estimatorLink": "try the project estimator",
+    "deliveryScopeLabel": "First-release scope",
+    "estimateDisclaimer": "The displayed timeline is an optimistic minimum in working days and is not a delivery commitment. This tool does not provide a numerical price.",
+    "estimateResultTitle": "Initial timeline estimate",
+    "minimumDays": "Optimistic minimum: {days} working days",
+    "estimateUnavailable": "There is no active timeline rule for this scope yet.",
+    "estimateProject": "Estimate initial timeline",
+    "estimating": "Calculating…",
+    "requestQuote": "Request review and pricing",
+    "sharedResultTitle": "Preliminary concepts",
+    "conceptNumber": "Concept {number}",
+    "benefitLabel": "Potential value",
+    "relatedExisting": "Related to: {title}",
+    "leadFormDescription": "Request a follow-up so the Emmett team can review this concept with you.",
+    "leadSuccess": "Your request is in. The Emmett team will contact you to follow up.",
+    "sendingLead": "Submitting request…",
+    "requestReview": "Request a concept review",
+    "contactPrivacyNote": "Your contact details and message are used only to follow up and are never sent to the AI model.",
+    "startAgain": "Generate new ideas",
+    "shareLink": "Copy share link",
+    "linkCopied": "Link copied",
+    "linkCopyError": "Automatic copying is unavailable. Copy the page URL from your browser address bar."
+  },
+  "ui": {
+    "brand": "EMMETT",
+    "brandGroup": "GROUP",
+    "loader": {
+      "initializing": "INITIALIZING",
+      "collective": "EMMETT GROUP · ENGINEERING COLLECTIVE"
+    },
+    "nav": {
+      "openMenu": "Open menu",
+      "closeMenu": "Close menu",
+      "searchPlaceholder": "Search pages, products, commands…",
+      "noResults": "No results found.",
+      "pagesHeading": "Pages",
+      "resultsHeading": "Search results",
+      "searching": "Searching…",
+      "searchError": "Search failed; page results are still available.",
+      "viewAllResults": "View all results for “{query}”",
+      "palette": [
+        {
+          "label": "Home",
+          "category": "Page",
+          "href": "/"
+        },
+        {
+          "label": "Services — The Engineering System",
+          "category": "Page",
+          "href": "/services"
+        },
+        {
+          "label": "Products — The Product Lab",
+          "category": "Page",
+          "href": "/products"
+        },
+        {
+          "label": "PenTestor — Security Engineering",
+          "category": "Product",
+          "href": "/products/pentestor"
+        },
+        {
+          "label": "CRM — Business Systems",
+          "category": "Product",
+          "href": "/products/crm"
+        },
+        {
+          "label": "Projects — Proof of Work",
+          "category": "Page",
+          "href": "/projects"
+        },
+        {
+          "label": "Library — Engineering Knowledge",
+          "category": "Page",
+          "href": "/blog"
+        },
+        {
+          "label": "Academy — Learning Paths",
+          "category": "Page",
+          "href": "/academy"
+        },
+        {
+          "label": "About — Who We Are",
+          "category": "Page",
+          "href": "/about"
+        },
+        {
+          "label": "Contact — Start a Project",
+          "category": "Action",
+          "href": "/contact"
+        },
+        {
+          "label": "Creative advisor",
+          "category": "Page",
+          "href": "/advisor"
+        },
+        {
+          "label": "Project estimate",
+          "category": "Page",
+          "href": "/estimate"
+        },
+        {
+          "label": "Search",
+          "category": "Page",
+          "href": "/search"
+        },
+        {
+          "label": "Account",
+          "category": "Page",
+          "href": "/profile"
+        }
+      ]
+    },
+    "hero": {
+      "eyebrow": "Engineering Collective · University of Tehran",
+      "line1": "We engineer",
+      "accent": "intelligent",
+      "line3": "systems.",
+      "sub": "Software, AI, cybersecurity and products built for real-world complexity.",
+      "explore": "Explore our work",
+      "start": "Start a project",
+      "stats": [
+        {
+          "value": "40+",
+          "label": "Systems Shipped"
+        },
+        {
+          "value": "99.97%",
+          "label": "Uptime SLA"
+        },
+        {
+          "value": "12",
+          "label": "Countries"
+        }
+      ],
+      "ai": "AI / ML",
+      "security": "Security",
+      "backend": "Backend",
+      "version": "v4.1.2 · live",
+      "online": "Systems Online",
+      "scroll": "scroll"
+    },
+    "services": {
+      "eyebrow": "Services · 01",
+      "title": "Engineering across the entire stack.",
+      "lead": "From infrastructure to intelligence, we design and build the systems that make ambitious products possible.",
+      "viewSystem": "View full engineering system",
+      "mapTitle": "System Map · Hover to explore",
+      "mapIdle": "Hover a service to activate",
+      "slots": [
+        {
+          "title": "Software Engineering",
+          "copy": "Robust software systems designed for scale, reliability and long-term evolution.",
+          "tags": ["Architecture", "Backend", "APIs", "Distributed Systems"]
+        },
+        {
+          "title": "AI / Machine Learning",
+          "copy": "From data to intelligent systems — we turn machine learning research into usable products.",
+          "tags": ["ML", "Deep Learning", "LLMs", "Computer Vision"]
+        },
+        {
+          "title": "Cybersecurity",
+          "copy": "Security engineered into the system — from attack surface to infrastructure hardening.",
+          "tags": ["Appsec", "Pentesting", "Threat Analysis", "Security Automation"]
+        },
+        {
+          "title": "Product Engineering",
+          "copy": "We transform complex ideas into products people can actually use and build on.",
+          "tags": ["UX", "UI", "Prototyping", "Product Architecture"]
+        },
+        {
+          "title": "Infrastructure",
+          "copy": "The systems beneath the systems. Cloud, DevOps, containers, deployment, observability.",
+          "tags": ["Cloud", "DevOps", "Containers", "Observability"]
+        }
+      ]
+    },
+    "products": {
+      "eyebrow": "Products · 02",
+      "title": "Products born from engineering problems.",
+      "lead": "We build tools and systems because we have encountered problems worth solving ourselves.",
+      "view": "View product",
+      "seeAll": "See all products",
+      "slots": [
+        {
+          "name": "Pentestor",
+          "tagline": "AI-powered security engineering.",
+          "copy": "Transforms complex security assessment into an intelligent, structured workflow. Attack surface mapping, network topology, findings analysis — all in one platform.",
+          "tags": ["Security", "AI Analysis", "Network Topology", "Risk Prioritization"],
+          "pill": "Enterprise Security"
+        },
+        {
+          "name": "CRM Platform",
+          "tagline": "Business systems around real workflows.",
+          "copy": "A flexible CRM and operations platform designed around how teams actually work — not the other way around. Pipeline, contacts, tasks, analytics and automation.",
+          "tags": ["CRM", "Pipeline", "Automation", "Analytics"],
+          "pill": "Business Operations"
+        },
+        {
+          "name": "Property Platform",
+          "tagline": "Data-driven property discovery.",
+          "copy": "Location intelligence, listings, filters and analytics for the modern real estate ecosystem. Built for scale, designed for clarity.",
+          "tags": ["Location Intelligence", "Data", "Maps", "Analytics"],
+          "pill": "PropTech"
+        }
+      ],
+      "pentestor": {
+        "status": "Scan Active",
+        "rows": [
+          {
+            "label": "Attack Surface",
+            "value": "247 endpoints"
+          },
+          {
+            "label": "Critical Findings",
+            "value": "3"
+          },
+          {
+            "label": "AI Risk Score",
+            "value": "7.4 / 10"
+          },
+          {
+            "label": "Remediation",
+            "value": "18 / 21"
+          }
+        ]
+      },
+      "crm": {
+        "title": "Pipeline",
+        "period": "Q3 2026",
+        "stages": ["Qualified", "Proposal", "Negotiation", "Closed Won"]
+      },
+      "property": {
+        "city": "Tehran",
+        "active": "1,247 active",
+        "areas": ["Zafaranieh", "Elahieh", "Farmanieh", "Niavaran"]
+      }
+    },
+    "projects": {
+      "eyebrow": "Projects · 03",
+      "title": "What we've built.",
+      "lead": "Real problems. Real constraints. Real systems.",
+      "outcome": "Outcome",
+      "caseStudy": "Read case study",
+      "viewAll": "View all projects",
+      "shown": "{shown} of {total} projects shown",
+      "shownFallback": "3 of 12 projects shown",
+      "slots": [
+        {
+          "title": "Athena Intelligence Platform",
+          "industry": "Defense & Intelligence",
+          "description": "Distributed intelligence fusion system processing multi-source data streams for real-time situational awareness at national scale.",
+          "tech": ["Go", "Kafka", "Kubernetes", "ML Pipeline", "PostgreSQL"],
+          "outcome": "14ms median latency at 2.4M events/sec",
+          "year": "2025"
+        },
+        {
+          "title": "Meridian Supply Chain",
+          "industry": "Logistics & Operations",
+          "description": "Real-time supply chain visibility and optimization engine covering procurement, manufacturing and last-mile delivery across 40+ countries.",
+          "tech": ["Python", "FastAPI", "Apache Spark", "Redis", "React"],
+          "outcome": "31% reduction in logistics overhead",
+          "year": "2025"
+        },
+        {
+          "title": "Axon Bioinformatics",
+          "industry": "Healthcare & Research",
+          "description": "Genomic analysis pipeline for rare disease diagnosis — sequence alignment, variant calling, and AI-assisted phenotype matching for clinical teams.",
+          "tech": ["Python", "Nextflow", "PyTorch", "PostgreSQL", "Docker"],
+          "outcome": "Reduced analysis time from 72h to 4h",
+          "year": "2024"
+        }
+      ]
+    },
+    "library": {
+      "eyebrow": "Library · 04",
+      "title": "What we're learning, building and thinking about.",
+      "featured": "Featured",
+      "caption": "LLM Throughput Analysis",
+      "taxonomy": "Engineering, AI, Security, Bioinformatics, Systems, Research",
+      "open": "Open Library",
+      "minute": "min",
+      "readSuffix": "{time} read",
+      "slots": [
+        {
+          "category": "AI / ML",
+          "title": "Building production LLM pipelines without the hype",
+          "author": "Ali Karimi",
+          "date": "Aug 2026",
+          "readTime": "14 min",
+          "excerpt": "A practical breakdown of how we designed and deployed a real-time document intelligence system — what worked, what failed, and what we learned building at scale."
+        },
+        {
+          "category": "Cybersecurity",
+          "title": "Attack surface mapping at scale with graph theory",
+          "author": "Sara Tehrani",
+          "date": "Jul 2026",
+          "readTime": "11 min"
+        },
+        {
+          "category": "Systems",
+          "title": "Distributed consensus: beyond Raft and Paxos",
+          "author": "Reza Mohammadi",
+          "date": "Jul 2026",
+          "readTime": "18 min"
+        },
+        {
+          "category": "Engineering",
+          "title": "The cost of premature abstraction in Go microservices",
+          "author": "Ali Karimi",
+          "date": "Jun 2026",
+          "readTime": "9 min"
+        },
+        {
+          "category": "Bioinformatics",
+          "title": "Sequence alignment algorithms for clinical genomics",
+          "author": "Neda Hosseini",
+          "date": "Jun 2026",
+          "readTime": "22 min"
+        }
+      ]
+    },
+    "academy": {
+      "eyebrow": "Academy · 05",
+      "title": "Build your way into deeper knowledge.",
+      "lead": "Courses, paths and practical systems designed around real engineering problems — not artificial curricula.",
+      "graph": "Knowledge Graph · Learning Paths",
+      "available": "Available Paths",
+      "topics": "{count} topics",
+      "start": "Start building",
+      "slots": [
+        {
+          "name": "Software Engineering",
+          "level": "Foundations → Advanced",
+          "topics": 48,
+          "nodes": ["Algorithms", "Data Structures", "System Design", "Distributed", "Architecture"]
+        },
+        {
+          "name": "AI / Machine Learning",
+          "level": "Math → Production",
+          "topics": 56,
+          "nodes": ["Linear Algebra", "ML Fundamentals", "Deep Learning", "LLMs", "MLOps"]
+        },
+        {
+          "name": "Cybersecurity",
+          "level": "Concepts → Expert",
+          "topics": 42,
+          "nodes": ["Networking", "Security Basics", "Appsec", "Pentesting", "Security Eng."]
+        }
+      ]
+    },
+    "contact": {
+      "eyebrow": "Contact · 06",
+      "line1": "Have a difficult",
+      "accent": "problem?",
+      "lead1": "Tell us what you're trying to build.",
+      "lead2": "We'll figure out the system together.",
+      "start": "Start a conversation",
+      "work": "See our work first",
+      "meta": [
+        {
+          "label": "Location",
+          "value": "Tehran, IR"
+        },
+        {
+          "label": "Response time",
+          "value": "< 24h"
+        },
+        {
+          "label": "Languages",
+          "value": "EN · FA"
+        },
+        {
+          "label": "Status",
+          "value": "Accepting projects"
+        }
+      ]
+    },
+    "footer": {
+      "operational": "All systems operational",
+      "copyright": "© {year} Emmett Group",
+      "social": {
+        "github": "GitHub",
+        "linkedin": "LinkedIn",
+        "twitter": "Twitter"
+      },
+      "columns": [
+        {
+          "header": "Company",
+          "links": [
+            {
+              "label": "About",
+              "href": "/about"
+            },
+            {
+              "label": "Careers",
+              "href": "/about"
+            },
+            {
+              "label": "Contact",
+              "href": "/contact"
+            }
+          ]
+        },
+        {
+          "header": "Work",
+          "links": [
+            {
+              "label": "Services",
+              "href": "/services"
+            },
+            {
+              "label": "Products",
+              "href": "/products"
+            },
+            {
+              "label": "Projects",
+              "href": "/projects"
+            }
+          ]
+        },
+        {
+          "header": "Learn",
+          "links": [
+            {
+              "label": "Library",
+              "href": "/blog"
+            },
+            {
+              "label": "Academy",
+              "href": "/academy"
+            },
+            {
+              "label": "Research",
+              "href": "/blog"
+            }
+          ]
+        },
+        {
+          "header": "Legal",
+          "links": [
+            {
+              "label": "Privacy",
+              "href": "#"
+            },
+            {
+              "label": "Terms",
+              "href": "#"
+            },
+            {
+              "label": "Security",
+              "href": "#"
+            }
+          ]
+        }
+      ]
+    },
+    "comingSoon": {
+      "pending": "Phase 2 · Pending",
+      "body": "This page is part of the Emmett digital ecosystem and will be implemented in a future phase, following review and approval of the Home experience.",
+      "back": "Return to Home",
+      "pentestorTitle": "Pentestor",
+      "pentestorSubtitle": "AI-powered security engineering",
+      "crmTitle": "CRM",
+      "crmSubtitle": "Business systems engineered around real workflows"
+    }
+  }
+}

@@ -1,0 +1,76 @@
+# تست‌های E2E (Playwright)
+
+این پوشه تست‌های سطح مرورگر (End-to-End) فاز ۴ را نگه می‌دارد (ر.ک.
+[ADR-0023](../../docs/adr/0023-e2e-testing-playwright.md)). این تست‌ها با
+Vitest (`frontend/src/**/*.test.tsx`) جایگزین نمی‌شوند — Vitest برای تست
+واحد/کامپوننت می‌ماند، Playwright فقط برای جریان‌های کامل کاربر در مرورگر
+واقعی است.
+
+## پیش‌نیاز اجرا
+
+E2E به یک بک‌اند Django **در حال اجرا و seed‌شده** نیاز دارد، چون:
+
+- فرم تماس، ورود/ثبت‌نام، ثبت‌نام دوره و ثبت نظر واقعاً به `/api/v1/...`
+  درخواست می‌زنند (از طریق پراکسی `src/app/api/[...path]/route.ts`).
+- جست‌وجوی سراسری به FTS واقعی بک‌اند (نه داده‌ی mock) وابسته است.
+- صفحات در هر درخواست SSR می‌شوند تا nonce یکتای CSP از `src/proxy.ts` به
+  اسکریپت‌های Next تزریق شود؛ backend لازم نیست هنگام `next build` در دسترس
+  باشد، اما باید پیش از اجرای E2E بالا و seed شده باشد.
+
+مراحل اجرای کامل (از ریشهٔ ریپو):
+
+```bash
+# ۱) بک‌اند را با دادهٔ seed بالا بیاورید (در یک ترمینال جدا، تا پایان تست‌ها باز بماند)
+cd backend
+source .venv/bin/activate
+export DJANGO_SETTINGS_MODULE=config.settings.dev
+python manage.py migrate
+python manage.py seed_demo_data
+python manage.py runserver 0.0.0.0:8000
+
+# ۲) مرورگرهای Playwright را یک‌بار نصب کنید (نیاز به دسترسی شبکه به cdn.playwright.dev)
+cd frontend
+npx playwright install chromium
+
+# ۳) تست‌ها را اجرا کنید — این دستور خودش next build && next start را هم اجرا می‌کند
+INTERNAL_API_URL=http://127.0.0.1:8000 npm run test:e2e
+```
+
+برای حالت تعاملی توسعه (مشاهدهٔ هر قدم در UI Playwright):
+
+```bash
+npm run test:e2e:ui
+```
+
+## ساختار
+
+- `public-pages.spec.ts` — ناوبری، فهرست/جزئیات خدمات/پروژه‌ها/محصولات/آکادمی/بلاگ، ۴۰۴ سفارشی، حالت «کاربر مهمان» (لینک ورود به‌جای ثبت‌نام/کامنت).
+- `search.spec.ts` — جست‌وجوی سراسری (نتیجهٔ واقعی FTS + حالت بدون‌نتیجه).
+- `contact.spec.ts` — فرم تماس (موفق/اعتبارسنجی native) + فرم خبرنامه.
+- `profile-auth.spec.ts` — ثبت‌نام → ورود خودکار → ثبت‌نام دوره → ثبت نظر → مشاهده در پروفایل → خروج (یک تست یکپارچه تا کوکی سشن بین مراحل حفظ شود).
+- `locale.spec.ts` — تنها فایلی که در هر دو پروژهٔ `fa-locale`/`en` اجرا می‌شود؛ `dir`/عنوان/برچسب ناوبری را برای هر دو زبان بررسی می‌کند.
+- `ui-port.spec.ts` — (فاز ۸ پورت، ADR-0037) قرارداد رفتاری پوستهٔ پورت‌شده: خانه و بخش‌های زنده، صفحات `/products/pentestor` و `/products/crm` (عنوان، زیرعنوان، canonical مستقل)، پالت ⌘K (بازشدن با `Ctrl/⌘K`، فیلتر فهرست داخلی صفحات، ناوبری، Escape، جاگیری در عرض ۳۲۰)، کشوی موبایل به‌صورت دیالوگ با بازگرداندن فوکوس، و پنهان‌شدن لودر با `prefers-reduced-motion`. توجه: پالت هنوز فقط فهرست داخلی صفحات را فیلتر می‌کند؛ اتصال به جست‌وجوی API خارج از فاز ۸ است و جست‌وجوی واقعی صفحهٔ `/search` است.
+- `responsive.spec.ts` — (فاز ۸ پورت، ADR-0037) بازبینی زندهٔ ۸ عرض مرزی ۳۲۰/۳۹۰/۶۴۰/۷۶۸/۱۰۲۴/۱۲۸۰/۱۴۴۰/۱۹۲۰ روی خانه و `/services`: نبود اسکرول افقی، حالت درست ناوبری (همبرگر زیر `lg`، دسکتاپ از `lg`)، و اسکرین‌شات پیوست‌شده به گزارش برای بازبینی چشمی.
+
+## خروجی تشخیصی و اجرای بدون دانلود مرورگر
+
+- در CI گزارش HTML Playwright، `test-results` (trace/video/screenshot تست‌های شکست‌خورده) و گزارش‌های Lighthouse به‌صورت آرتیفکت GitHub نگه داشته می‌شوند (جاب `e2e-and-lighthouse` در `.github/workflows/ci.yml` ریشهٔ ریپو).
+- اگر دانلود باینری Playwright در محیطی ممکن نیست، می‌توان یک Chromium موجود را معرفی کرد؛ در غیر این صورت رفتار استاندارد Playwright برقرار است:
+
+```bash
+PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH=/path/to/chrome npm run test:e2e
+```
+
+- Lighthouse CI (`.lighthouserc.json` در ریشهٔ پروژهٔ `EmmettWebSite/`) شش URL (`/`، `/en`، `/services`، `/blog`، `/products/pentestor`، `/products/crm`) را با preset دسکتاپ و گیت ۰٫۹۵ در هر چهار دسته می‌سنجد و در CI با همان Chromium پلی‌رایت (`CHROME_PATH`) اجرا می‌شود.
+
+## محدودیت شناخته‌شده این محیط (sandbox)
+
+در sandboxی که فاز ۴ در آن توسعه داده شد، دامنهٔ `cdn.playwright.dev` از
+شبکهٔ sandbox در دسترس نبود (TLS handshake reset)، بنابراین باینری مرورگر
+Chromium قابل‌نصب نبود و `npm run test:e2e` در آن محیط واقعاً اجرا نشد. سوییت
+تست با `npx playwright test --list` اعتبارسنجی ساختاری شد (۱۸+ تست در ۵
+فایل، بدون خطای TypeScript/ESLint) و تمام جریان‌های کاربری معادل آن
+(ثبت‌نام/ورود/CSRF/فرم تماس/ثبت‌نام دوره/جست‌وجو) به‌صورت دستی در سطح HTTP
+(`curl` از طریق پراکسی Next.js) تأیید شدند. در هر محیط با دسترسی شبکهٔ کامل
+(مثل CI)، `npx playwright install chromium` باید یک‌بار اجرا شود و سپس
+`npm run test:e2e` باید بدون تغییر کار کند.

@@ -1,0 +1,28 @@
+# وابستگی‌های توسعه/تست — روی هاست production نصب نمی‌شوند.
+-r requirements.txt
+
+# --- Type checking (قانون ۷: mypy strict) ---
+mypy==2.3.0                        # ۲.۴ هنوز با extras «compatible-mypy» django-stubs سازگار نیست
+django-stubs[compatible-mypy]==6.1.1
+djangorestframework-stubs==3.18.1
+types-PyMySQL==1.1.0.20250711
+types-requests==2.32.4.20250913    # stub رسمی برای requests (ADR-0024 — Kavenegar adapter)
+
+# --- ابزار ترجمه (فاز ۶ — ADR-0030) ---
+# باینری‌های gettext (xgettext/msgfmt) روی هاست cPanel و در این sandbox در دسترس
+# نیستند. polib یک پیاده‌سازی خالص پایتون برای خواندن/نوشتن .po و کامپایل .mo
+# است؛ فقط ابزار توسعه است و در production لازم نیست (خروجی .mo در مخزن commit
+# می‌شود). استخراج msgid هم با ast خودِ پایتون انجام می‌شود (scripts/i18n.py).
+polib==1.2.0
+
+# --- تست ---
+pytest==9.1.1
+pytest-django==4.14.0
+factory-boy==3.3.3
+coverage==7.16.2
+
+# --- Lint/format/security/hooks (فاز ۸ — ADR-0034) ---
+ruff==0.16.10
+black==26.10.0
+bandit==1.9.4
+pre-commit==4.6.2
