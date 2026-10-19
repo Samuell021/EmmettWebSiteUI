@@ -4,6 +4,21 @@
 
 ---
 
+## [بستهٔ ۱ — بازسازی پایپ‌لاین CI در ریشهٔ ریپو] — 2026-10-19
+
+بررسی این بسته یک واقعیت را قطعی کرد: از ۵۳۴ فایل ردیابی‌شدهٔ ریپو **صفر فایل زیر `.github/`** وجود داشت، یعنی پایپ‌لاین شش‌جابه‌ای که `ADR-0034` تعریف کرده بود و `CHANGELOG`/`ARCHITECTURE.md`/`docs/TECHNICAL_DOCUMENTATION.*` هر سه آن را وعده داده بودند، در این ریپو هرگز وجود نداشت و هرگز اجرا نشده بود. این بسته workflow را در **ریشهٔ ریپو** با **مسیرهای تخت** (بدون پیشوند `EmmettWebSite/…` که `ADR-0037` توصیف کرده بود) بازسازی کرد و مشکل ۳۵ تست قرمزِ `Missing staticfiles manifest entry` را از **لایهٔ CI** حل کرد، بدون آنکه یک فایل `backend/` یا `frontend/` تغییر کند. هر دستورِ workflow پیش از نوشته‌شدن روی همین ریپو اجرا و اندازه‌گیری شد؛ نتایج در `ADR-0038` بند ۴ ثبت شده‌اند.
+
+### Conventional Commits — بستهٔ ۱
+
+- `ci(pipeline)`: ایجاد `.github/workflows/ci.yml` در ریشهٔ ریپو با شش جاب موازی `backend-quality`، `backend-test`، `frontend-quality`، `frontend-test-build`، `security-scan` و `e2e-and-lighthouse` روی تریگرهای `push` به `main`، هر `pull_request` و `workflow_dispatch`، با `permissions: contents: read`، `concurrency` (لغو اجرای قبلی فقط روی PR)، `timeout-minutes` برای هر جاب، نسخه‌های سنجاق‌شدهٔ Node `22.22.3` (کف `engines` در `jsdom@30.1.2`)، Python `3.11` و `@lhci/cli@0.15.1`، و هفت artifact شامل `openapi-schema`، `backend-coverage`، `frontend-coverage`، `playwright-report`، `playwright-test-results`، `lighthouse-reports` و `e2e-server-logs` (`ADR-0038`).
+- `ci(backend-test)`: افزودن لایهٔ تنظیمات تست CI در `.github/ci/ci_test_settings.py` که فقط کلید `staticfiles` را از `CompressedManifestStaticFilesStorage` به `StaticFilesStorage` ساده تغییر می‌دهد (کلید `default` دست‌نخورده) و با `PYTHONPATH`/`DJANGO_SETTINGS_MODULE` در همان جاب بارگذاری می‌شود؛ نتیجهٔ اندازه‌گیری‌شده ۳۵ شکست → **۴۹۶ تست سبز** و پوشش **۹۴٪** در برابر گیت ۸۵٪، در یک پروسه و با `--create-db` صریح (`ADR-0037` بند ۳-۵، `ADR-0038` بند ۳-۲).
+- `ci(e2e)`: تفکیک سیاست اجرا در یک جاب — تست‌های E2E روی **هر** PR به‌عنوان چک لازم، و سنجش Lighthouse فقط روی `main` و `workflow_dispatch` با `if:`، تا `npm ci` و `next build` فقط یک‌بار پرداخت شود؛ بالا آوردن جنگو با `seed_demo_data` و گیت آمادگی `/api/v1/health/`، سپس `next start` با گیت آمادگی و استفادهٔ Playwright از همان سرور (`reuseExistingServer: true`)، کش مرورگرها در `~/.cache/ms-playwright` و استفادهٔ Lighthouse از همان Chromium (`CHROME_PATH` از `chromium.executablePath()`) (`ADR-0038` بند ۳-۵).
+- `security(ci)`: تبدیل `manage.py check --deploy` به گیت صفر-هشدار با `--fail-level WARNING`، مقادیر env ساختگیِ مخصوص اجرا و `mkdir -p "$BACKUP_DIR"` (رضایت `W007`/`W009`/`W011`/`W012`/`W013`)، اجرای `bandit` با `-c pyproject.toml` تا کانفیگ خود پروژه اعمال شود، و تفکیک `npm audit` به گیت `--omit=dev --audit-level=high` (۰ آسیب‌پذیری) + گزارش غیرمسدودکنندهٔ audit شامل dev، چون زنجیرهٔ `braces → micromatch → fast-glob → @next/eslint-plugin-next → eslint-config-next` فقط dev است و `braces` هیچ نسخهٔ وصله‌شده‌ای ندارد (`GHSA-vfj7-8cjw-p6xm`) (`ADR-0038` بندهای ۳-۴ و ۲-۶).
+- `chore(gitignore)`: افزودن `backend/coverage.xml` و `.lighthouseci/` به `.gitignore` ریشه تا آرتیفکت‌های تولیدشده توسط CI ردیابی نشوند (خروجی‌های Playwright/Vitest از قبل در `frontend/.gitignore` بودند).
+- `docs(adr)`: نگارش `docs/adr/0038-ci-workflow-at-repo-root-and-ci-test-settings.md` شامل گزینه‌ها، تصمیم‌ها، جدول کامل راستی‌آزمایی اندازه‌گیری‌شده، مواردی که محلی قابل راستی‌آزمایی نبودند (نصب و اجرای Chromium)، ریسک حاشیهٔ +۰٫۸۳٪ در `branches` پوشش فرانت‌اند، و فهرست موارد عمداً خارج از بسته؛ ثبت در ایندکس ADRهای `ARCHITECTURE.md`.
+
+---
+
 ## [فاز ۹ — آمادگی استقرار روی cPanel (Deployment Readiness)] — 2026-10-06
 
 دامنهٔ فاز ۹ بر اساس چهار تصمیم مصوب مالک محصول اجرا شد: **توپولوژی دامنهٔ واحد هم‌مبدأ (`single_domain_only`)**، **نگه‌داشتن فایل‌های ورودی Passenger فقط به‌صورت `.example` (`example_only`)**، **مجموعهٔ کامل اسکریپت‌های خودکار استقرار و بازیابی (`full_scripts_suite`)**، و **Pin کامل ۱۰۰٪ پکیج‌ها و زیر-وابستگی‌های زمان اجرا در `backend/requirements.txt` (`full_pinned_lock`)**. تصمیم‌های معماری در `ADR-0036` ثبت شده‌اند.
