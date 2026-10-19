@@ -587,12 +587,19 @@ jobs:
           retention-days: 14
 
       - name: Upload Lighthouse reports
-        if: always()
+        if: always() && (github.ref == 'refs/heads/main' || github.event_name == 'workflow_dispatch' || github.event_name == 'pull_request')
         uses: actions/upload-artifact@v7
         with:
           name: lighthouse-reports
           path: .lighthouseci
-          if-no-files-found: ignore
+          # `.lighthouseci` با نقطه شروع می‌شود و `upload-artifact` به‌طور
+          # پیش‌فرض فایل‌های مخفی را کنار می‌گذارد (`include-hidden-files:
+          # false`)؛ بدون این پرچم آرتیفکت بی‌صدا خالی می‌ماند.
+          include-hidden-files: true
+          # عمداً `error` و نه `ignore`: اگر Lighthouse اجرا شد و گزارشی
+          # تولید نکرد، باید با صدای بلند بشکند تا وعدهٔ «فایل‌سیستم +
+          # آرتیفکت GitHub» (ADR-0037 بند ۳-۴) بی‌صدا نقض نشود.
+          if-no-files-found: error
           retention-days: 14
 
       - name: Upload server logs
