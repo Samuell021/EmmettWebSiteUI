@@ -152,7 +152,28 @@ jobs:
       # `--create-db` صریح است تا هر اجرا از صفر ساخته شود و `--reuse-db`
       # (که در `pytest.ini` هست) نتواند پایگاه‌دادهٔ مانده از کش را reuse کند.
       - name: Pytest with coverage
-        run: coverage run -m pytest --create-db -q
+        run: |
+          set -o pipefail
+          coverage run -m pytest --create-db -q 2>&1 | tee "${RUNNER_TEMP}/pytest.log"
+
+      # لاگ کامل در artifact نیست و خواندنش از بیرون GitHub هم ممکن نیست؛ پس
+      # خلاصهٔ شکست‌ها به‌صورت annotation روی خود PR می‌نشیند (هم برای انسان
+      # خواناست هم با API قابل خواندن).
+      - name: Annotate test failures on the PR
+        if: failure()
+        run: |
+          python3 - <<'PY'
+          import os, pathlib
+          log = pathlib.Path(os.environ["RUNNER_TEMP"], "pytest.log").read_text(encoding="utf-8", errors="replace")
+          lines = log.splitlines()
+          failed = [ln for ln in lines if ln.startswith(("FAILED ", "ERROR "))]
+          start = next((i for i, ln in enumerate(lines) if "short test summary info" in ln), None)
+          block = lines[start:start + 45] if start is not None else lines[-45:]
+          parts = ([f"{len(failed)} شکست:"] + failed[:40] + ["", "--- انتهای لاگ ---"]) if failed else ["--- انتهای لاگ ---"]
+          msg = "\n".join([*parts, *block])
+          msg = msg.replace("%", "%25").replace("\r", "").replace("\n", "%0A")
+          print(f"::error title=pytest failures::{msg}")
+          PY
 
       - name: Coverage gate (fail under 85%)
         run: coverage report --fail-under=85
@@ -376,6 +397,16 @@ jobs:
       INTERNAL_API_URL: http://127.0.0.1:8000
       # تنها منبع حقیقت دامنه برای canonical/hreflang/sitemap/OG در این اجرا.
       PUBLIC_SITE_URL: http://127.0.0.1:3000
+      # پراکسی `/api/[...path]` فقط `host`، `connection` و `content-length` را
+      # در `SKIP_REQUEST_HEADERS` حذف می‌کند، پس هدر `Origin` مرورگر عیناً به
+      # جنگو می‌رسد: `Origin: http://127.0.0.1:3000` در حالی که `get_host()`
+      # جنگو `127.0.0.1:8000` است. در `CsrfViewMiddleware._origin_verified`
+      # این دو با هم برابر نمی‌شوند و با `CSRF_TRUSTED_ORIGINS=[]` هر درخواست
+      # POST احراز هویت‌شده (ثبت‌نام دوره، نظر، خروج) با ۴۰۳
+      # «Origin checking failed» رد می‌شود. production همین مسئله را با مقدار
+      # پیش‌فرضِ ساخته‌شده از `PUBLIC_SITE_URL` حل می‌کند؛ این‌جا صریح نوشته
+      # می‌شود تا توپولوژی هم‌مبداییِ ADR-0035 در CI بازتولید شود.
+      DJANGO_CSRF_TRUSTED_ORIGINS: http://127.0.0.1:3000,http://localhost:3000
     steps:
       - name: Checkout
         uses: actions/checkout@v7
@@ -471,7 +502,25 @@ jobs:
 
       - name: Playwright E2E
         working-directory: frontend
-        run: npx playwright test
+        run: |
+          set -o pipefail
+          npx playwright test 2>&1 | tee "${RUNNER_TEMP}/playwright.log"
+
+      - name: Annotate E2E failures on the PR
+        if: failure()
+        run: |
+          python3 - <<'PY'
+          import os, pathlib, re
+          log = pathlib.Path(os.environ["RUNNER_TEMP"], "playwright.log").read_text(encoding="utf-8", errors="replace")
+          lines = log.splitlines()
+          heads = [ln.strip() for ln in lines if re.match(r"^\s+\d+\) ", ln)]
+          summary = [ln.strip() for ln in lines if re.search(r"\d+ (failed|flaky|passed|skipped)", ln)]
+          msg = "\n".join(
+              [f"{len(heads)} تست شکست‌خورده:"] + heads[:40] + ["", *(summary[-3:]), "", "--- انتهای لاگ ---"] + lines[-45:]
+          )
+          msg = msg.replace("%", "%25").replace("\r", "").replace("\n", "%0A")
+          print(f"::error title=playwright failures::{msg}")
+          PY
 
       # Lighthouse همان Chromium نصب‌شدهٔ Playwright را استفاده می‌کند تا
       # دانلود دوم مرورگر لازم نباشد.
