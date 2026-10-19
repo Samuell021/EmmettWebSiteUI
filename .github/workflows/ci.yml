@@ -407,6 +407,23 @@ jobs:
       # پیش‌فرضِ ساخته‌شده از `PUBLIC_SITE_URL` حل می‌کند؛ این‌جا صریح نوشته
       # می‌شود تا توپولوژی هم‌مبداییِ ADR-0035 در CI بازتولید شود.
       DJANGO_CSRF_TRUSTED_ORIGINS: http://127.0.0.1:3000,http://localhost:3000
+      # نرخ‌های throttle **فقط برای همین اجرای ایزوله** بالا برده می‌شوند.
+      # اندازه‌گیری: با نرخ پیش‌فرض `anon=100/hour`، از درخواست شمارهٔ ۱۰۰ به
+      # بعد هر پاسخ ۴۲۹ می‌شود (با Retry-After ≈ ۳۵۹۹ ثانیه) و
+      # `/api/v1/academy/`، `/api/v1/blog/`، `/api/v1/search/` و
+      # `/api/v1/seo/settings/` دیگر داده برنمی‌گردانند — دقیقاً همان ۹ تستی که
+      # در اولین اجرای CI شکست خوردند. علت: `AnonRateThrottle` سراسری است و
+      # شناسهٔ آن `REMOTE_ADDR` است، پس همهٔ فراخوانی‌های SSR و پراکسی
+      # `/api/[...path]` که از `127.0.0.1` می‌آیند در **یک سطل مشترک** می‌نشینند
+      # و یک سوئیت ۵۳ تستی آن را در چند دقیقه خالی می‌کند.
+      # ریسک متناظر در production در ADR-0038 بند ۵ گزارش شده و عمداً در این
+      # بسته دست‌نخورده مانده است (تغییر تنظیمات جنگو نیازمند تأیید جداست).
+      THROTTLE_RATE_ANON: 100000/hour
+      THROTTLE_RATE_USER: 100000/hour
+      THROTTLE_RATE_CONTACT: 10000/hour
+      THROTTLE_RATE_AI: 10000/hour
+      THROTTLE_RATE_AUTH: 10000/hour
+      THROTTLE_RATE_NEWSLETTER: 10000/day
     steps:
       - name: Checkout
         uses: actions/checkout@v7
