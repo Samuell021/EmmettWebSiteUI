@@ -542,7 +542,7 @@ jobs:
       # Lighthouse همان Chromium نصب‌شدهٔ Playwright را استفاده می‌کند تا
       # دانلود دوم مرورگر لازم نباشد.
       - name: Resolve Chromium path for Lighthouse
-        if: github.ref == 'refs/heads/main' || github.event_name == 'workflow_dispatch'
+        if: github.ref == 'refs/heads/main' || github.event_name == 'workflow_dispatch' || github.event_name == 'pull_request'
         working-directory: frontend
         run: |
           CHROME_PATH="$(node -e "const { chromium } = require('@playwright/test'); console.log(chromium.executablePath());")"
@@ -554,11 +554,11 @@ jobs:
       # / SEO، و خروجی روی فایل‌سیستم (`.lighthouseci/`) — هیچ گزارشی عمومی
       # منتشر نمی‌شود (ADR-0037 بند ۳-۴).
       - name: Lighthouse CI (main and manual runs only)
-        if: github.ref == 'refs/heads/main' || github.event_name == 'workflow_dispatch'
+        if: github.ref == 'refs/heads/main' || github.event_name == 'workflow_dispatch' || github.event_name == 'pull_request'
         run: npx --yes @lhci/cli@0.15.1 autorun
 
       - name: Lighthouse summary
-        if: always() && (github.ref == 'refs/heads/main' || github.event_name == 'workflow_dispatch')
+        if: always() && (github.ref == 'refs/heads/main' || github.event_name == 'workflow_dispatch' || github.event_name == 'pull_request')
         run: |
           if [ -d .lighthouseci ]; then
             {
