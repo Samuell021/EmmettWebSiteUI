@@ -59,11 +59,25 @@ backend/.venv/bin/pre-commit run --all-files
   - `ci`: تغییرات پایپ‌لاین GitHub Actions یا Pre-commit
   - `refactor`, `style`, `build`, `chore`, `revert`
 
-### ۵. چک‌لیست پیش از ارسال Pull Request
+### ۵. استاندارد توکن‌های طراحی (Design Tokens)
+
+رنگ در کد فرانت‌اند **باید** از توکن بیاید، نه از لیترال خام.
+
+- **ممنوع:** هگز یا `rgba()` داخل `className` (مثل `text-[#1FAE6E]`) یا داخل `style={{}}`.
+- **الزامی:** utility مبتنی بر توکن (`text-primary`، `bg-emerald-deep`) یا `var(--token)`.
+- **توکن معادل وجود ندارد؟** نخست توکن را در `frontend/src/app/globals.css` بسازید: مقدار را در `:root` تعریف کنید **و** آن را در `@theme inline` به `--color-<name>` نگاشت کنید. بدون نگاشت، هیچ utility تولید نمی‌شود و نفر بعدی دوباره به لیترال خام برمی‌گردد.
+- **مقدار توکن موجود را برای جور شدن با کد تازه تغییر ندهید؛** توکن تازه بسازید. تغییر مقدار یک توکن، ظاهر همهٔ مصرف‌کنندگانش را عوض می‌کند.
+
+این قاعده توسط `frontend/src/app/hardcoded-colors.test.ts` **اجرا** می‌شود: شمار لیترال‌های رنگ هر فایل در `frontend/src/app/hardcoded-colors.baseline.ts` قفل شده و فقط مجاز است **کم** شود (یک جفت‌بند دوطرفه). افزودن لیترال تازه، یا کم‌کردن لیترال بدون پایین‌آوردن عدد در فهرست پایه، تست را قرمز می‌کند. سه فایل استثنا دلیل مکتوب دارند (تصویر Open Graph، `global-error.tsx` و سند HTML مستقل انتقال)؛ افزودن استثنای تازه به دلیل فنی مکتوب و تأیید بازبین نیاز دارد.
+
+مستند تصمیم: `docs/adr/0039-design-token-standard-and-hardcoded-color-ratchet.md`. صفحهٔ `/design-system` مقدار زندهٔ هر توکن را در زمان اجرا از CSSOM می‌خواند و نشان می‌دهد، پس توکنِ تعریف‌نشده یا نگاشت‌نشده روی همان صفحه دیده می‌شود.
+
+### ۶. چک‌لیست پیش از ارسال Pull Request
 
 - [ ] `backend/.venv/bin/pre-commit run --all-files` بدون خطا اجرا شده است.
 - [ ] تست‌های بک‌اند (`coverage run -m pytest && coverage report --fail-under=85`) سبز هستند.
 - [ ] تست‌های فرانت‌اند (`npm run test:coverage`) با پوشش بالای ۸۵٪ و `npm run build` سبز هستند.
+- [ ] رنگ‌ها از توکن می‌آیند: `hardcoded-colors.test.ts` سبز است و شمار لیترال‌های رنگ هیچ فایلی افزایش نیافته.
 - [ ] در صورت تغییر ترجمه، `python scripts/i18n.py check` سبز است و کلیدهای `messages/fa.json` و `messages/en.json` متقارن‌اند.
 - [ ] مستندات (`docs/TECHNICAL_DOCUMENTATION.{fa,en}.md` و `CHANGELOG.md`) به‌روزرسانی شده‌اند.
 
@@ -95,3 +109,16 @@ Commit messages are validated automatically by `scripts/check_commit_msg.py`:
 ```
 
 Allowed types: `feat`, `fix`, `docs`, `style`, `refactor`, `perf`, `test`, `build`, `ci`, `chore`, `revert`, `security`.
+
+### 4. Design Token Standard
+
+Colors in frontend code **must** come from design tokens, never from raw literals.
+
+- **Forbidden:** hex or `rgba()` inside `className` (e.g. `text-[#1FAE6E]`) or inside `style={{}}`.
+- **Required:** token-based utilities (`text-primary`, `bg-emerald-deep`) or `var(--token)`.
+- **No matching token?** Create one in `frontend/src/app/globals.css` first: declare the value in `:root` **and** map it in `@theme inline` as `--color-<name>`. Without the mapping no utility is generated, and the next contributor falls back to a raw literal.
+- **Never edit an existing token's value** to fit new code; add a new token instead. Changing a token value restyles every consumer of it.
+
+Enforced by `frontend/src/app/hardcoded-colors.test.ts`: the raw-color count of every file is locked in `frontend/src/app/hardcoded-colors.baseline.ts` and may only go **down** (a two-way ratchet). Adding a literal — or removing one without lowering the recorded number — fails the test. Three files are documented exceptions (the Open Graph image, `global-error.tsx`, and the standalone redirect HTML document); a new exception requires a written technical reason and reviewer approval.
+
+Decision record: `docs/adr/0039-design-token-standard-and-hardcoded-color-ratchet.md`. The `/design-system` page reads every token's live value from the CSSOM at runtime and displays it, so an undefined or unmapped token is visible on that page.
