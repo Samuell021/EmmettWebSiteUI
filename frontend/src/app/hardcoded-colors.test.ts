@@ -142,7 +142,7 @@ describe("گارد رنگ خام (ADR-0039)", () => {
     );
     // سقف سخت: با هر مهاجرت یا حذفِ فایلِ دارای لیترال باید پایین بیاید.
     // ۳۶۵ → ۳۶۰ در بستهٔ ۴ (حذف `components/organisms/hero.tsx` با ۵ لیترال).
-    expect(baselineTotal).toBe(200);
+    expect(baselineTotal).toBe(199);
   });
 });
 

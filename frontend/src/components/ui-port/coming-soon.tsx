@@ -10,7 +10,7 @@ export function ComingSoon({ page, subtitle }: { page: string; subtitle: string 
   return (
     <div
       className="min-h-screen flex flex-col items-center justify-center px-6 relative"
-      style={{ background: "#07130F" }}
+      style={{ background: "var(--deep-green-black)" }}
     >
       {/* Subtle emerald grid */}
       <div
