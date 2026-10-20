@@ -81,6 +81,30 @@
   --emerald-secondary: #35c98a;
   --emerald-deep: #0b6b48;
 
+  /*
+   * پالت دسته‌بندی (ADR-0039). پنج رنگ هم‌خانواده برای تفکیک دستهٔ مقالات در
+   * بخش کتابخانه؛ `--emerald-deep` عضو اول همین پالت است. چهار مقدار دیگر
+   * پیش‌تر فقط به‌شکل هگز خام در `library-section.tsx` وجود داشتند. همه
+   * عمداً تیره‌اند تا روی پس‌زمینهٔ روشنِ آن بخش کنتراست WCAG AA (≥۴٫۵)
+   * داشته باشند — همان دلیلی که در آن فایل مستند شده و گیت color-contrast
+   * لایت‌هاوس می‌سنجد. پس جایگزینی‌شان با توکن روشن‌تر = شکست دسترس‌پذیری.
+   */
+  --blue-deep: #1d6fb8;
+  --teal-deep: #0e7a6d;
+  --amber-deep: #8a5a00;
+  --violet-deep: #6c4bd8;
+
+  /*
+   * متن ملایم روی سطح (ADR-0039). این دو **عمداً** از `--muted-foreground`
+   * جدا نگه داشته شده‌اند: مقدار آن `rgba(243, 250, 246, 0.5)` است، پس
+   * جایگزین‌کردنش با این دو آلفای رندرشده را تغییر می‌دهد (۰٫۵۸ و ۰٫۶۸) و
+   * کنتراست متن را جابه‌جا می‌کند. این دو پرتکرارترین لیترال خام بستهٔ UI
+   * بودند (۲۷ و ۲۸ مورد، در هر دو حالت فقط `text-[...]`)؛ نام‌شان سطحِ زیرِ
+   * متن را بیان می‌کند چون یک مقدار روی هر دو سطح روشن و تیره معنا ندارد.
+   */
+  --muted-on-dark: rgba(243, 250, 246, 0.58);
+  --muted-on-light: rgba(16, 42, 32, 0.68);
+
   --font-weight-medium: 500;
   --font-weight-normal: 400;
 
@@ -182,6 +206,24 @@
   --color-surface-warm-white: var(--surface-warm-white);
   --color-surface-ivory: var(--surface-ivory);
   --color-surface-soft-gray: var(--surface-soft-gray);
+
+  /*
+   * نگاشت پالت زمردی و دسته‌بندی به Tailwind v4 (ADR-0039).
+   * `--emerald-deep` و `--deep-green-black` پیش از این در `:root` تعریف شده
+   * بودند ولی اینجا نگاشت نشده بودند، پس هیچ utility معادلی نداشتند و کد
+   * مجبور بود هگز خام بنویسد (`#0B6B48` ۱۷ بار و `#07130f` ۱۲ بار در بستهٔ
+   * UI). `@theme inline` مقدار را درون‌خطی می‌کند، پس افزودن این نگاشت‌ها تا
+   * وقتی utility‌شان استفاده نشود **هیچ** قاعدهٔ CSS تازه‌ای تولید نمی‌کند.
+   */
+  --color-emerald-deep: var(--emerald-deep);
+  --color-deep-green-black: var(--deep-green-black);
+  --color-blue-deep: var(--blue-deep);
+  --color-teal-deep: var(--teal-deep);
+  --color-amber-deep: var(--amber-deep);
+  --color-violet-deep: var(--violet-deep);
+
+  --color-muted-on-dark: var(--muted-on-dark);
+  --color-muted-on-light: var(--muted-on-light);
 
   --radius-sm: var(--radius-value-sm);
   --radius-md: var(--radius-value-md);
