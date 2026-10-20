@@ -68,7 +68,7 @@ export default async function SearchPage({
                 <li key={`${result.content_type}-${result.public_id}`}>
                   <Link
                     href={result.url_path}
-                    className="flex flex-col gap-1 rounded-lg border border-[rgba(31,174,110,0.18)] bg-[#102A20] p-4 transition-colors hover:border-[#1FAE6E]"
+                    className="flex flex-col gap-1 rounded-lg border border-border bg-card p-4 transition-colors hover:border-primary"
                   >
                     {result.category_label ? (
                       <Badge variant="technical" className="w-fit">
