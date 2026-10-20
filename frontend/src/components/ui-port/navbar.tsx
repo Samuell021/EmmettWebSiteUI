@@ -95,10 +95,10 @@ export function Navbar() {
         <div className="max-w-[1440px] mx-auto px-6 lg:px-12 h-full flex items-center justify-between gap-6">
           {/* Wordmark */}
           <Link href="/" className="flex items-center gap-2 flex-shrink-0">
-            <span className="font-mono text-base tracking-[0.2em] text-[#F3FAF6] font-semibold">
+            <span className="font-mono text-base tracking-[0.2em] text-foreground font-semibold">
               {ui("brand")}
             </span>
-            <span className="hidden sm:inline font-mono text-[10px] tracking-widest text-[rgba(243,250,246,0.58)] uppercase">
+            <span className="hidden sm:inline font-mono text-[10px] tracking-widest text-muted-on-dark uppercase">
               {ui("brandGroup")}
             </span>
           </Link>
@@ -111,13 +111,13 @@ export function Navbar() {
                 href={item.href}
                 className={`relative text-sm transition-colors duration-150 py-1 group ${
                   isActive(item.href)
-                    ? "text-[#F3FAF6]"
-                    : "text-[rgba(243,250,246,0.58)] hover:text-[rgba(243,250,246,0.8)]"
+                    ? "text-foreground"
+                    : "text-muted-on-dark hover:text-[rgba(243,250,246,0.8)]"
                 }`}
               >
                 {t(item.key)}
                 <span
-                  className={`absolute -bottom-px start-0 h-px bg-[#1FAE6E] transition-all duration-150 ${
+                  className={`absolute -bottom-px start-0 h-px bg-primary transition-all duration-150 ${
                     isActive(item.href) ? "w-full" : "w-0 group-hover:w-full"
                   }`}
                 />
@@ -135,7 +135,7 @@ export function Navbar() {
                 setIsOpen(false);
                 setPaletteOpen(true);
               }}
-              className="sr-only focus:not-sr-only focus:fixed focus:start-4 focus:top-16 focus:z-[60] focus:rounded-md focus:border focus:border-[rgba(31,174,110,0.25)] focus:bg-[#0B1F18] focus:px-3 focus:py-1.5 focus:font-mono focus:text-xs md:hidden"
+              className="sr-only focus:not-sr-only focus:fixed focus:start-4 focus:top-16 focus:z-[60] focus:rounded-md focus:border focus:border-[rgba(31,174,110,0.25)] focus:bg-background focus:px-3 focus:py-1.5 focus:font-mono focus:text-xs md:hidden"
               aria-label={t("search")}
               aria-expanded={paletteOpen}
               aria-controls="command-palette"
@@ -148,7 +148,7 @@ export function Navbar() {
                 setIsOpen(false);
                 setPaletteOpen(true);
               }}
-              className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-md border border-[rgba(31,174,110,0.12)] bg-[rgba(31,174,110,0.03)] text-[rgba(243,250,246,0.58)] text-xs font-mono hover:border-[rgba(31,174,110,0.25)] hover:text-[rgba(243,250,246,0.8)] transition-all"
+              className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-md border border-input bg-[rgba(31,174,110,0.03)] text-muted-on-dark text-xs font-mono hover:border-[rgba(31,174,110,0.25)] hover:text-[rgba(243,250,246,0.8)] transition-all"
               // نام دسترس‌پذیر باید متن قابل‌مشاهده (⌘K) را دربرگیرد
               // (Lighthouse: label-content-name-mismatch).
               aria-label={`${t("search")} ⌘K`}
@@ -161,7 +161,7 @@ export function Navbar() {
 
             <Link
               href="/contact"
-              className="hidden md:flex items-center gap-2 px-5 py-2 rounded-lg bg-[#1FAE6E] text-[#07130F] text-sm font-semibold hover:bg-[#35C98A] transition-all duration-150"
+              className="hidden md:flex items-center gap-2 px-5 py-2 rounded-lg bg-primary text-primary-foreground text-sm font-semibold hover:bg-accent transition-all duration-150"
             >
               {t("startProject")}
             </Link>
@@ -172,7 +172,7 @@ export function Navbar() {
                 setPaletteOpen(false);
                 setIsOpen(!isOpen);
               }}
-              className="lg:hidden p-2 rounded-lg border border-[rgba(31,174,110,0.12)] bg-[rgba(31,174,110,0.03)]"
+              className="lg:hidden p-2 rounded-lg border border-input bg-[rgba(31,174,110,0.03)]"
               aria-label={isOpen ? palette("closeMenu") : palette("openMenu")}
               aria-expanded={isOpen}
               aria-controls="mobile-nav"
@@ -208,7 +208,7 @@ export function Navbar() {
                 href={item.href}
                 onClick={() => setIsOpen(false)}
                 className={`flex items-center justify-between h-14 border-b border-[rgba(31,174,110,0.08)] text-lg transition-colors ${
-                  isActive(item.href) ? "text-[#F3FAF6]" : "text-[rgba(243,250,246,0.48)]"
+                  isActive(item.href) ? "text-foreground" : "text-[rgba(243,250,246,0.48)]"
                 }`}
               >
                 {t(item.key)}
@@ -219,7 +219,7 @@ export function Navbar() {
               <Link
                 href="/contact"
                 onClick={() => setIsOpen(false)}
-                className="flex items-center justify-center w-full h-14 rounded-xl bg-[#1FAE6E] text-[#07130F] font-semibold text-sm"
+                className="flex items-center justify-center w-full h-14 rounded-xl bg-primary text-primary-foreground font-semibold text-sm"
               >
                 {t("startProject")}
               </Link>
