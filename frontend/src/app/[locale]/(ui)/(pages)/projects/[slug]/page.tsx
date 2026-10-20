@@ -24,6 +24,29 @@ interface PageParams {
   slug: string;
 }
 
+/**
+ * مسیر واقعی این صفحه — **همیشه** `/projects/{slug}`، حتی وقتی
+ * `project.is_product` true باشد (ADR-0040).
+ *
+ * به‌صورت یک تابع سطح ماژول نوشته شده تا `generateMetadata` و بدنهٔ صفحه هر دو
+ * از یک منبع بخوانند؛ اگر هر کدام جداگانه قالب مسیر را می‌ساختند، واگرایی
+ * دوبارهٔ canonical و نانبرد/JSON-LD ممکن می‌شد — همان کلاسی از باگ که این
+ * بسته اصلاحش کرد.
+ *
+ * چرا `/projects/` و نه `/products/`؟ سه واقعیت اندازه‌گیری‌شده:
+ * ۱) `/products/{slug}` در این برنامه صفحهٔ ComingSoonِ پورت UI است
+ *    (`(ui)/products/{pentestor,crm}/page.tsx`) و `ui-port.spec.ts` قرارداد
+ *    کرده canonical خودش را داشته باشد — پس صفحهٔ محتوای واقعی را نمی‌توان به
+ *    آن ارجاع داد.
+ * ۲) فهرست محصولات (`(pages)/products/page.tsx`) و کارت‌های زندهٔ صفحهٔ اصلی
+ *    (`home-data.ts`) هر محصول را به `/projects/{slug}` لینک می‌کنند.
+ * ۳) بک‌اند در `apps/core/seo.py::_published_entries` برای همهٔ پروژه‌ها
+ *    `/projects/{slug}` را در sitemap می‌فرستد.
+ */
+function projectDetailPath(slug: string): string {
+  return `/projects/${slug}`;
+}
+
 export async function generateMetadata({
   params,
 }: {
@@ -35,19 +58,10 @@ export async function generateMetadata({
   const settings = await getSeoSettingsOrDefaults();
   return buildPageMetadata({
     locale: toAppLocale(locale),
-    // مسیر canonical این صفحه **همیشه** `/projects/{slug}` است، حتی وقتی
-    // `is_product` true باشد (ADR-0040). دلیلش سه واقعیت اندازه‌گیری‌شده است:
-    // ۱) `/products/{slug}` در این برنامه صفحهٔ ComingSoonِ پورت UI است
-    //    (`(ui)/products/{pentestor,crm}/page.tsx`) و `ui-port.spec.ts`
-    //    قرارداد کرده که canonical خودش را داشته باشد — یعنی صفحهٔ محتوای
-    //    واقعی را نمی‌توان به آن ارجاع داد.
-    // ۲) فهرست محصولات (`(pages)/products/page.tsx`) هر محصول را به
-    //    `/projects/{slug}` لینک می‌کند، و `home-data.ts` هم همین را می‌سازد.
-    // ۳) بک‌اند در `apps/core/seo.py::_published_entries` برای همهٔ پروژه‌ها
-    //    `/projects/{slug}` را در sitemap می‌فرستد.
-    // پیش از این اصلاح، صفحهٔ واقعیِ یک محصول canonical‌اش به صفحهٔ خالیِ
-    // «به‌زودی» اشاره می‌کرد و هم‌زمان با sitemap خودش در تناقض بود.
-    path: `/projects/${slug}`,
+    // این `path` در `buildPageMetadata` هم‌زمان canonical، `og:url` و هر سه
+    // hreflang را می‌سازد؛ دلیلِ همیشه `/projects/` بودن در docstringِ
+    // `projectDetailPath` ثبت شده است (ADR-0040).
+    path: projectDetailPath(slug),
     title: project.meta_title || project.title,
     description: project.meta_description || project.summary,
     imageUrl: project.cover_image_url,
@@ -65,13 +79,12 @@ export default async function ProjectDetailPage({ params }: { params: Promise<Pa
   const project = await getProject(locale, slug);
   if (!project) notFound();
 
-  // والدِ نانبرد برای یک محصول، فهرست محصولات است؛ ولی خودِ صفحه همیشه زیر
-  // `/projects/` سرو می‌شود — همان سه دلیلی که در `generateMetadata` ثبت شد
-  // (ADR-0040). پیش از این، نانبرد و JSON-LD هر دو به `/products/{slug}`
-  // اشاره می‌کردند یعنی به صفحهٔ «به‌زودی».
+  // والدِ نانبرد برای یک محصول، فهرست محصولات است (والدِ معناییِ درست)؛ ولی
+  // خودِ آیتم باید URL واقعیِ صفحه باشد. پیش از این هر دو از `listHref` ساخته
+  // می‌شدند، پس نانبرد و JSON-LD به صفحهٔ «به‌زودی» اشاره می‌کردند (ADR-0040).
   const listHref = project.is_product ? "/products" : "/projects";
   const listLabel = project.is_product ? t("products") : t("title");
-  const detailPath = `/projects/${slug}`;
+  const detailPath = projectDetailPath(slug);
 
   const settings = await getSeoSettingsOrDefaults();
   const siteUrl = getPublicSiteUrl();

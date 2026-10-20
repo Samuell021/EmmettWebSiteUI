@@ -98,15 +98,27 @@ HTML واقعی:
 
 ### ۳-۱. صفحهٔ جزئیات همیشه به خودش اشاره می‌کند
 
-در `projects/[slug]/page.tsx` یک ثابت معرفی شد:
+یک تابع سطح ماژول معرفی شد تا هر دو scope — تابع `generateMetadata` و بدنهٔ
+صفحه — از یک منبع بخوانند:
 
 ```ts
-const detailPath = `/projects/${slug}`;
+function projectDetailPath(slug: string): string {
+  return `/projects/${slug}`;
+}
 ```
 
 و هر سه مصرفِ مسیرِ جزئیات به آن وصل شدند: `path` در `generateMetadata`
 (که canonical و `og:url` و هر سه hreflang را می‌سازد)، `path` آیتمِ نانبرد در
 `breadcrumbJsonLd`، و `path` در `articleJsonLd`.
+
+**نکتهٔ طراحی که ممیزی لو داد:** نسخهٔ اولِ این اصلاح یک
+`const detailPath = \`/projects/${slug}\`` محلی در بدنهٔ صفحه بود. ممیزیِ پس از
+push نشان داد `generateMetadata` **نمی‌تواند** از آن استفاده کند چون scope
+جداگانه‌ای است، پس قالب مسیر در دو جا تکرار می‌ماند و واگراییِ دوبارهٔ
+canonical از نانبرد/JSON-LD ممکن بود — دقیقاً همان کلاسی از باگ که این بسته
+برای رفعش نوشته شده. به همین دلیل به تابع سطح ماژول ارتقا یافت و دلیلِ
+تصمیم هم در docstring همان تابع متمرکز شد تا دو کامنتِ کم‌وبیش یکسان در دو
+scope نماند.
 
 ### ۳-۲. والدِ نانبرد دست‌نخورده ماند
 
