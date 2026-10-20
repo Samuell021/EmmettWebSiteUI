@@ -46,7 +46,6 @@ export const RATCHET = {
 
   // ===== پوستهٔ برنامه — کاندیدای مهاجرت، نه استثنا =====
   "src/app/not-found.tsx": 5,
-  "src/components/organisms/hero.tsx": 5,
   "src/app/[locale]/(ui)/(pages)/search/page.tsx": 3,
   "src/app/[locale]/error.tsx": 3,
   "src/app/[locale]/not-found.tsx": 3,
