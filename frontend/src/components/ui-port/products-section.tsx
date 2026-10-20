@@ -9,9 +9,27 @@ import type { HomeProduct } from "./home-data";
 import { ForwardMark } from "./forward-mark";
 
 const productChrome = [
-  { id: "pentestor", num: "01", href: "/products/pentestor", bgFrom: "#07130F", bgTo: "#102A20" },
-  { id: "crm", num: "02", href: "/products/crm", bgFrom: "#0B1F18", bgTo: "#16382B" },
-  { id: "property", num: "03", href: "/products", bgFrom: "#102A20", bgTo: "#0B1F18" },
+  {
+    id: "pentestor",
+    num: "01",
+    href: "/products/pentestor",
+    bgFrom: "var(--deep-green-black)",
+    bgTo: "var(--card)",
+  },
+  {
+    id: "crm",
+    num: "02",
+    href: "/products/crm",
+    bgFrom: "var(--background)",
+    bgTo: "var(--secondary)",
+  },
+  {
+    id: "property",
+    num: "03",
+    href: "/products",
+    bgFrom: "var(--card)",
+    bgTo: "var(--background)",
+  },
 ] as const;
 
 function PentestorUI() {
@@ -142,7 +160,7 @@ export function ProductsSection({ products: items }: { products: HomeProduct[] |
     })
     .filter((card) => items === null || card.name);
   return (
-    <section className="py-28 lg:py-36" style={{ background: "#0B1F18" }}>
+    <section className="py-28 lg:py-36" style={{ background: "var(--background)" }}>
       <div className="max-w-[1440px] mx-auto px-6 lg:px-12">
         <div className="mb-16">
           <motion.div
