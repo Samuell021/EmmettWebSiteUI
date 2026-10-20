@@ -122,7 +122,7 @@ export function ProjectsSection({
                   </div>
                   <h3
                     className="text-xl lg:text-2xl font-semibold text-[#102A20] mb-3 transition-colors duration-200"
-                    style={{ color: hovered === i ? "#0B6B48" : "#102A20" }}
+                    style={{ color: hovered === i ? "var(--emerald-deep)" : "#102A20" }}
                   >
                     {p.title}
                   </h3>
@@ -149,7 +149,9 @@ export function ProjectsSection({
                     </span>
                     <p
                       className="text-sm font-mono font-semibold transition-colors duration-200"
-                      style={{ color: hovered === i ? "#0B6B48" : "rgba(16,42,32,0.7)" }}
+                      style={{
+                        color: hovered === i ? "var(--emerald-deep)" : "rgba(16,42,32,0.7)",
+                      }}
                     >
                       {p.outcome}
                     </p>
