@@ -37,7 +37,7 @@ export const RATCHET = {
   "src/components/ui-port/projects-section.tsx": 26,
   "src/components/ui-port/academy-section.tsx": 24,
   "src/components/ui-port/contact-section.tsx": 19,
-  "src/components/ui-port/footer.tsx": 17,
+  "src/components/ui-port/footer.tsx": 16,
   "src/components/ui-port/coming-soon.tsx": 14,
   "src/components/ui-port/page-frame.tsx": 10,
   "src/components/ui-port/loader.tsx": 6,

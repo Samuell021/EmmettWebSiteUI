@@ -138,7 +138,7 @@ export function Footer() {
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6 pt-8 border-t border-[rgba(31,174,110,0.08)]">
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-2">
-              <div className="w-1.5 h-1.5 rounded-full bg-[#1FAE6E] animate-pulse" />
+              <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
               <span className="text-xs font-mono text-[rgba(243,250,246,0.22)]">
                 {t("operational")}
               </span>
