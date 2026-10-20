@@ -68,7 +68,18 @@ npm run dev
 
 ## Quality Gates & Testing (Phase 8)
 
- Both backend and frontend enforce a minimum **85% test coverage gate** (current coverage: **92% backend**, **97.7% frontend**):
+ All repository code is subject to strict linting, formatting and type-checking (on the frontend `tsc --noEmit` covers **all of `src`**; on the backend `ruff`/`black` cover **everything** — the only exception is `mypy apps config`, which does not type-check `backend/scripts/`). The test-coverage gate is set to **85%**, but **its measured scope is not the whole repository**:
+
+| | Gate scope | Coverage of that scope | Coverage of all related code |
+|---|---|---|---|
+| **Backend** | `apps/` only (157 files) | **94%** | **92%** including `config/` and `scripts/` |
+| **Frontend** | `src/lib` and `src/components/{ui,molecules,organisms,seo}` — **32 of 93 files** | **98%** | **41.67%** if all of `src` is measured |
+
+On the frontend, **61 files are not measured**: all 35 files under `src/app/**` (20 pages, 4 layouts, 3 route handlers, the error and not-found boundaries, plus `sitemap.ts`, `robots.ts`, `opengraph-image.tsx` and the API proxy route) sit at **0.48%**, the `src/components/ui-port/**` shell (22 files: home, navbar, hero, ⌘K palette, sections and footer) at **21.07%**, `src/i18n/**` at **28.57%** and `src/proxy.ts` at **0%**. In addition, `src/components/organisms/profile-view.tsx` (250 lines of runtime code) is explicitly excluded and sits at **0%** coverage; including it would drop the `branches` metric from 78.31 to **71.37** and break the 78 threshold.
+
+This is **consciously accepted technical debt**, not a measurement error: Package 5 ("honest coverage") was deferred by owner decision until after deployment, no threshold was lowered, and CI remains green with no changes. The unmeasured code is not left unprotected either — CI runs **60 E2E tests across 9 files** on real Chromium plus **Lighthouse CI with a minimum of 0.95**, exercising exactly those pages in a browser. The full per-directory tables, the reasoning behind every figure, the compensating controls and the reproduction commands are in [§6.3 of the technical documentation](docs/TECHNICAL_DOCUMENTATION.en.md).
+
+Local verification commands:
 
 ```bash
 # Run all pre-commit hooks across the repository

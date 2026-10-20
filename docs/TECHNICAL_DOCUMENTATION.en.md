@@ -411,3 +411,158 @@ npm run test:e2e
 
 - **Pre-commit (`.pre-commit-config.yaml`):** Runs `scripts/check_secrets.py`, `ruff check`, `ruff format --check`, `black --check`, `mypy apps config`, `scripts/i18n.py check`, `prettier --check`, `eslint`, `tsc --noEmit`, and `scripts/check_commit_msg.py` (Conventional Commits validator).
 - **GitHub Actions (`.github/workflows/ci.yml`):** Executes 6 automated jobs (`backend-quality`, `backend-test`, `frontend-quality`, `frontend-test-build`, `security-scan`, and `e2e-and-lighthouse` enforcing Lighthouse CI ≥ 0.95 via `.lighthouserc.json`).
+
+### 6.3. Test Coverage: Actual Measured Scope
+
+> **This subsection is deliberately explicit.** Quoting a coverage percentage without its scope is misleading, because the CI gates apply to a **subset** of the code, not all of it. Every coverage number in this repository must be read together with its scope.
+>
+> All figures in this subsection come from a single measurement session at commit `9c6d685` (Vitest `5.0.3` with the `v8` provider; Python `coverage` using `backend/pyproject.toml`) and are consistent with **99 frontend unit tests** and **497 backend tests**.
+
+#### 6.3.1. Frontend — what the gate actually measures
+
+`coverage.include` in `frontend/vitest.config.mts` is set to **five globs**: `src/lib/**/*.ts` and `src/components/{ui,molecules,organisms,seo}/**/*.tsx`. The enforced thresholds are `85 / 78 / 85 / 85` (statements / branches / functions / lines).
+
+That scope walks **32 of the 93 source files under `src`** (34%):
+
+| Measured scope | Files | statements | branches | functions | lines |
+|---|---|---|---|---|---|
+| CI gate as configured | 32 of 93 | **98.08** | **78.31** | **98.22** | **98.68** |
+| Same scope **without** the `profile-view.tsx` exclusion | 33 of 93 | 88.10 | **71.37** ⚠️ | 91.20 | 88.38 |
+| **All of `src`** (the honest frontend number) | 93 | **41.67** | **36.14** | **45.31** | **41.99** |
+
+⚠️ The second row matters because it is **load-bearing for the gate**: including `profile-view.tsx` drops `branches` to 71.37, which **breaks** the 78 threshold. In other words, the branches gate passes only because that one file is excluded (details in 6.3.3).
+
+#### 6.3.2. Frontend — what is not measured
+
+**61 source files** fall outside the five globs above and are therefore **absent from the coverage number**:
+
+| Path | Files | statements | branches | functions | lines | What it is |
+|---|---|---|---|---|---|---|
+| `src/app/**` | 35 | **0.48** | 0 | 0 | **0.51** | All 35 files under `src/app`: 31 route-segment files (20 `page.tsx`, 4 `layout.tsx`, 3 `route.ts`, 2 `error.tsx` including `global-error.tsx`, 2 `not-found.tsx`) plus 4 metadata/data generators (`sitemap.ts`, `robots.ts`, `opengraph-image.tsx`, `hardcoded-colors.baseline.ts`) |
+| `src/components/ui-port/**` | 22 | **21.07** | 20.49 | 24.41 | 21.32 | The visible site shell: home page, navbar, hero, ⌘K palette, footer and the products/services/projects/academy/library/contact sections |
+| `src/i18n/**` | 3 | **28.57** | 0 | 0 | 28.57 | `navigation.ts`, `request.ts`, `routing.ts` |
+| `src/proxy.ts` | 1 | **0** | 0 | 0 | 0 | Proxy middleware (path rewriting and redirects) |
+
+Measured across all of `src`, frontend coverage is **41.67%** — not 98%.
+
+> **Methodology warning about the table above:** Vitest's `text` reporter aggregates only the files **directly** in each directory, not the whole subtree. That is why the `src/app` row in the `text` output reads **6.25%**, while the true figure across all 35 files of the subtree is **0.48%** (statements) and **0.51%** (lines). The `src/app/**` figures in this table are computed from `coverage/coverage-summary.json`, which is the authoritative source. For the remaining directories (`ui-port`, `i18n`, `organisms`, `seo`, `ui`, `molecules`) there are no subdirectories, so the text-report row equals the subtree value.
+>
+> Weight of each scope within the frontend's 1699 total statements: `ui-port` **39.4%**, `src/app/**` **24.5%**, `src/lib/**` **17.4%**, the four measured component directories **16.4%**, `src/proxy.ts` **1.9%** and `src/i18n/**` **0.4%**. These weights drive the projection in 6.3.8.
+>
+> Precision note: `ui-port` also contains five `.ts` files, two of which are well covered (`dialog-a11y.ts` = 91.48%, `home-data.ts` = 100%). If the scope is written as `**/*.tsx` only, those two are dropped and `ui-port` is misreported as **13.24%** instead of **21.07%**. The correct figure is 21.07%, which covers every file in the directory.
+
+#### 6.3.3. Frontend — the `coverage.exclude` entries
+
+Three files are explicitly excluded. The first two are fully justified; the third is not:
+
+| File | Lines | Runtime exports | Coverage | Verdict |
+|---|---|---|---|---|
+| `src/lib/api/types.ts` | 283 | **0** (31 `type`/`interface`) | — | ✅ **Justified** — type declarations only, emits no JS |
+| `src/lib/seo/types.ts` | 74 | **0** (9 `type`) | — | ✅ **Justified** — same reason |
+| `src/components/organisms/profile-view.tsx` | 250 | **16** | **0%** (lines 1–238) | ❌ **Not justified** — a real runtime component that no test executes |
+
+#### 6.3.4. Frontend — two properties of the gate itself worth knowing
+
+**1) The `branches` threshold (78) is not homogeneous with the other three (85)**, and a single global threshold hides per-directory weakness. Within the measured scope itself, two directories are **individually below 78** and pass only because `lib`/`ui`/`molecules` sit at 100% and lift the aggregate:
+
+| Directory | statements | branches | functions | lines |
+|---|---|---|---|---|
+| `src/lib` | 100 | 100 | 100 | 100 |
+| `src/lib/api` | 98.38 | 85.71 | 100 | 100 |
+| `src/lib/format` | 100 | 75 | 100 | 100 |
+| `src/lib/seo` | 97.35 | 79.54 | 94.44 | 97.76 |
+| `src/components/ui` | 100 | 100 | 100 | 100 |
+| `src/components/molecules` | 100 | 93.33 | 100 | 100 |
+| `src/components/organisms` | 97.89 | **71.28** ← below 78 | 98.41 | 98.22 |
+| `src/components/seo` | 100 | **75** ← below 78 | 100 | 100 |
+
+**2) The gate margin is thin.** After Package 4 the `branches` margin is only **+0.31** (78.31 against a threshold of 78). Adding almost any branching code without a test will turn the gate red.
+
+#### 6.3.5. Backend — scope and figures
+
+`backend/pyproject.toml` sets `source = ["apps"]`, `omit = ["*/migrations/*", "*/tests/*"]` and `fail_under = 85`.
+
+| Measured scope | Files | statements | missed | Coverage |
+|---|---|---|---|---|
+| CI gate as configured (`apps/`) | 157 | 5607 | 325 | **94%** |
+| Wide scope (`apps` + `config` + `scripts`) | — | 6083 | 513 | **92%** |
+
+Outside the gate scope: `config/` (773 lines) and `scripts/` (524 lines). Measured, they break down as follows:
+
+| File | Coverage | Why |
+|---|---|---|
+| `config/settings/base.py` | 98% | Most of it executes when settings load |
+| `config/settings/dev.py` | 79% | Development-only conditional branches |
+| `config/urls.py` | 75% | |
+| `config/settings/production.py` | **0%** | CI runs dev settings, so it never loads |
+| `config/asgi.py` / `config/wsgi.py` | **0%** | Server entry points; not executed under test |
+| `scripts/i18n.py` | **58%** | Has `test_i18n_tooling.py`, but its CLI branches are uncovered |
+| `scripts/generate_brand_assets.py` | **0%** | No tests |
+
+`migrations` (18 files / 1837 lines) are omitted, which is **standard practice**: machine-generated code rather than hand-written logic.
+
+**Conclusion for the backend:** both figures (94% and 92%) are above the 85% threshold, so the backend gap is **small and defensible** compared with the frontend one.
+
+#### 6.3.6. What lint and type-checking cover (unlike test coverage)
+
+The statement "all repository code is linted and type-checked" is **true**; only "tested" has a restricted scope. Verified breakdown:
+
+| Gate | Actual scope | Status |
+|---|---|---|
+| `tsc --noEmit` (frontend) | `**/*.ts` and `**/*.tsx` → **all of `src`**, including `ui-port` and `app` | ✅ Complete |
+| `eslint` (frontend) | Whole project | ✅ Complete |
+| `prettier --check` (frontend) | `src/**`, `e2e/**`, `messages/**` | ✅ Complete |
+| `ruff check .` / `ruff format --check .` / `black --check .` (backend) | **Everything**, including `scripts/` | ✅ Complete |
+| `mypy apps config` (backend) | 242 files — **does not include `scripts/`** | ⚠️ Gap |
+
+The only non-coverage gap: `backend/scripts/` (524 lines) is not type-checked, because CI runs `mypy apps config` rather than `mypy .`.
+
+#### 6.3.7. Compensating controls — unmeasured code is not unprotected
+
+Unit-test coverage is not the only protective layer. For those same 61 unmeasured files, CI runs:
+
+- **60 E2E tests across 9 files** on **real Chromium** in three projects (`fa` / `fa-locale` / `en`). Most of these exercise exactly the `src/app/**` pages and the `ui-port` shell in a browser — the places where unit coverage is 6% and 21%.
+- **Lighthouse CI with a minimum score of `0.95`** across all four axes on 5 URLs (`.lighthouserc.json`), active on `main` and `workflow_dispatch`.
+- **A two-way raw-colour ratchet** (Package 2, `hardcoded-colors.test.ts`): a ceiling of 360 literals across 20 files, with an explicit reasoned exception list.
+- Strict `mypy` and `ruff` across the codebase (subsection 6.3.6).
+
+The risk is therefore not "untested code"; it is **"code whose unit tests never execute at function/branch level"**. That distinction matters and must stay precise in any risk assessment.
+
+#### 6.3.8. Decision status
+
+Package 5 of the seven-package remediation plan ("honest coverage") was to add `src/components/ui-port/**/*.tsx` to `coverage.include`. Three options were examined and measured:
+
+| Option | Measured outcome |
+|---|---|
+| Write tests up to the existing threshold | **Arithmetically impossible at the measured weights.** `ui-port` accounts for 39.4% of statements, so even taking it to **100%** lifts the overall average only to **72.75%** (85% would have required 131% coverage). Reaching 85% also requires covering `src/app/**`: either `ui-port` → 100% **and** `src/app` → 50.5%, or both → 85%, which yields 87.54%. Separately, most of `ui-port` is presentational/animation code, so percentage-driven tests would have been **coverage theatre**. Rejected |
+| Per-directory thresholds | Measured with Vitest `5.0.3`: the global threshold **still applies to every file**, and glob-specific thresholds do **not** remove matched files from the global calculation. Implementable only if the global threshold is also set to the honest figure |
+| Include in the report with no gate | Produces an honest number but leaves nothing enforcing it |
+
+**Owner decision (2026-10-20):** Package 5 was **deferred until after deployment** (time constraint). Consequently:
+
+- `coverage.include` and `thresholds` were **left untouched**. No threshold was lowered (rule 19 respected).
+- **No CI change was required**: the gate is green and internally consistent at its current scope.
+- The replacement commitment is **this subsection**: instead of changing the gate, its actual scope is fully disclosed so that no number can be quoted without context.
+- This is a **consciously accepted technical debt**, not an unintended state. Any future revision must start from the figures in this subsection, not from 98%.
+
+#### 6.3.9. Reproducing the figures
+
+```bash
+# Frontend — the gate number (exactly what CI runs)
+cd frontend && npm run test:coverage          # → 98.08 / 78.31 / 98.22 / 98.68
+
+# Backend — the gate number
+cd backend && coverage run -m pytest --create-db -q && coverage report --fail-under=85
+#                                                          → 5607 stmt / 325 missed / 94%
+
+# Backend — wide scope
+coverage run --source=apps,config,scripts -m pytest --create-db -q && coverage report --fail-under=0
+#                                                          → 6083 stmt / 513 missed / 92%
+
+# E2E test count (authoritative source, not a grep count)
+cd frontend && npx playwright test --list      # → Total: 60 tests in 9 files
+```
+
+The **all-of-`src`** figure (41.67%) is not part of CI. It was obtained with a temporary throwaway configuration that was **not** committed: `coverage.include` widened to `["src/**/*.ts", "src/**/*.tsx"]` and every `thresholds` entry set to zero, then `npx vitest run --coverage`. To repeat it, apply those two changes to `vitest.config.mts` temporarily and revert them afterwards.
+
+> **Methodology warning:** counting tests with `grep -c 'test('` yields **63**, which is **wrong**; the only authoritative source is `npx playwright test --list`. Likewise, directory coverage must be taken from a single report: the `**/*.tsx` glob alone reports 13.24% for `ui-port` because it drops the `.ts` files in that same directory.

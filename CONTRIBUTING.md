@@ -17,7 +17,7 @@ Discovery → Questions → Plan → ADR → Implementation → Test → Review 
 1. **Discovery:** مطالعهٔ کامل کدهای مرتبط، تاریخچهٔ کامیت‌ها و اسناد `docs/adr/` پیش از نوشتن کد.
 2. **Questions:** رفع هرگونه ابهام پیش از پیاده‌سازی.
 3. **Plan & ADR:** ثبت هر تصمیم معماری جدید در قالب یک فایل شماره‌گذاری‌شده در `docs/adr/00XX-*.md` (شامل بخش‌های `Context`, `Options`, `Decision`, `Rationale`, `Consequences`).
-4. **Implementation & Test:** پیاده‌سازی تایپ‌سیف همراه با تست‌های واحد، یکپارچه و در صورت نیاز E2E با پوشش **حداقل ۸۵٪**.
+4. **Implementation & Test:** پیاده‌سازی تایپ‌سیف همراه با تست‌های واحد، یکپارچه و در صورت نیاز E2E. گیت پوشش **حداقل ۸۵٪** است، اما توجه کنید که این گیت **کل مخزن را نمی‌سنجد**: در فرانت‌اند فقط `src/lib` و `src/components/{ui,molecules,organisms,seo}` (۳۲ فایل از ۹۳) و در بک‌اند فقط `apps/` اندازه‌گیری می‌شوند. دامنهٔ واقعی، اعداد تفکیکی و استثنائات در [بند ۶.۴ مستندات فنی](docs/TECHNICAL_DOCUMENTATION.fa.md) آمده است. **کد تازه باید در هر مسیری که هست تست داشته باشد، حتی اگر آن مسیر فعلاً سنجیده نشود** — به‌ویژه `src/app/**`، `src/components/ui-port/**`، `src/i18n/**` و `src/proxy.ts`.
 5. **Review & Document:** هر Pull Request باید به‌گونه‌ای کوچک، تمیز و مستند باشد که توسط **۳ بازبین (Reviewer)** به‌راحتی قابل بررسی باشد و تغییرات در `CHANGELOG.md` و مستندات فنی ثبت گردد.
 
 ### ۲. خلاصهٔ ۲۰ قانون سخت‌گیرانه (Hard Rules)
@@ -76,7 +76,7 @@ backend/.venv/bin/pre-commit run --all-files
 
 - [ ] `backend/.venv/bin/pre-commit run --all-files` بدون خطا اجرا شده است.
 - [ ] تست‌های بک‌اند (`coverage run -m pytest && coverage report --fail-under=85`) سبز هستند.
-- [ ] تست‌های فرانت‌اند (`npm run test:coverage`) با پوشش بالای ۸۵٪ و `npm run build` سبز هستند.
+- [ ] تست‌های فرانت‌اند (`npm run test:coverage`) و `npm run build` سبز هستند. توجه: گیت ۸۵٪ فقط `src/lib` و `src/components/{ui,molecules,organisms,seo}` را می‌سنجد و `src/app/**`، `ui-port/**`، `src/i18n/**` و `src/proxy.ts` خارج از آن‌اند (بند ۶.۴ مستندات فنی) — با این حال کد تازه در هر مسیری که باشد باید تست داشته باشد.
 - [ ] رنگ‌ها از توکن می‌آیند: `hardcoded-colors.test.ts` سبز است و شمار لیترال‌های رنگ هیچ فایلی افزایش نیافته.
 - [ ] در صورت تغییر ترجمه، `python scripts/i18n.py check` سبز است و کلیدهای `messages/fa.json` و `messages/en.json` متقارن‌اند.
 - [ ] مستندات (`docs/TECHNICAL_DOCUMENTATION.{fa,en}.md` و `CHANGELOG.md`) به‌روزرسانی شده‌اند.
@@ -93,7 +93,7 @@ Every change must follow:
 - Document architectural decisions in `docs/adr/00XX-*.md`.
 - Never commit secrets or `.env` files (`python3 scripts/check_secrets.py`).
 - Maintain strict type safety (`mypy apps config` with `--strict` on backend; `npm run typecheck` on frontend).
-- Keep test coverage `>= 85%` in both backend (`pytest` + `coverage`) and frontend (`vitest` + `@vitest/coverage-v8`).
+- Keep test coverage `>= 85%` in both backend (`pytest` + `coverage`) and frontend (`vitest` + `@vitest/coverage-v8`). Note that this gate is **scoped, not repository-wide**: on the frontend it measures only `src/lib` and `src/components/{ui,molecules,organisms,seo}` (32 of 93 source files), and on the backend only `apps/`. New code must be tested regardless of whether its directory is currently measured — especially `src/app/**`, `src/components/ui-port/**`, `src/i18n/**` and `src/proxy.ts`. See §6.3 of `docs/TECHNICAL_DOCUMENTATION.en.md` for the actual scope, the per-directory figures and the compensating E2E controls.
 
 ### 2. Code Formatting & Linting
 
