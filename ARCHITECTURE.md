@@ -482,6 +482,7 @@ erDiagram
 | [ADR-0037](docs/adr/0037-ui-port-e2e-lighthouse-ci.md) | فاز ۸ پورت UI: تست‌های E2E اختصاصی پورت، Lighthouse و CI سبز کامل |
 | [ADR-0038](docs/adr/0038-ci-workflow-at-repo-root-and-ci-test-settings.md) | بازسازی پایپ‌لاین CI در ریشهٔ ریپو: مسیرهای تخت، لایهٔ تنظیمات تست CI و گیت‌های راستی‌آزمایی‌شده |
 | [ADR-0039](docs/adr/0039-design-token-standard-and-hardcoded-color-ratchet.md) | استاندارد توکن‌های طراحی: سیم‌کشی پالت زمردی، توکن‌های پالت دسته‌بندی و متن ملایم، و جفت‌بند رنگ خام |
+| [ADR-0040](docs/adr/0040-product-detail-canonical-is-projects-slug.md) | مرجعیت canonical صفحهٔ جزئیات محصول: `/projects/{slug}` نه `/products/{slug}` |
 
 ### ۱۰.۱. لایهٔ ادمین (فاز ۶) — نمای کلی
 

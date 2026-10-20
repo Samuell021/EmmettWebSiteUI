@@ -4,6 +4,46 @@
 
 ---
 
+## [بستهٔ ۳ — اصلاح canonical صفحهٔ جزئیات محصول] — 2026-10-20
+
+بررسی این بسته نشان داد گزارش اولیه («canonical محصولات با sitemap نمی‌خواند») درست بود ولی ناقص: ریشهٔ مشکل یک **هم‌نامی مسیرِ ثبت‌نشده** است. در این برنامه دو چیز متفاوت «product» نامیده می‌شوند — `Project.is_product=True` در دیتابیس که صفحهٔ واقعی و پرمحتوایش زیر `/projects/{slug}` سرو می‌شود، و `/products/{slug}` در فرانت که دو صفحهٔ **ایستا و دست‌نویسِ ComingSoon** است (قرارداد وفاداری پورت، `ADR-0037`). این دو روی اسلاگ `pentestor` برخورد می‌کردند و اندازه‌گیری زنده ثابت کرد صفحهٔ واقعی، canonical و `og:url` و هر سه hreflang و هر دو JSON-LD خود را — یعنی **پنج سیگنال** — به صفحهٔ خالیِ «به‌زودی» می‌داد، در حالی که sitemap همان `/projects/pentestor` را می‌فرستاد. جهت اصلاح با سه واقعیت اندازه‌گیری‌شده تعیین شد نه سلیقه: فهرست محصولات خودش به `/projects/{slug}` لینک می‌دهد، بک‌اند همان را در sitemap می‌فرستد، و `/products/pentestor` محتوا ندارد. جزئیات، گزینهٔ ردشده و درس روشی در `ADR-0040`.
+
+### Conventional Commits — بستهٔ ۳
+
+- `fix(seo)`: صفحهٔ جزئیات پروژه/محصول اکنون **همیشه** canonical خودش (`/projects/{slug}`) را دارد. یک ثابت (`detailPath`) معرفی شد و هر سه مصرفِ مسیر جزئیات به آن وصل شدند: `path` در `generateMetadata` (که canonical و `og:url` و hreflang را می‌سازد)، آیتمِ نانبرد در `breadcrumbJsonLd`، و `path` در `articleJsonLd`. والدِ نانبرد عمداً دست‌نخورده ماند (`/products` برای محصول) چون والدِ معناییِ درست است؛ فقط مقصدِ آیتمِ خودِ صفحه اصلاح شد، پس نانبرد اکنون `['/products', '/projects/pentestor']` است. تصویر OG به `path` وابسته نیست (از `cover_image_url` یا روت `[locale]/opengraph-image` می‌آید) پس هیچ تصویری نشکست.
+- `test(seo)`: افزودن گارد بک‌اند `test_product_projects_stay_under_the_projects_prefix` در `apps/core/tests/test_seo_api.py` — با `ProjectFactory(is_product=True)` assert می‌کند `/projects/{slug}` در sitemap هست و `/products/{slug}` نیست. با **آزمون منفی** راستی‌آزمایی شد: تغییر موقت prefix به `/products` دقیقاً همین یک تست را قرمز کرد (۱ شکست / ۱۸ سبز) و پس از بازگرداندن ۱۹ تست سبز شد.
+- `test(e2e)`: افزودن چهار تست در describe تازهٔ «canonical محصولات (ADR-0040)」 در `e2e/ai-and-seo.spec.ts` — خودارجاعی صفحهٔ محصول (canonical، `og:url`، `hreflang=en` و JSON-LD نانبرد) **به‌همراه** توافقش با sitemap؛ خودارجاعی یک پروژهٔ غیرمحصول؛ لینک‌دادن فهرست محصولات به `/projects/{slug}`؛ و دست‌نخورده ماندن صفحات «به‌زودی» با ۴۰۴ بودن `/projects/crm`. شمار E2E از ۵۶ تست در ۹ فایل به **۶۰ تست در ۹ فایل** رسید.
+- `docs(settings)`: افزودن کامنت قرارداد به `SEO_STATIC_PAGES` در `backend/config/settings/base.py`. **مقدار این تنظیم هیچ تغییری نکرد** (با assert تأیید شد)؛ فقط ثبت شد که صفحه‌های جزئیات از `_published_entries` می‌آیند و همیشه با پیشوند `/projects/`، و اینکه `/products/{slug}` عمداً در فهرست نیست چون صفحهٔ «به‌زودیِ» بدون محتواست و فرستادنش در sitemap یعنی تناقض دوباره با canonical صفحهٔ واقعی. `apps/core/seo.py` هم از قبل درست بود و **دست نخورد**.
+- `docs(adr)`: ثبت `ADR-0040` با اندازه‌گیری پیش/پس برای هر هفت سیگنال، چهار گزینهٔ بررسی‌شده (شامل گزینهٔ الف که توصیهٔ اولیهٔ همین بسته بود و با شواهد رد شد)، ماجرای کامل `/projects/crm`، و افزودن ردیف آن به ایندکس ADR در `ARCHITECTURE.md`.
+
+### راستی‌آزمایی زندهٔ بستهٔ ۳
+
+با بالا آوردن کل پشته (جنگو + `migrate` + `seed_demo_data` + بیلد و `next start`) و خواندن HTML واقعی:
+
+| سیگنال در `/projects/pentestor` | پیش | پس |
+|---|---|---|
+| canonical | `/products/pentestor` | `/projects/pentestor` |
+| `og:url` | `/products/pentestor` | `/projects/pentestor` |
+| hreflang `fa-IR` / `en` / `x-default` | `/products/...` | `/projects/pentestor` و `/en/projects/pentestor` |
+| JSON-LD `Article.url` و `mainEntityOfPage.@id` | `/products/pentestor` | `/projects/pentestor` |
+| JSON-LD `BreadcrumbList` | `['/products', '/products/pentestor']` | `['/products', '/projects/pentestor']` |
+| sitemap | ۴۴ `<loc>` | **۴۴ `<loc>` — بایت‌به‌بایت یکسان** |
+
+مواردی که عمداً بی‌تغییر ماندند و تأیید شدند: `/products/pentestor` و `/products/crm` (۲۰۰ با canonical خودشان، قرارداد `ADR-0037`)، `/projects/crm` (۴۰۴)، `/projects/fintech-dashboard` (غیرمحصول)، `/en/projects/pentestor` (۲۰۰). گیت‌ها: `ruff`/`ruff format`/`black`/`mypy`/`manage.py check` ✅ · `pytest test_seo_api.py` ۱۹ تست ✅ · `format:check`/`lint`/`typecheck` ✅ · `playwright --list` ۶۰/۹ ✅ · `npm run build` ✅.
+
+### ماجرای `/projects/crm` — بررسی شد و باگ نیست
+
+CRM در دیتابیس نیست (سه پروژهٔ سید: `pentestor` با `is_product=True`، `fintech-dashboard`، `beta-ecommerce`) و API هم تأیید کرد (`/api/v1/projects/?is_product=true` ⇒ `count=1`). پس `/projects/crm` ⇒ `notFound()` ⇒ **۴۰۴ که رفتار درست است**، و `grep` روی `frontend/src`، `frontend/e2e` و `backend/` **صفر** لینک به آن پیدا کرد. صفحهٔ خانه هم سازگار است: در `products-section.tsx:142` با دادهٔ زنده، کارت Pentestor به `/projects/pentestor` (صفحهٔ واقعی) می‌رود و کارت CRM — چون محصول دومی در دیتابیس نیست — به `/products/crm` («به‌زودی»). تنها ناهمخوانیِ باقی‌مانده **متنی** است: docstring سه فایل بک‌اند از «Pentestor/CRM» به‌عنوان نمونهٔ محصولات یاد می‌کنند در حالی که CRM در داده وجود ندارد ⇒ دریفت مستندات، بستهٔ ۷.
+
+### یافته‌های این بسته که عمداً دست‌نخورده ماندند
+
+- **⚠ محتوای تکراریِ حل‌نشده برای Pentestor:** پس از این اصلاح، `/projects/pentestor` (واقعی) و `/products/pentestor` («به‌زودی») هر دو index‌پذیرند و هر دو canonical خودشان را دارند. **تناقضِ پیش از اصلاح برطرف شد** (دیگر هیچ‌کدام به دیگری دروغ نمی‌گوید) ولی دو صفحهٔ هم‌موضوع بدون تعیین تکلیف ماندند. هر سه راه‌حل ممکن (۳۰۱ از صفحهٔ «به‌زودی» — پیشنهاد ما؛ یا canonical آن به صفحهٔ واقعی؛ یا `noindex` روی آن) به قرارداد `ADR-0037` و تست `ui-port.spec.ts:69-79` دست می‌زند، پس نیازمند تصمیم مالک محصول است (`ADR-0040` بند ۵).
+- **دریفت مستندات CRM** در `apps/portfolio/models.py`، `help_text` فیلد `is_product` و `apps/portfolio/resources.py` ⇒ بستهٔ ۷.
+- **‏`e2e/README.md`** اصلاً `ai-and-seo.spec.ts` را فهرست نکرده (دریفت از پیش موجود؛ این بسته فقط به آن فایل تست اضافه کرد) ⇒ بستهٔ ۷.
+- **ریسک production مربوط به throttle** (`ADR-0038` بند ۵) همچنان منتظر تصمیم مالک است. حین راستی‌آزمایی همین بسته، دورِ دومِ پروب‌ها با **۴۲۹** از سمت جنگو برگشت چون سطل مشترک `127.0.0.1` با پیش‌فرض `100/hour` در چند دور خالی شد — یعنی این ریسک حتی در محیط توسعه هم خود را نشان می‌دهد.
+
+---
+
 ## [بستهٔ ۲ — استاندارد توکن‌های طراحی، سیم‌کشی و گارد رگرسیون] — 2026-10-19
 
 بررسی این بسته علت اصلی لیترال‌های خام رنگ را پیدا کرد: `:root` در `globals.css` هفتاد توکن رنگ داشت ولی **شانزده توکن هرگز در `@theme inline` نگاشت نشده بودند**، و در Tailwind v4 utility از همان نگاشت ساخته می‌شود. یعنی برای `--emerald-deep` (`#0b6b48`، ۱۷ لیترال خام) و `--deep-green-black` (`#07130f`، ۱۲ لیترال) **هیچ کلاس معادلی وجود نداشت** و مشارکت‌کننده راهی جز هگز خام نداشت. این بسته شکاف سیم‌کشی را بست، توکن‌های غایب را ساخت و استاندارد را با یک جفت‌بند دوطرفه قابل‌اجرا کرد. اندازهٔ مسئله: ۳۴۳ لیترال خام در ۲۱ فایل `ui-port/` (۱۳۴ هگز + ۲۰۹ `rgba`) و ۳۸۲ در کل `src/`. اثبات صفر تغییر بصری با diff بیلد انجام شد: **صفر قاعدهٔ utility حذف‌شده** در هر دو فاز. جزئیات و گزینه‌های ردشده در `ADR-0039`.
