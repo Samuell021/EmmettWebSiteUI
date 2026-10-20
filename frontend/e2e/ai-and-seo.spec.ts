@@ -106,11 +106,13 @@ test.describe("canonical محصولات (ADR-0040)", () => {
     );
 
     // نانبردِ JSON-LD: والد، فهرست محصولات است؛ خودِ آیتم، URL واقعی صفحه.
-    const breadcrumb = page
-      .locator('script[type="application/ld+json"]')
-      .filter({ hasText: "BreadcrumbList" })
-      .first();
-    const breadcrumbJson = await breadcrumb.textContent();
+    // توجه: `filter({ hasText })` روی تگ `<script>` جواب نمی‌دهد چون محتوای
+    // script «متن رندرشده» نیست (در CI با timeout 30s شکست). الگوی درست همان
+    // است که تست JSON-LD صفحهٔ اصلی در همین فایل به کار می‌برد: خواندن
+    // `textContent` و assert روی رشته.
+    const jsonLdBlocks = await page.locator('script[type="application/ld+json"]').allTextContents();
+    const breadcrumbJson = jsonLdBlocks.find((block) => block.includes("BreadcrumbList")) ?? "";
+    expect(breadcrumbJson, "بلوک JSON-LD نانبرد پیدا نشد").toContain("BreadcrumbList");
     expect(breadcrumbJson).toContain("/projects/pentestor");
     expect(breadcrumbJson).not.toContain("/products/pentestor");
 
