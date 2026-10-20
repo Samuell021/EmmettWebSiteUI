@@ -98,7 +98,10 @@ export function ContactSection() {
   const meta = t.raw("meta") as Array<{ label: string; value: string }>;
 
   return (
-    <section className="relative py-36 lg:py-48 overflow-hidden" style={{ background: "#07130F" }}>
+    <section
+      className="relative py-36 lg:py-48 overflow-hidden"
+      style={{ background: "var(--deep-green-black)" }}
+    >
       <SubtleNetwork />
 
       {/* Radial depth */}
