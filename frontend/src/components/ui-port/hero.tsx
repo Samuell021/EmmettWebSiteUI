@@ -25,7 +25,10 @@ export function Hero() {
     <section
       id="home"
       className="relative min-h-screen flex items-center overflow-hidden"
-      style={{ background: "linear-gradient(135deg, #07130F 0%, #0B1F18 60%, #102A20 100%)" }}
+      style={{
+        background:
+          "linear-gradient(135deg, var(--deep-green-black) 0%, var(--background) 60%, var(--card) 100%)",
+      }}
     >
       {/* Subtle grid — emerald tint */}
       <div
