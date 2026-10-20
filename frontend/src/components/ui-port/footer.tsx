@@ -108,7 +108,7 @@ export function Footer() {
   return (
     <footer
       className="relative border-t border-[rgba(31,174,110,0.08)] overflow-hidden"
-      style={{ background: "#07130F" }}
+      style={{ background: "var(--deep-green-black)" }}
     >
       <EmeraldStarfield />
 
