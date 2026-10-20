@@ -178,7 +178,8 @@ export function ServicesSection({ services: items }: { services: HomeService[] |
                   active === s.id ? "ps-4" : "ps-0"
                 }`}
                 style={{
-                  borderLeft: active === s.id ? "2px solid #1FAE6E" : "2px solid transparent",
+                  borderLeft:
+                    active === s.id ? "2px solid var(--primary)" : "2px solid transparent",
                 }}
               >
                 <div className="flex items-start gap-5">
@@ -189,7 +190,7 @@ export function ServicesSection({ services: items }: { services: HomeService[] |
                     <div className="flex items-center gap-3 mb-2">
                       <h3
                         className="text-base font-semibold transition-colors duration-150"
-                        style={{ color: active === s.id ? "#1FAE6E" : "#102A20" }}
+                        style={{ color: active === s.id ? "var(--primary)" : "#102A20" }}
                       >
                         <Link href={s.href}>{s.title}</Link>
                       </h3>
@@ -201,7 +202,8 @@ export function ServicesSection({ services: items }: { services: HomeService[] |
                           key={t}
                           className="text-[10px] font-mono tracking-widest uppercase px-2 py-0.5 rounded border"
                           style={{
-                            color: active === s.id ? "#0B6B48" : "rgba(16,42,32,0.68)",
+                            color:
+                              active === s.id ? "var(--emerald-deep)" : "var(--muted-on-light)",
                             borderColor:
                               active === s.id ? "rgba(31,174,110,0.3)" : "rgba(16,42,32,0.1)",
                             background: active === s.id ? "rgba(31,174,110,0.05)" : "transparent",
