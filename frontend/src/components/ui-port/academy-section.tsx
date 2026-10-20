@@ -123,8 +123,8 @@ export function AcademySection({ courses }: { courses: HomeCourse[] | null }) {
               viewport={{ once: true }}
               className="flex items-center gap-3 mb-5"
             >
-              <div className="w-6 h-px bg-[#1FAE6E]" />
-              <span className="text-[10px] font-mono tracking-[0.22em] uppercase text-[#1FAE6E]">
+              <div className="w-6 h-px bg-primary" />
+              <span className="text-[10px] font-mono tracking-[0.22em] uppercase text-primary">
                 {t("eyebrow")}
               </span>
             </motion.div>
@@ -133,7 +133,7 @@ export function AcademySection({ courses }: { courses: HomeCourse[] | null }) {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: 0.06 }}
-              className="text-[clamp(2rem,4.5vw,3.5rem)] font-medium tracking-tight text-[#F3FAF6] leading-tight"
+              className="text-[clamp(2rem,4.5vw,3.5rem)] font-medium tracking-tight text-foreground leading-tight"
             >
               {t("title")}
             </motion.h2>
@@ -143,7 +143,7 @@ export function AcademySection({ courses }: { courses: HomeCourse[] | null }) {
             whileInView={{ opacity: 1 }}
             viewport={{ once: true }}
             transition={{ delay: 0.1 }}
-            className="text-base text-[rgba(243,250,246,0.58)] leading-relaxed max-w-[40ch] lg:ms-auto"
+            className="text-base text-muted-on-dark leading-relaxed max-w-[40ch] lg:ms-auto"
           >
             {t("lead")}
           </motion.p>
@@ -156,11 +156,11 @@ export function AcademySection({ courses }: { courses: HomeCourse[] | null }) {
             whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: true }}
             transition={{ duration: 0.7 }}
-            className="rounded-2xl border border-[rgba(31,174,110,0.12)] overflow-hidden p-6"
+            className="rounded-2xl border border-input overflow-hidden p-6"
             style={{ background: "rgba(7,19,15,0.5)", aspectRatio: "16/9" }}
           >
             <div className="flex items-center justify-between mb-3">
-              <span className="text-[10px] font-mono text-[rgba(243,250,246,0.58)] tracking-widest uppercase">
+              <span className="text-[10px] font-mono text-muted-on-dark tracking-widest uppercase">
                 {t("graph")}
               </span>
               {activePath && (
@@ -279,7 +279,7 @@ export function AcademySection({ courses }: { courses: HomeCourse[] | null }) {
 
           {/* Learning paths list */}
           <div className="space-y-4">
-            <p className="text-[10px] font-mono text-[rgba(243,250,246,0.58)] tracking-widest uppercase mb-6">
+            <p className="text-[10px] font-mono text-muted-on-dark tracking-widest uppercase mb-6">
               {t("available")}
             </p>
             {paths.map((path, i) => (
@@ -314,11 +314,9 @@ export function AcademySection({ courses }: { courses: HomeCourse[] | null }) {
                         <Link href={path.href}>{path.name}</Link>
                       </h3>
                     </div>
-                    <p className="text-xs font-mono text-[rgba(243,250,246,0.58)] ms-3.5">
-                      {path.level}
-                    </p>
+                    <p className="text-xs font-mono text-muted-on-dark ms-3.5">{path.level}</p>
                   </div>
-                  <span className="text-xs font-mono text-[rgba(243,250,246,0.58)] flex-shrink-0">
+                  <span className="text-xs font-mono text-muted-on-dark flex-shrink-0">
                     {t("topics", { count: path.topics })}
                   </span>
                 </div>
@@ -339,7 +337,7 @@ export function AcademySection({ courses }: { courses: HomeCourse[] | null }) {
             <div className="pt-2">
               <Link
                 href="/academy"
-                className="inline-flex items-center gap-2 text-sm font-mono text-[#1FAE6E] hover:text-[#35C98A] transition-colors"
+                className="inline-flex items-center gap-2 text-sm font-mono text-primary hover:text-accent transition-colors"
               >
                 {t("start")} <ForwardMark />
               </Link>
