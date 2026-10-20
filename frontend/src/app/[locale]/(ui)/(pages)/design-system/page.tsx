@@ -153,7 +153,13 @@ function readTokenValuesOnServer(): string {
  * مقدار زندهٔ هر توکن، خوانده‌شده از CSSOM در زمان اجرا. عمداً از
  * `useSyncExternalStore` استفاده می‌شود و نه `useState + useEffect` تا قاعدهٔ
  * `react-hooks/set-state-in-effect` نقض نشود و مقدار سمت سرور هم deterministic
- * بماند (همان دلیلِ `useHasMounted`).
+ * بماند.
+ *
+ * پیش‌تر `lib/hooks/use-has-mounted.ts` در این ریپو دقیقاً همین الگو را پیاده
+ * کرده بود و این تابع به آن استناد می‌کرد؛ آن فایل در بستهٔ ۴ به‌عنوان کد
+ * مرده حذف شد (هیچ مصرف‌کننده‌ای جز یک تست خودتکرار نداشت). پس این تابع اکنون
+ * تنها نمونهٔ آن الگو در ریپو است و دلیلش همین‌جا ثبت می‌ماند تا ارجاع
+ * dangling به فایل حذف‌شده باقی نماند.
  */
 function useLiveTokenValues(): ReadonlyMap<string, string> {
   const snapshot = useSyncExternalStore(
