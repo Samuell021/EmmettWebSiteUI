@@ -29,14 +29,14 @@ export function ComingSoon({ page, subtitle }: { page: string; subtitle: string 
         transition={{ duration: 0.5 }}
         className="relative z-10 text-center max-w-lg"
       >
-        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-[rgba(31,174,110,0.12)] bg-[rgba(31,174,110,0.03)] mb-8">
-          <div className="w-1 h-1 rounded-full bg-[#1FAE6E]" />
+        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-input bg-[rgba(31,174,110,0.03)] mb-8">
+          <div className="w-1 h-1 rounded-full bg-primary" />
           <span className="text-[10px] font-mono tracking-[0.2em] uppercase text-[rgba(31,174,110,0.55)]">
             {t("pending")}
           </span>
         </div>
 
-        <h1 className="text-5xl font-medium text-[#F3FAF6] mb-3 tracking-tight">{page}</h1>
+        <h1 className="text-5xl font-medium text-foreground mb-3 tracking-tight">{page}</h1>
         <p className="text-[rgba(243,250,246,0.38)] font-mono text-sm mb-10">{subtitle}</p>
 
         <div
@@ -48,7 +48,7 @@ export function ComingSoon({ page, subtitle }: { page: string; subtitle: string 
 
         <Link
           href="/"
-          className="inline-flex items-center gap-2 text-sm font-mono text-[rgba(243,250,246,0.38)] hover:text-[#1FAE6E] transition-colors"
+          className="inline-flex items-center gap-2 text-sm font-mono text-[rgba(243,250,246,0.38)] hover:text-primary transition-colors"
         >
           <ArrowLeft className="w-4 h-4 rtl:-scale-x-100" />
           {t("back")}
