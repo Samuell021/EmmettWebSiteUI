@@ -112,7 +112,7 @@ export function AcademySection({ courses }: { courses: HomeCourse[] | null }) {
     : null;
 
   return (
-    <section ref={sectionRef} className="py-28 lg:py-36" style={{ background: "#102A20" }}>
+    <section ref={sectionRef} className="py-28 lg:py-36" style={{ background: "var(--card)" }}>
       <div className="max-w-[1440px] mx-auto px-6 lg:px-12">
         {/* Header */}
         <div className="mb-16 grid lg:grid-cols-[1fr_1fr] gap-8 items-end">
@@ -309,7 +309,9 @@ export function AcademySection({ courses }: { courses: HomeCourse[] | null }) {
                           سرفصل‌ها را می‌شکست (Lighthouse: heading-order). */}
                       <h3
                         className="text-sm font-semibold transition-colors duration-150"
-                        style={{ color: activePathId === path.id ? path.color : "#F3FAF6" }}
+                        style={{
+                          color: activePathId === path.id ? path.color : "var(--foreground)",
+                        }}
                       >
                         <Link href={path.href}>{path.name}</Link>
                       </h3>
