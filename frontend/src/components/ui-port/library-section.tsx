@@ -152,7 +152,7 @@ export function LibrarySection({ articles: items }: { articles: HomeArticle[] | 
                     <polyline
                       points="20,90 44,70 68,75 92,45 116,55 140,30 164,40 188,20"
                       fill="none"
-                      stroke="#1FAE6E"
+                      className="stroke-primary"
                       strokeWidth="1.5"
                     />
                     {[20, 44, 68, 92, 116, 140, 164, 188].map((x, i) => (
@@ -161,7 +161,7 @@ export function LibrarySection({ articles: items }: { articles: HomeArticle[] | 
                         cx={x}
                         cy={[90, 70, 75, 45, 55, 30, 40, 20][i]}
                         r="2.5"
-                        fill="#1FAE6E"
+                        className="fill-primary"
                       />
                     ))}
                   </svg>
