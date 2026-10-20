@@ -30,7 +30,7 @@ export const RATCHET = {
   // ===== بستهٔ UI (ui-port) — هدف مهاجرت تدریجی در بستهٔ ۶ =====
   "src/components/ui-port/products-section.tsx": 52,
   "src/components/ui-port/library-section.tsx": 43,
-  "src/components/ui-port/services-section.tsx": 37,
+  "src/components/ui-port/services-section.tsx": 27,
   "src/components/ui-port/hero.tsx": 36,
   "src/components/ui-port/navbar.tsx": 29,
   "src/components/ui-port/command-palette.tsx": 21,
