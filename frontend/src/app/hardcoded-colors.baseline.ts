@@ -49,7 +49,6 @@ export const RATCHET = {
   "src/app/[locale]/(ui)/(pages)/search/page.tsx": 3,
   "src/app/[locale]/error.tsx": 3,
   "src/app/[locale]/not-found.tsx": 3,
-  "src/app/[locale]/(ui)/layout.tsx": 1,
 } as const satisfies Readonly<Record<string, number>>;
 
 /**
