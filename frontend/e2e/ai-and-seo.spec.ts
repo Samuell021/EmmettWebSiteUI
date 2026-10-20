@@ -71,3 +71,84 @@ test.describe("SEO، فیدهای RSS و دادهٔ ساخت‌یافته (فا�
     expect(jsonLd).toContain("WebSite");
   });
 });
+
+test.describe("canonical محصولات (ADR-0040)", () => {
+  /**
+   * `pentestor` تنها محصولِ دادهٔ سید است (`seed_demo_data` با
+   * `is_product=True`)، همان الگویی که بقیهٔ اسپک‌ها برای دادهٔ سید دارند.
+   *
+   * باگی که این تست قفل می‌کند: صفحهٔ واقعی و پرمحتوای `/projects/pentestor`
+   * قبلاً canonical، `og:url`، hreflang و JSON-LD خودش را به
+   * `/products/pentestor` می‌داد — که صفحهٔ «به‌زودی»ِ پورت UI است و هیچ
+   * محتوایی ندارد. یعنی به موتور جست‌وجو گفته می‌شد نسخهٔ مرجع، صفحهٔ خالی
+   * است؛ هم‌زمان sitemap خودِ `/projects/pentestor` را می‌فرستاد و این دو
+   * سیگنال با هم در تناقض بودند.
+   */
+  test("صفحهٔ جزئیات محصول به خودش اشاره می‌کند، نه به صفحهٔ «به‌زودی»", async ({
+    page,
+    request,
+  }) => {
+    await page.goto("/projects/pentestor");
+    await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
+
+    await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
+      "href",
+      /\/projects\/pentestor$/,
+    );
+    // هر سه از یک `path` در `buildPageMetadata` ساخته می‌شوند، پس باید هم‌راستا باشند.
+    await expect(page.locator('meta[property="og:url"]')).toHaveAttribute(
+      "content",
+      /\/projects\/pentestor$/,
+    );
+    await expect(page.locator('link[rel="alternate"][hreflang="en"]')).toHaveAttribute(
+      "href",
+      /\/en\/projects\/pentestor$/,
+    );
+
+    // نانبردِ JSON-LD: والد، فهرست محصولات است؛ خودِ آیتم، URL واقعی صفحه.
+    const breadcrumb = page
+      .locator('script[type="application/ld+json"]')
+      .filter({ hasText: "BreadcrumbList" })
+      .first();
+    const breadcrumbJson = await breadcrumb.textContent();
+    expect(breadcrumbJson).toContain("/projects/pentestor");
+    expect(breadcrumbJson).not.toContain("/products/pentestor");
+
+    // تناقض canonical/sitemap باید بسته بماند.
+    const sitemapXml = await (await request.get("/sitemap.xml")).text();
+    expect(sitemapXml).toContain("/projects/pentestor");
+    expect(sitemapXml).not.toContain("/products/pentestor");
+  });
+
+  test("یک پروژهٔ غیرمحصول هم canonical خودش را دارد", async ({ page }) => {
+    await page.goto("/projects/fintech-dashboard");
+    await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
+      "href",
+      /\/projects\/fintech-dashboard$/,
+    );
+  });
+
+  test("فهرست محصولات به صفحهٔ واقعی /projects/{slug} لینک می‌دهد", async ({ page }) => {
+    // همین لینک‌ها دلیل اصلی تصمیم ADR-0040 بودند: اگر فهرست محصولات به
+    // `/products/{slug}` لینک می‌داد، آن مسیر می‌توانست مرجع باشد. نمی‌دهد.
+    await page.goto("/products");
+    await expect(page.getByRole("heading", { level: 1, name: "محصولات" })).toBeVisible();
+
+    const firstCard = page
+      .locator("a[href]")
+      .filter({ hasText: /Pentestor/ })
+      .first();
+    await expect(firstCard).toHaveAttribute("href", /^\/projects\/[a-z0-9-]+$/);
+  });
+
+  test("مسیرهای «به‌زودی» دست‌نخورده می‌مانند و /projects/crm همچنان ۴۰۴ است", async ({ page }) => {
+    // قرارداد ADR-0037: این دو صفحه canonical خودشان را دارند.
+    await page.goto("/products/crm");
+    await expect(page.locator('link[rel="canonical"]')).toHaveAttribute("href", /\/products\/crm$/);
+
+    // CRM در دیتابیس نیست، پس مسیر جزئیات پروژه‌ها باید ۴۰۴ بدهد و هیچ لینکی
+    // هم در سایت به آن وجود ندارد (بررسی شد).
+    const response = await page.goto("/projects/crm");
+    expect(response?.status()).toBe(404);
+  });
+});
