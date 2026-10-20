@@ -35,7 +35,19 @@ export async function generateMetadata({
   const settings = await getSeoSettingsOrDefaults();
   return buildPageMetadata({
     locale: toAppLocale(locale),
-    path: `${project.is_product ? "/products" : "/projects"}/${slug}`,
+    // مسیر canonical این صفحه **همیشه** `/projects/{slug}` است، حتی وقتی
+    // `is_product` true باشد (ADR-0040). دلیلش سه واقعیت اندازه‌گیری‌شده است:
+    // ۱) `/products/{slug}` در این برنامه صفحهٔ ComingSoonِ پورت UI است
+    //    (`(ui)/products/{pentestor,crm}/page.tsx`) و `ui-port.spec.ts`
+    //    قرارداد کرده که canonical خودش را داشته باشد — یعنی صفحهٔ محتوای
+    //    واقعی را نمی‌توان به آن ارجاع داد.
+    // ۲) فهرست محصولات (`(pages)/products/page.tsx`) هر محصول را به
+    //    `/projects/{slug}` لینک می‌کند، و `home-data.ts` هم همین را می‌سازد.
+    // ۳) بک‌اند در `apps/core/seo.py::_published_entries` برای همهٔ پروژه‌ها
+    //    `/projects/{slug}` را در sitemap می‌فرستد.
+    // پیش از این اصلاح، صفحهٔ واقعیِ یک محصول canonical‌اش به صفحهٔ خالیِ
+    // «به‌زودی» اشاره می‌کرد و هم‌زمان با sitemap خودش در تناقض بود.
+    path: `/projects/${slug}`,
     title: project.meta_title || project.title,
     description: project.meta_description || project.summary,
     imageUrl: project.cover_image_url,
@@ -53,15 +65,20 @@ export default async function ProjectDetailPage({ params }: { params: Promise<Pa
   const project = await getProject(locale, slug);
   if (!project) notFound();
 
+  // والدِ نانبرد برای یک محصول، فهرست محصولات است؛ ولی خودِ صفحه همیشه زیر
+  // `/projects/` سرو می‌شود — همان سه دلیلی که در `generateMetadata` ثبت شد
+  // (ADR-0040). پیش از این، نانبرد و JSON-LD هر دو به `/products/{slug}`
+  // اشاره می‌کردند یعنی به صفحهٔ «به‌زودی».
   const listHref = project.is_product ? "/products" : "/projects";
   const listLabel = project.is_product ? t("products") : t("title");
+  const detailPath = `/projects/${slug}`;
 
   const settings = await getSeoSettingsOrDefaults();
   const siteUrl = getPublicSiteUrl();
   const appLocale = toAppLocale(locale);
   const crumbs = [
     { name: listLabel, path: listHref },
-    { name: project.title, path: `${listHref}/${slug}` },
+    { name: project.title, path: detailPath },
   ];
 
   return (
@@ -71,7 +88,7 @@ export default async function ProjectDetailPage({ params }: { params: Promise<Pa
           {
             title: project.title,
             description: project.summary,
-            path: `${listHref}/${slug}`,
+            path: detailPath,
             imageUrl: project.cover_image_url,
             publishedAt: null,
             authorName: null,
