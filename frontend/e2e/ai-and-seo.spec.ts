@@ -143,8 +143,12 @@ test.describe("canonical محصولات (ADR-0040)", () => {
     await expect(firstCard).toHaveAttribute("href", /^\/projects\/[a-z0-9-]+$/);
   });
 
-  test("مسیرهای «به‌زودی» دست‌نخورده می‌مانند و /projects/crm همچنان ۴۰۴ است", async ({ page }) => {
-    // قرارداد ADR-0037: این دو صفحه canonical خودشان را دارند.
+  test("صفحهٔ «به‌زودی»ِ CRM دست‌نخورده می‌ماند و /projects/crm همچنان ۴۰۴ است", async ({
+    page,
+  }) => {
+    // قرارداد ADR-0037: CRM هیچ متناظر دیتابیسی ندارد، پس صفحهٔ «به‌زودی» با
+    // canonical خودش باقی می‌ماند. `/products/pentestor` از ADR-0040 بند ۷
+    // ریدایرکت دائمی دارد و در `ui-port.spec.ts` سنجیده می‌شود.
     await page.goto("/products/crm");
     await expect(page.locator('link[rel="canonical"]')).toHaveAttribute("href", /\/products\/crm$/);
 

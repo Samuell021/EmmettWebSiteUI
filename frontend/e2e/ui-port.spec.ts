@@ -5,8 +5,10 @@ import { expect, test, type Page } from "@playwright/test";
  *
  * سوئیت‌های قدیمی فاز ۴ (``public-pages`` و…) مسیرهای داخلی را می‌سنجند؛ این
  * فایل قرارداد رفتاری خودِ پوستهٔ پورت‌شده را قفل می‌کند: خانه با بخش‌های
- * زنده‌اش، دو صفحهٔ محصولی که پورت ساخت (``/products/pentestor`` و
- * ``/products/crm``)، پالت ⌘K (فهرست ثابت صفحات + نتایج FTS بک‌اند با
+ * زنده‌اش، صفحهٔ محصولی که پورت ساخت و زنده مانده (``/products/crm``)،
+ * ریدایرکت دائمیِ ``/products/pentestor`` به صفحهٔ واقعی‌اش
+ * ``/projects/pentestor`` (ADR-0040 بند ۵، گزینهٔ ۱)، پالت ⌘K (فهرست ثابت
+ * صفحات + نتایج FTS بک‌اند با
  * debounce و ناوبری کیبورد؛ جست‌وجوی کامل همان صفحهٔ ``/search`` است —
  * ADR-0037)، کشوی موبایل به‌صورت دیالوگ، و احترام لودر به
  * ``prefers-reduced-motion``.
@@ -55,30 +57,46 @@ test.describe("خانهٔ پورت‌شده", () => {
   });
 });
 
-test.describe("صفحات محصول پورت (ComingSoon)", () => {
-  const productPages = [
-    { path: "/products/pentestor", title: "Pentestor", subtitle: "مهندسی امنیت با هوش مصنوعی" },
-    {
-      path: "/products/crm",
-      title: "CRM",
-      subtitle: "سیستم کسب‌وکار، مهندسی‌شده حول جریان کار واقعی",
-    },
-  ] as const;
+test.describe("صفحات محصول پورت", () => {
+  test("/products/crm صفحهٔ ComingSoon با عنوان، زیرعنوان و canonical خودش است", async ({
+    page,
+  }) => {
+    // CRM در دیتابیس نیست، پس این مسیر عمداً «به‌زودی» می‌ماند و ریدایرکت
+    // نمی‌شود (`/projects/crm` ‏404 است؛ واگذاری به آن یعنی شکستن لینک).
+    await page.goto("/products/crm");
+    await waitForLoader(page);
 
-  for (const product of productPages) {
-    test(`${product.path} با عنوان، زیرعنوان و canonical خودش رندر می‌شود`, async ({ page }) => {
-      await page.goto(product.path);
-      await waitForLoader(page);
+    await expect(page.getByRole("heading", { level: 1, name: "CRM" })).toBeVisible();
+    await expect(page.getByText("سیستم کسب‌وکار، مهندسی‌شده حول جریان کار واقعی")).toBeVisible();
+    await expect(page.getByRole("link", { name: /بازگشت به خانه/ })).toHaveAttribute("href", "/");
 
-      await expect(page.getByRole("heading", { level: 1, name: product.title })).toBeVisible();
-      await expect(page.getByText(product.subtitle)).toBeVisible();
-      await expect(page.getByRole("link", { name: /بازگشت به خانه/ })).toHaveAttribute("href", "/");
+    // فاز ۶ پورت: این صفحه canonical خانه را به ارث نمی‌برد.
+    await expect(page.locator('link[rel="canonical"]')).toHaveAttribute("href", /\/products\/crm$/);
+  });
 
-      // فاز ۶ پورت: این دو صفحه دیگر canonical خانه را به ارث نمی‌برند.
-      const canonical = page.locator('link[rel="canonical"]');
-      await expect(canonical).toHaveAttribute("href", new RegExp(`${product.path}$`));
-    });
-  }
+  test("/products/pentestor برای همیشه به صفحهٔ واقعی واگذار می‌کند", async ({ page, request }) => {
+    // ADR-0040 بند ۵، گزینهٔ ۱ با تصمیم مالک محصول. `/projects/pentestor`
+    // محتوای واقعی دارد و در sitemap است؛ `/products/pentestor` یک
+    // ComingSoonِ ایستا بود، پس دو صفحهٔ هم‌موضوع و هر دو index‌پذیر بودند.
+    //
+    // `maxRedirects: 0` تا خودِ پاسخ ریدایرکت سنجیده شود، نه مقصد.
+    // Next.js برای `permanent: true` کد **308** می‌دهد (این API گزینهٔ 301
+    // ندارد و بقیهٔ ریدایرکت‌های دائمی ریپو هم 308 هستند)؛ ۳۰۸ ریدایرکت
+    // دائمیِ استاندارد است و برای تجمیع سیگنال همانند ۳۰۱ عمل می‌کند.
+    const response = await request.get("/products/pentestor", { maxRedirects: 0 });
+    expect(response.status(), "ریدایرکت باید دائمی باشد").toBe(308);
+    expect(response.headers()["location"]).toMatch(/\/projects\/pentestor$/);
+
+    // از دید کاربر: پس از ریدایرکت، صفحهٔ واقعیِ دیتابیسی رندر می‌شود و
+    // canonical هم همان مقصد است — یعنی تناقض یا محتوای تکراری باقی نمی‌ماند.
+    await page.goto("/products/pentestor");
+    await expect(page).toHaveURL(/\/projects\/pentestor$/);
+    await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
+    await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
+      "href",
+      /\/projects\/pentestor$/,
+    );
+  });
 });
 
 test.describe("پالت ⌘K (صفحات + جست‌وجوی API)", () => {
