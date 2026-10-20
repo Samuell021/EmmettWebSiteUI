@@ -43,7 +43,6 @@ export const RATCHET = {
   "src/components/ui-port/loader.tsx": 4,
   "src/components/ui-port/locale-switch.tsx": 1,
   // ===== پوستهٔ برنامه — کاندیدای مهاجرت، نه استثنا =====
-  "src/app/not-found.tsx": 5,
   "src/app/[locale]/error.tsx": 1,
   "src/app/[locale]/not-found.tsx": 1,
 } as const satisfies Readonly<Record<string, number>>;
@@ -62,6 +61,15 @@ export const EXCEPTIONS = {
     "طبق قرارداد Next.js این فایل بیرون از root layout رندر می‌شود و خودش <html> و " +
     "<body> می‌سازد؛ globals.css (و در نتیجه توکن‌ها) در آن بارگذاری نمی‌شود و هیچ " +
     "import هم ندارد.",
+
+  "src/app/not-found.tsx":
+    "۴۰۴ ریشه، دقیقاً هم‌وضع `global-error.tsx`: خودش <html> و <body> می‌سازد و بیرون از " +
+    "`[locale]/layout.tsx` رندر می‌شود — تنها جایی که globals.css را import می‌کند. " +
+    "شواهد از خروجی بیلد: `.next/server/pages/404.html` تگ `<html>` برهنه دارد، صفر " +
+    "پیوند `.css` و صفر `var(` است. پس متغیرهای CSS در این سند تعریف نشده‌اند و " +
+    "`var(--background)` به هیچ مقدارِ پشتیبانی نمی‌رسید؛ رنگ باید درون‌خطی و خام بماند. " +
+    "(تا بستهٔ ۶ این فایل در RATCHET بود و ۵ لیترالش بدهیِ مهاجرت‌پذیر شمرده می‌شد، " +
+    "در حالی که ساختاراً مهاجرت‌ناپذیر است.)",
 
   "src/lib/seo/redirects.ts":
     "این ماژول یک سند HTML مستقل را به‌صورت رشته برمی‌گرداند (صفحهٔ انتقال)؛ آن سند " +
