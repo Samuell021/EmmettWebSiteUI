@@ -42,7 +42,6 @@ export const RATCHET = {
   "src/components/ui-port/page-frame.tsx": 10,
   "src/components/ui-port/loader.tsx": 6,
   "src/components/ui-port/locale-switch.tsx": 4,
-  "src/components/ui-port/status-shell.tsx": 1,
 
   // ===== پوستهٔ برنامه — کاندیدای مهاجرت، نه استثنا =====
   "src/app/not-found.tsx": 5,
