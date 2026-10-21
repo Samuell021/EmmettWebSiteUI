@@ -25,6 +25,20 @@ const srcDir = join(frontendRoot, "src");
 /** هگز سه تا هشت رقمی؛ روی کد فعلی ریپو صفر مثبت کاذب دارد. */
 const HEX_COLOR = /#[0-9a-fA-F]{3,8}\b/g;
 const RGBA_COLOR = /rgba\(/g;
+/**
+ * فرم عددیِ رنگ: `0xRRGGBB` یا `0xRRGGBBAA`. کتابخانه‌های WebGL مثل Three.js
+ * رنگ را **عدد** می‌گیرند نه رشتهٔ CSS، پس این فرم با هیچ‌کدام از دو الگوی بالا
+ * دیده نمی‌شد؛ نقطهٔ کوری که در بستهٔ ۶ گزارش شد و باعث می‌شد افزودن رنگ خام
+ * به `neural-network-3d.tsx` هیچ تستی را قرمز نکند.
+ *
+ * حدِ `{6,8}` عمداً تنگ است: `0xRRGGBB` و `0xRRGGBBAA` دو عرضِ واقعیِ رنگ‌اند،
+ * در حالی که `0xff` یا `0x100` به‌مراتب بیشتر احتمال دارد بیت‌ماسک باشند تا
+ * رنگ. `\b` پایانی هم از تطبیقِ جزئی با اعداد بلندتر جلوگیری می‌کند، پس یک
+ * BigInt مثل `0x1fae6effffff` رنگ شمرده نمی‌شود. هر دو رفتار با آزمون قفل
+ * شده‌اند. روی کد فعلی ریپو (۹۶ فایل) صفر مثبت کاذب دارد: تنها ۶ رخداد، همه
+ * در یک فایل و همه رنگِ واقعی.
+ */
+const HEX_NUMBER_COLOR = /0[xX][0-9a-fA-F]{6,8}\b/g;
 /** خطوط کامنت: `//`، بدنهٔ کامنت بلوکی (`*`) و آغازگر آن. */
 const COMMENT_LINE = /^\s*(\/\/|\*|\/\*)/;
 
@@ -43,19 +57,45 @@ function collectSourceFiles(directory: string, found: string[] = []): string[] {
   return found;
 }
 
-function countRawColors(absolutePath: string): number {
-  const code = readFileSync(absolutePath, "utf8")
+interface RawColorCounts {
+  /** مجموع هر سه فرم — همان عددی که فهرست پایه قفل می‌کند. */
+  total: number;
+  /** فقط فرم `0x…`؛ برای پایشِ زنده‌بودنِ الگوی سوم و صفرِ مثبتِ کاذب. */
+  hexNumber: number;
+}
+
+/** حذف خطوط کامنت؛ همان چیزی که این گارد «کد» می‌نامد. */
+function stripCommentLines(source: string): string {
+  return source
     .split("\n")
     .filter((line) => !COMMENT_LINE.test(line))
     .join("\n");
-  return (code.match(HEX_COLOR) ?? []).length + (code.match(RGBA_COLOR) ?? []).length;
+}
+
+/**
+ * شمار لیترال رنگ خام در یک پاره‌کد. سه الگو متقابلاً انحصاری‌اند — `#…` با
+ * `#` شروع می‌شود، `rgba(` یک فراخوانی است و `0x…` با `0x` — پس هیچ لیترالی
+ * دو بار شمرده نمی‌شود و جمع‌شان درست است.
+ */
+function countRawColorsInCode(code: string): RawColorCounts {
+  const hexNumber = (code.match(HEX_NUMBER_COLOR) ?? []).length;
+  return {
+    total: (code.match(HEX_COLOR) ?? []).length + (code.match(RGBA_COLOR) ?? []).length + hexNumber,
+    hexNumber,
+  };
+}
+
+function countRawColors(absolutePath: string): RawColorCounts {
+  return countRawColorsInCode(stripCommentLines(readFileSync(absolutePath, "utf8")));
 }
 
 const counts = new Map<string, number>();
+const hexNumberCounts = new Map<string, number>();
 for (const file of collectSourceFiles(srcDir)) {
   const relativePath = relative(frontendRoot, file).split("\\").join("/");
-  const count = countRawColors(file);
-  if (count > 0) counts.set(relativePath, count);
+  const { total, hexNumber } = countRawColors(file);
+  if (total > 0) counts.set(relativePath, total);
+  if (hexNumber > 0) hexNumberCounts.set(relativePath, hexNumber);
 }
 
 const ratchetEntries = Object.entries(RATCHET) as [string, number][];
@@ -151,7 +191,62 @@ describe("گارد رنگ خام (ADR-0039)", () => {
     // باقی‌ماندهٔ ۱۷۷ = ۱۵۱ لیترال بدونِ توکنِ هم‌مقدار + ۲۶ لیترالِ دارای
     // توکن که مهاجرتشان یا از نظر معنایی نادرست است یا از نظر ایستا قابل
     // اثبات نیست؛ تفکیکِ دقیقِ دلیل‌ها در CHANGELOG بستهٔ ۶ آمده است.
+    //
+    // توجه به دامِ محاسباتی: این سقف **فقط** مجموعِ RATCHET است. افزودنِ یک
+    // فایل به EXCEPTIONS مقدار `scannedTotal` را بالا می‌برد ولی این عدد را
+    // تکان نمی‌دهد، چون استثنا «بدهیِ مهاجرت‌پذیر» نیست که باید کم شود. پس
+    // گسترشِ الگوی شمارش (افزودنِ فرم `0x…`) سقف را ۱۷۷ → ۱۸۳ نبرد؛ تنها
+    // `scannedTotal` را ۱۹۸ → ۲۰۴ برد و ضابطهٔ بالا شد ۲۰۴ = ۱۷۷ + ۲۷.
     expect(baselineTotal).toBe(177);
+  });
+});
+
+describe("الگوهای شمارش رنگ خام (ADR-0039)", () => {
+  // سه آزمونِ زیر خودِ **آشکارساز** را قفل می‌کنند، نه یک فایلِ خاص را. بدون
+  // این‌ها، حذف یا خنثی‌شدنِ الگوی سوم هیچ تستی را قرمز نمی‌کرد و نقطهٔ کور
+  // بی‌صدا برمی‌گشت.
+
+  it("فرم عددیِ WebGL رنگ خام شمرده می‌شود", () => {
+    for (const code of [
+      "color: 0x1fae6e,",
+      "renderer.setClearColor(0x000000, 0);",
+      "new THREE.Color(0x4d9be8)",
+      "material.color = 0X7DDBB4;",
+      "with alpha: 0x1fae6eff,",
+    ]) {
+      expect(countRawColorsInCode(code).total, code).toBe(1);
+    }
+  });
+
+  it("عددِ ساده و هشِ بلند با رنگ اشتباه گرفته نمی‌شوند", () => {
+    // خطرِ واقعیِ افزودنِ الگوی `0x`: فایلِ Three.js پر از عددِ اعشاری و
+    // صحیح است. این‌ها همه باید صفر بمانند.
+    for (const code of [
+      "size: 0.055,",
+      "opacity: 0.85,",
+      "camera.position.set(0, 0, 8);",
+      "const count = 420;",
+      "if (dist < 1.15) {",
+      "(e.clientX / window.innerWidth - 0.5) * 2",
+      "0xff",
+      "0x100",
+      "const big = 0x1fae6effffffn;",
+    ]) {
+      expect(countRawColorsInCode(code).total, code).toBe(0);
+    }
+  });
+
+  it("الگوی `0x` در کدِ فعلیِ ریپو صفرِ مثبتِ کاذب ندارد", () => {
+    // اگر روزی الگو جای دیگری هم چیزی بگیرد، این فهرست بزرگ‌تر می‌شود و
+    // بازبین باید تک‌تکِ موردهای تازه را رنگِ واقعی بداند یا الگو را تنگ کند.
+    expect([...hexNumberCounts.keys()].sort()).toEqual([
+      "src/components/ui-port/neural-network-3d.tsx",
+    ]);
+    expect(
+      hexNumberCounts.get("src/components/ui-port/neural-network-3d.tsx"),
+      "اگر این عدد صفر شد، الگوی سوم حذف یا خنثی شده است؛ اگر بیشتر شد، رنگ " +
+        "خامِ تازه به این فایل اضافه شده و باید دلیلش در EXCEPTIONS به‌روز شود.",
+    ).toBe(6);
   });
 });
 
