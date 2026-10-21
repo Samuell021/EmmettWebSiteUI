@@ -63,12 +63,22 @@ backend/.venv/bin/pre-commit run --all-files
 
 رنگ در کد فرانت‌اند **باید** از توکن بیاید، نه از لیترال خام.
 
-- **ممنوع:** هگز یا `rgba()` داخل `className` (مثل `text-[#1FAE6E]`) یا داخل `style={{}}`.
+- **ممنوع:** هگز، `rgba()` یا رنگِ عددیِ `0x…` داخل `className` (مثل `text-[#1FAE6E]`)، داخل `style={{}}`، یا به‌عنوانِ ورودیِ رنگِ یک کتابخانه (مثل مادّهٔ Three.js).
 - **الزامی:** utility مبتنی بر توکن (`text-primary`، `bg-emerald-deep`) یا `var(--token)`.
 - **توکن معادل وجود ندارد؟** نخست توکن را در `frontend/src/app/globals.css` بسازید: مقدار را در `:root` تعریف کنید **و** آن را در `@theme inline` به `--color-<name>` نگاشت کنید. بدون نگاشت، هیچ utility تولید نمی‌شود و نفر بعدی دوباره به لیترال خام برمی‌گردد.
 - **مقدار توکن موجود را برای جور شدن با کد تازه تغییر ندهید؛** توکن تازه بسازید. تغییر مقدار یک توکن، ظاهر همهٔ مصرف‌کنندگانش را عوض می‌کند.
 
-این قاعده توسط `frontend/src/app/hardcoded-colors.test.ts` **اجرا** می‌شود: شمار لیترال‌های رنگ هر فایل در `frontend/src/app/hardcoded-colors.baseline.ts` قفل شده و فقط مجاز است **کم** شود (یک جفت‌بند دوطرفه). افزودن لیترال تازه، یا کم‌کردن لیترال بدون پایین‌آوردن عدد در فهرست پایه، تست را قرمز می‌کند. چهار فایل استثنا دلیل مکتوب دارند (تصویر Open Graph، `global-error.tsx`، `src/app/not-found.tsx` و سند HTML مستقل انتقال) — وجهِ اشتراکِ سه تای آخر این است که بیرونِ `[locale]/layout.tsx` رندر می‌شوند، تنها جایی که `globals.css` را import می‌کند، پس متغیرهای CSS در آن‌ها تعریف نشده‌اند؛ افزودن استثنای تازه به دلیل فنی مکتوب و تأیید بازبین نیاز دارد.
+این قاعده توسط `frontend/src/app/hardcoded-colors.test.ts` **اجرا** می‌شود: شمار لیترال‌های رنگ هر فایل در `frontend/src/app/hardcoded-colors.baseline.ts` قفل شده و فقط مجاز است **کم** شود (یک جفت‌بند دوطرفه). افزودن لیترال تازه، یا کم‌کردن لیترال بدون پایین‌آوردن عدد در فهرست پایه، تست را قرمز می‌کند. گارد سه فرم را می‌شمارد: هگز (`#…`)، `rgba(`، و عددِ هگز (`0x…`، فرمی که Three.js/WebGL برای رنگ به کار می‌برد).
+
+**پنج فایل استثنا دلیل مکتوب دارند** و دو دسته‌اند:
+
+- چهار تای آن‌ها **آبشارِ CSS در دسترس ندارند**: تصویر Open Graph (satori)، `global-error.tsx`، `src/app/not-found.tsx` و سند HTML مستقلِ انتقال. سه تای آخر بیرونِ `[locale]/layout.tsx` رندر می‌شوند — تنها جایی که `globals.css` را import می‌کند — پس متغیرهای CSS در آن سند تعریف نشده‌اند.
+- پنجمی (`neural-network-3d.tsx`) آبشار دارد ولی **ورودیِ رنگش عدد است**: رنگ را به Three.js/WebGL می‌دهد، جایی که `var()` به‌جای خودِ مقدار کار نمی‌کند.
+
+افزودن استثنای تازه به دلیل فنی مکتوب و تأیید بازبین نیاز دارد. دو قاعده‌ای که هنگامِ تصمیم بینِ `RATCHET` و `EXCEPTIONS` لازم است:
+
+- **سقفِ سختِ گارد فقط مجموعِ `RATCHET` است.** استثنا مقدار `scannedTotal` را بالا می‌برد ولی سقف را تکان نمی‌دهد، چون ضابطه `scannedTotal == baselineTotal + مجموعِ لیترالِ استثناها` است. معیارِ انتخاب: لیترال **بدهیِ مهاجرت‌پذیر** است (‏`RATCHET`، باید کم شود) یا **اجتناب‌ناپذیر** (`EXCEPTIONS`، قفل می‌ماند)؟ گذاشتنِ لیترالِ اجتناب‌ناپذیر در `RATCHET` سقف را بی‌دلیل بالا می‌برد و بدهیِ دروغینی می‌سازد که هرگز صفر نمی‌شود.
+- **در متنِ دلیلِ استثنا مقدارِ رنگ ننویسید.** ‏`hardcoded-colors.baseline.ts` خودش زیر `src/` است و برخلافِ فایلِ تست کنار گذاشته نمی‌شود، پس توسط خودِ گارد شمارش می‌شود؛ آوردنِ مقدارِ رنگ در رشتهٔ دلیل، همان فایل را «فایلِ نامعلومِ دارای رنگ خام» می‌کند و گارد را قرمز می‌کند. رنگ را با **نقش** توصیف کنید نه با مقدار.
 
 مستند تصمیم: `docs/adr/0039-design-token-standard-and-hardcoded-color-ratchet.md`. صفحهٔ `/design-system` مقدار زندهٔ هر توکن را در زمان اجرا از CSSOM می‌خواند و نشان می‌دهد، پس توکنِ تعریف‌نشده یا نگاشت‌نشده روی همان صفحه دیده می‌شود.
 
@@ -114,11 +124,21 @@ Allowed types: `feat`, `fix`, `docs`, `style`, `refactor`, `perf`, `test`, `buil
 
 Colors in frontend code **must** come from design tokens, never from raw literals.
 
-- **Forbidden:** hex or `rgba()` inside `className` (e.g. `text-[#1FAE6E]`) or inside `style={{}}`.
+- **Forbidden:** hex, `rgba()` or a numeric `0x…` color inside `className` (e.g. `text-[#1FAE6E]`), inside `style={{}}`, or as a library's color input (e.g. a Three.js material).
 - **Required:** token-based utilities (`text-primary`, `bg-emerald-deep`) or `var(--token)`.
 - **No matching token?** Create one in `frontend/src/app/globals.css` first: declare the value in `:root` **and** map it in `@theme inline` as `--color-<name>`. Without the mapping no utility is generated, and the next contributor falls back to a raw literal.
 - **Never edit an existing token's value** to fit new code; add a new token instead. Changing a token value restyles every consumer of it.
 
-Enforced by `frontend/src/app/hardcoded-colors.test.ts`: the raw-color count of every file is locked in `frontend/src/app/hardcoded-colors.baseline.ts` and may only go **down** (a two-way ratchet). Adding a literal — or removing one without lowering the recorded number — fails the test. Four files are documented exceptions (the Open Graph image, `global-error.tsx`, `src/app/not-found.tsx`, and the standalone redirect HTML document); the last three share the same root cause — they render outside `[locale]/layout.tsx`, the only place that imports `globals.css`, so CSS custom properties are not defined there. A new exception requires a written technical reason and reviewer approval.
+Enforced by `frontend/src/app/hardcoded-colors.test.ts`: the raw-color count of every file is locked in `frontend/src/app/hardcoded-colors.baseline.ts` and may only go **down** (a two-way ratchet). Adding a literal — or removing one without lowering the recorded number — fails the test. The guard counts three forms: hex (`#…`), `rgba(`, and numeric hex (`0x…`, the form Three.js/WebGL takes colors in).
+
+**Five files are documented exceptions**, in two groups:
+
+- Four of them **have no CSS cascade available**: the Open Graph image (satori), `global-error.tsx`, `src/app/not-found.tsx`, and the standalone redirect HTML document. The last three render outside `[locale]/layout.tsx` — the only place that imports `globals.css` — so CSS custom properties are not defined in those documents.
+- The fifth (`neural-network-3d.tsx`) does have a cascade but its **color input is a number**: it feeds Three.js/WebGL, where `var()` cannot stand in for the value itself.
+
+A new exception requires a written technical reason and reviewer approval. Two rules matter when choosing between `RATCHET` and `EXCEPTIONS`:
+
+- **The hard ceiling sums `RATCHET` only.** An exception raises `scannedTotal` but never moves the ceiling, because the invariant is `scannedTotal == baselineTotal + sum(exception literals)`. The test to apply: is the literal **migratable debt** (`RATCHET`, must go down) or **unavoidable** (`EXCEPTIONS`, stays locked)? Filing an unavoidable literal under `RATCHET` inflates the ceiling for no reason and invents a debt that can never reach zero.
+- **Never put a color value in an exception's reason text.** `hardcoded-colors.baseline.ts` is itself under `src/` and, unlike the test file, is not excluded — so the guard scans it. A color literal in a reason string turns that very file into an "unknown file with raw colors" and fails the guard. Describe colors by **role**, not by value.
 
 Decision record: `docs/adr/0039-design-token-standard-and-hardcoded-color-ratchet.md`. The `/design-system` page reads every token's live value from the CSSOM at runtime and displays it, so an undefined or unmapped token is visible on that page.

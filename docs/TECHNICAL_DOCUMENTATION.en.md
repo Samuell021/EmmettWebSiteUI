@@ -523,7 +523,7 @@ Unit-test coverage is not the only protective layer. For those same 61 unmeasure
 
 - **60 E2E tests across 9 files** on **real Chromium** in three projects (`fa` / `fa-locale` / `en`). Most of these exercise exactly the `src/app/**` pages and the `ui-port` shell in a browser — the places where unit coverage is 6% and 21%.
 - **Lighthouse CI with a minimum score of `0.95`** across all four axes on 5 URLs (`.lighthouserc.json`), active on `main` and `workflow_dispatch`.
-- **A two-way raw-colour ratchet** (Package 2, `hardcoded-colors.test.ts`): the ceiling is now **177 literals across 16 files** — Package 6 lowered it from 360 across 20 files — with four explicit reasoned exceptions. The breakdown of the 177 remaining literals (151 with no equal-value token + 26 that have one but cannot be migrated) is in the Package 6 CHANGELOG entry.
+- **A two-way raw-colour ratchet** (Package 2, `hardcoded-colors.test.ts`): the ceiling is now **177 literals across 16 files** — Package 6 lowered it from 360 across 20 files — with five explicit reasoned exceptions (four of them have no CSS cascade; the fifth, `neural-network-3d.tsx`, feeds colors to Three.js/WebGL as numbers. An exception does not raise the ceiling, only `scannedTotal`). The breakdown of the 177 remaining literals (151 with no equal-value token + 26 that have one but cannot be migrated) is in the Package 6 CHANGELOG entry.
 - Strict `mypy` and `ruff` across the codebase (subsection 6.3.6).
 
 The risk is therefore not "untested code"; it is **"code whose unit tests never execute at function/branch level"**. That distinction matters and must stay precise in any risk assessment.
