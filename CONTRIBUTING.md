@@ -2,7 +2,7 @@
 
 > **تقارنِ دو زبان:** بخشِ فارسی ۶ زیربخش دارد و بخشِ انگلیسی ۶ زیربخش؛ محتوا
 > **آینهٔ کاربردی** است نه ترجمهٔ سطر‌به‌سطر. نگاشت: فارسی ۱ = انگلیسی 1 (چرخهٔ
-> کاری)، فارسی ۲ = انگلیسی 6 (دامنهٔ قوانین)، فارسی ۳ = انگلیسی 2 (ابزارهای
+> کاری)، فارسی ۲ = انگلیسی 6 (بیست قانون، بازسازی‌شده از مأخذ)، فارسی ۳ = انگلیسی 2 (ابزارهای
 > لینت/فرمت + Pre-commit)، فارسی ۴ = انگلیسی 3 (‏Conventional Commits)،
 > فارسی ۵ = انگلیسی 4 (استاندارد توکن)، فارسی ۶ = انگلیسی 5 (چک‌لیست PR).
 > تنها تفاوتِ باقی‌مانده: فهرستِ کاملِ دستوراتِ بررسیِ محلی در فارسی در بندِ ۶.۱
@@ -11,7 +11,7 @@
 >
 > **Parity:** both halves have six subsections and are a *functional* mirror, not a
 > line-by-line translation. Mapping: Persian 1 = English 1 (workflow), Persian 2 =
-> English 6 (scope of the rules), Persian 3 = English 2 (lint/format tooling plus
+> English 6 (the 20 rules, reconstructed from citations), Persian 3 = English 2 (lint/format tooling plus
 > pre-commit), Persian 4 = English 3 (Conventional Commits), Persian 5 =
 > English 4 (design tokens), Persian 6 = English 5 (PR checklist). The one
 > remaining difference: the full local-verification command list lives in section
@@ -38,25 +38,50 @@ Discovery → Questions → Plan → ADR → Implementation → Test → Review 
 4. **Implementation & Test:** پیاده‌سازی تایپ‌سیف همراه با تست‌های واحد، یکپارچه و در صورت نیاز E2E. گیت پوشش **حداقل ۸۵٪** است، اما توجه کنید که این گیت **کل مخزن را نمی‌سنجد**: در فرانت‌اند فقط `src/lib` و `src/components/{ui,molecules,organisms,seo}` (۳۲ فایل از ۹۳) و در بک‌اند فقط `apps/` اندازه‌گیری می‌شوند. دامنهٔ واقعی، اعداد تفکیکی و استثنائات در [بند ۶.۴ مستندات فنی](docs/TECHNICAL_DOCUMENTATION.fa.md) آمده است. **کد تازه باید در هر مسیری که هست تست داشته باشد، حتی اگر آن مسیر فعلاً سنجیده نشود** — به‌ویژه `src/app/**`، `src/components/ui-port/**`، `src/i18n/**` و `src/proxy.ts`.
 5. **Review & Document:** هر Pull Request باید به‌گونه‌ای کوچک، تمیز و مستند باشد که توسط **۳ بازبین (Reviewer)** به‌راحتی قابل بررسی باشد و تغییرات در `CHANGELOG.md` و مستندات فنی ثبت گردد.
 
-### ۲. خلاصهٔ ۲۰ قانون سخت‌گیرانه (Hard Rules)
+### ۲. بیست قانون سخت‌گیرانه (Hard Rules)
 
-> **دامنهٔ این بخش، صریح:** این یک **خلاصه** است، نه فهرستِ کامل. قانون‌های ۳ و
-> ۵ تا ۱۹ را پوشش می‌دهد؛ قانون‌های ۱، ۲، ۴ و ۲۰ اینجا نیامده‌اند. در هیچ سندِ
-> دیگری از ریپو هم **فهرستِ شماره‌گذاری‌شدهٔ کاملِ هر ۲۰ قانون** وجود ندارد —
-> ممیزیِ بستهٔ ۷ نشان داد ۱۹ قانون از ۲۰ قانون به‌صورت پراکنده در ADRها با
-> شماره ارجاع داده می‌شوند (فقط «قانون ۱» هیچ‌جا ذکر نشده)، ولی متنِ رسمیِ
-> یک‌جا گردآوری نشده است. اگر به متنِ دقیقِ یک قانون نیاز دارید، ADR مربوطه
-> همان ارجاع را با زمینهٔ تصمیم آورده است. گردآوریِ فهرستِ کامل، کارِ بازِ
-> نگهداری است نه چیزی که این سند ادعایش را داشته باشد.
+> **ماهیتِ این جدول، صریح:** این یک **بازسازی از روی ارجاع‌ها** است، نه متنِ رسمیِ
+> پروژه. هیچ سندِ شماره‌گذاری‌شدهٔ کاملی از این ۲۰ قانون در ریپو وجود نداشت؛ ممیزیِ
+> بستهٔ ۷ روی هر ۵۸ فایلِ Markdown نشان داد ۱۹ قانون از ۲۰ به‌صورت پراکنده در ADRها
+> با شماره ارجاع شده‌اند. پس هر سطرِ زیر **مأخذِ خودش را دارد**: یا نقلِ مستقیمِ متنِ
+> قانون از یک ADR است، یا توضیحی که همان ADR درونِ پرانتز/دونقطه آورده، یا خلاصهٔ
+> پیشینِ همین سند. جایی که چند ADR توضیحِ **متفاوت** داده‌اند، هر دو آورده شده و
+> یکی انتخاب نشده — چون انتخابِ یکی یعنی جعلِ دیگری.
 
-- **قانون ۳ (ADR):** هیچ تصمیم معماری بدون ADR پذیرفته نمی‌شود.
-- **قانون ۵ (امنیت رازها):** هرگز کلید، توکن یا رمز عبور در کد ننویسید؛ فقط از `.env` و `django-environ` استفاده کنید (`scripts/check_secrets.py`).
-- **قانون ۶ (وابستگی‌ها):** هیچ پکیج جدیدی بدون توجیه فنی مکتوب در ADR اضافه نشود.
-- **قانون ۷ (Type Safety):** کد پایتون باید از `mypy --strict` و کد فرانت‌اند از `tsc --noEmit` (`strict: true`) بدون حتی یک خطا عبور کند.
-- **قانون ۸ (OpenAPI):** هر تغییر در API باید با `@extend_schema` مستند شده و از `manage.py spectacular --validate --fail-on-warn` عبور کند.
-- **قانون ۹ تا ۱۱ (i18n و RTL):** هیچ رشتهٔ متنی در کد هاردکد نشود؛ تاریخ‌ها در فارسی شمسی و اعداد فارسی باشند؛ RTL/LTR در سطح کامپوننت مدیریت شود.
-- **قانون ۱۲ تا ۱۴ (موتور AI):** تمام قابلیت‌های هوش مصنوعی منحصراً از `apps.ai_engine` با ورودی‌های بستهٔ کاتالوگ (Enum) و با اعمال Guardrail فرهنگی ایرانی عبور کنند.
-- **قانون ۱۵ تا ۱۹ (کارایی، امنیت، سئو و دسترس‌پذیری):** کوئری‌ها بهینه (`select_related` / `prefetch_related`)، استاندارد WCAG AA رعایت‌شده و امتیاز Lighthouse CI در هر ۴ محور `≥ 95` باشد.
+**سطحِ اطمینان:** 🟢 نقلِ مستقیمِ متنِ قانون · 🔵 توضیحِ صریحِ ADR · 🟡 فقط خلاصهٔ
+پیشینِ همین سند · 🔴 واگرا (چند توضیحِ ناسازگار) · ⚫ نامعلوم (صفر ارجاع).
+
+| # | موضوعِ قانون | مأخذ | اطمینان |
+|---|---|---|---|
+| ۱ | **نامعلوم** | — | ⚫ در هیچ‌یک از ۵۸ فایلِ Markdown ریپو **صفر** ارجاع به «قانون ۱» وجود دارد. متنش فقط نزدِ مالکِ محصول است؛ تا زمانی که او متن را ندهد این سطر عمداً خالی می‌ماند و چیزی جایش ساخته نمی‌شود |
+| ۲ | **سؤال پیش از شروع:** هر ابهامِ معماری/پوشه/داده پیش از نوشتنِ کد از مالک پرسیده شود | `ADR-0016` — «طبق قانون ۲ (سؤال قبل از شروع) سه ابهام معماری/پوشه/داده از مالک محصول پرسیده شد»؛ هم‌چنین `ADR-0017` و `ADR-0021` | 🔵 |
+| ۳ | **ADR برای هر تصمیمِ معماری:** هیچ تصمیمِ معماری بدونِ ADR پذیرفته نمی‌شود | خلاصهٔ پیشینِ همین سند؛ هیچ ADR‌ای به «قانون ۳» ارجاع نداده | 🟡 |
+| ۴ | **سه توضیحِ متفاوت — هیچ‌کدام رد نشد** | `ADR-0002`: «قانون ۴: هر PR قابل تأیید توسط سه نفر» · `ADR-0025`: «قانون ۴ («کیفیت > سرعت»)» · `ADR-0031`: «مدیر محتوا باید بدون تغییر کد بتواند این‌ها را ویرایش کند (قانون ۴ در عمل)» | 🔴 دو تای اول سازگارند (مرورپذیری/کیفیت)؛ سومی ایدهٔ جداگانه‌ای است (عملیاتی‌بودن/بی‌نیازی از کد). این قانون در عمل **شُل** ارجاع داده شده و متنِ واحدی ندارد |
+| ۵ | **امنیتِ رازها:** هرگز کلید، توکن یا رمز عبور در کد نوشته نشود؛ فقط `.env` و `django-environ` | `ADR-0033` — «همهٔ رازها فقط در `.env` و از طریق `django-environ` خوانده می‌شوند (قانون ۵)»؛ `ADR-0009`؛ اجرا با `scripts/check_secrets.py` | 🔵 |
+| ۶ | **وابستگی‌ها:** هیچ پکیجِ جدیدی بدونِ توجیهِ فنیِ مکتوب در ADR اضافه نشود | `ADR-0005`، `ADR-0010` و `ADR-0011` — «بدون وابستگی غیرضروری» · `ADR-0019` — «هر وابستگی جدید باید توجیه شود» · `ADR-0021` · `ADR-0027` | 🔵 |
+| ۷ | **Type Safety:** پایتون با `mypy --strict` و فرانت‌اند با `tsc --noEmit` (`strict: true`) بدونِ حتی یک خطا | `ADR-0010` — «قانون ۷ (type-safety)» · `ADR-0014` — «type hints پروژه (که به‌خاطر قانون ۷ از قبل اجباری هستند)» · `ADR-0015` — «mypy strict» | 🔵 |
+| ۸ | **OpenAPI خودکار:** هر تغییرِ API با `@extend_schema` مستند شود و از `spectacular --validate --fail-on-warn` عبور کند | `ADR-0014` — «قانون ۸ («OpenAPI خودکار»)» · `ADR-0001` | 🔵 |
+| ۹ | **هیچ رشتهٔ hard-code در کد نباشد:** «تمام متن‌های UI در فایل‌های ترجمه (gettext) باشند؛ هیچ رشته hard-code شده نداشته باشیم» | `ADR-0003` — **نقلِ مستقیمِ متنِ قانون**؛ هم‌چنین `ADR-0001` و `ADR-0030` | 🟢 |
+| ۱۰ | **تاریخ و عددِ بومی:** «تاریخ‌ها: در فارسی شمسی (jdatetime)، در انگلیسی میلادی. اعداد: فارسی در FA، لاتین در EN.» | `ADR-0004` — **نقلِ مستقیمِ متنِ قانون**؛ هم‌چنین `ADR-0018` و `ADR-0019` | 🟢 |
+| ۱۱ | **RTL در سطحِ کامپوننت، نه CSS hack:** هرگز RTL سراسری/جهانی نوشته نشود | `ADR-0027` — «قانون ۱۱ — RTL در سطح کامپوننت، نه CSS hack» | 🔵 |
+| ۱۲ | **تمام فیچرهای AI فقط از `apps.ai_engine`** | `ADR-0009` و `ADR-0002` — «تمام فیچرهای AI فقط از طریق اپ `ai_engine`» | 🔵 |
+| ۱۳ | **ورودیِ کاربر به موتور AI فقط از فهرست‌های بستهٔ Enum/Choice — هرگز free-text** | `ADR-0009` | 🔵 |
+| ۱۴ | **هر فیچرِ AI باید «Guardrail فرهنگی ایرانی» داشته باشد** | `ADR-0009` | 🔵 |
+| ۱۵ | **بهینگیِ کوئری و کارایی:** ‏`select_related` / `prefetch_related` و سقفِ شمارِ کوئری | `ADR-0003` — «بهینگی کوئری» · `ADR-0005` — «کارایی» | 🔵 |
+| ۱۶ | **امنیت و Audit Log:** سانیتایزکردنِ ورودی (ضدِ XSS)، ثبتِ رخدادهای حساس | `ADR-0005` — «امنیت» · `ADR-0013` — «امنیت/Audit Log» · `ADR-0022` — الزامِ `nh3` برای Markdown | 🔵 |
+| ۱۷ | **SEO — فهرستِ صریح:** ‏`sitemap`، `robots`، `hreflang`، `JSON-LD`، `OG/Twitter`، `canonical`، متای پویا و `RSS` | `ADR-0031` — «قانون ۱۷ پروژه (SEO) فهرستی صریح دارد: …» | 🔵 |
+| ۱۸ | **خودمیزبانیِ دارایی‌ها و ممنوعیتِ CDN** — الزامِ هاستِ اشتراکیِ ایرانی و حریمِ خصوصیِ کاربر | `ADR-0027` — «خودمیزبانی فونت و ممنوعیت CDN الزام محصول برای هاست اشتراکی ایرانی و حریم خصوصی کاربران است (قانون ۶ و ۱۸)». **توجه:** خلاصهٔ پیشینِ همین سند این قانون را «دسترس‌پذیری» می‌خواند؛ مأخذِ ADR چیزِ دیگری می‌گوید و آن مقدم است | 🔵 |
+| ۱۹ | **هدفِ کارایی: ‏Lighthouse ≥ ۹۵ در هر چهار محور — و آستانه هرگز پایین آورده نمی‌شود** | `ADR-0032` — «قانون ۱۹ پروژه هدف Lighthouse ≥ 95 را تعیین کرده است» · `ADR-0038` — «طبق قانون ۱۹ آستانه پایین آورده نمی‌شود؛ راه‌حل، افزودن تست است» · `ADR-0018` — «الزامات Lighthouse/CLS» | 🔵 |
+| ۲۰ | **ثبت در `CHANGELOG.md`:** هر تغییرِ مهم باید در CHANGELOG ثبت شود | `ADR-0010` — «و در `CHANGELOG.md` ثبت شود (قانون ۲۰)» | 🔵 |
+
+**جمع‌بندیِ قابلِ اتکا:** از ۲۰ قانون — **۲** قانون نقلِ مستقیمِ متن دارند (۹ و ۱۰)،
+‏**۱۵** قانون توضیحِ صریحِ ADR دارند (۲، ۵، ۶، ۷، ۸، ۱۱ تا ۲۰)، **۱** قانون فقط
+خلاصهٔ پیشینِ همین سند است (۳)، **۱** قانون واگراست (۴) و **۱** قانون کاملاً
+نامعلوم است (۱). جمع: ۲ + ۱۵ + ۱ + ۱ + ۱ = ۲۰.
+
+**دو کاری که عمداً انجام نشد:** متنِ «قانون ۱» ساخته نشد، و برای «قانون ۴» یکی از
+سه توضیح انتخاب نشد. هر دو نیازمندِ ورودیِ مالکِ محصول‌اند؛ ساختنشان یعنی جعلِ
+سیاستِ پروژه، که از خالی‌ماندنِ سطر بدتر است.
 
 ### ۳. راه‌اندازی هوک‌های Pre-commit و ابزارهای کیفیت
 
@@ -190,7 +215,7 @@ A new exception requires a written technical reason and reviewer approval. Two r
 - **The hard ceiling sums `RATCHET` only.** An exception raises `scannedTotal` but never moves the ceiling, because the invariant is `scannedTotal == baselineTotal + sum(exception literals)`. The test to apply: is the literal **migratable debt** (`RATCHET`, must go down) or **unavoidable** (`EXCEPTIONS`, stays locked)? Filing an unavoidable literal under `RATCHET` inflates the ceiling for no reason and invents a debt that can never reach zero.
 - **Never put a color value in an exception's reason text.** `hardcoded-colors.baseline.ts` is itself under `src/` and, unlike the test file, is not excluded — so the guard scans it. A color literal in a reason string turns that very file into an "unknown file with raw colors" and fails the guard. Describe colors by **role**, not by value.
 
-Decision record: `docs/adr/0039-design-token-standard-and-hardcoded-color-ratchet.md`.
+Decision record: `docs/adr/0039-design-token-standard-and-hardcoded-color-ratchet.md`. The `/design-system` page reads every token's live value from the CSSOM at runtime and displays it, so an undefined or unmapped token is visible on that page.
 ### 5. Pre-Pull-Request Checklist
 
 - [ ] `backend/.venv/bin/pre-commit run --all-files` passes with no errors.
@@ -211,13 +236,49 @@ Decision record: `docs/adr/0039-design-token-standard-and-hardcoded-color-ratche
 - [ ] If translations changed, `python scripts/i18n.py check` is green and the `messages/fa.json` and `messages/en.json` key trees are symmetric.
 - [ ] Documentation is updated: `docs/TECHNICAL_DOCUMENTATION.{fa,en}.md` and `CHANGELOG.md`. **If you wrote a new ADR, also add it to `docs/adr/README.md` (the authoritative index) and to the ADR summary table in both `TECHNICAL_DOCUMENTATION` files** — three parallel ADR lists went stale previously for exactly this reason.
 
-### 6. Scope of the "20 Hard Rules"
+### 6. The 20 Hard Rules (reconstructed)
 
-The Persian section 2 summarises the project's hard rules. That summary is
-deliberately partial: it covers rules 3 and 5 through 19, and rules 1, 2, 4 and 20
-are not restated there. **No complete enumerated list of all 20 rules exists
-anywhere in this repository.** A Package 7 audit found that 19 of the 20 are cited
-by number across the ADRs (only rule 1 is never mentioned), but the normative text
-was never collected in one place. When you need the precise wording of a rule, the
-ADR that cites it carries the decision context.
- The `/design-system` page reads every token's live value from the CSSOM at runtime and displays it, so an undefined or unmapped token is visible on that page.
+> **What this table is, explicitly:** a **reconstruction from citations**, not the
+> project's normative text. No complete numbered list of these 20 rules existed
+> anywhere in the repository; a Package 7 audit of all 58 markdown files found that
+> 19 of the 20 are cited by number across the ADRs. So every row below **carries its
+> own source**: either a direct quotation of the rule's text from an ADR, the gloss
+> that ADR gave in parentheses or after a colon, or this document's previous summary.
+> Where several ADRs gloss a rule **differently**, all of them are shown and none is
+> preferred — choosing one would mean falsifying the others.
+
+**Confidence:** 🟢 direct quotation of the rule's text · 🔵 explicit ADR gloss ·
+🟡 only this document's previous summary · 🔴 divergent (incompatible glosses) ·
+⚫ unknown (zero citations).
+
+| # | Subject | Source | Confidence |
+|---|---|---|---|
+| 1 | **Unknown** | — | ⚫ **Zero** citations of "rule 1" in any of the repository's 58 markdown files. Its text exists only with the product owner; until they supply it this row stays deliberately empty and nothing is invented for it |
+| 2 | **Ask before starting:** every architecture/folder/data ambiguity must be raised with the owner before code is written | `ADR-0016` — "طبق قانون ۲ (سؤال قبل از شروع)"; also `ADR-0017`, `ADR-0021` | 🔵 |
+| 3 | **An ADR for every architectural decision:** no architectural decision is accepted without one | This document's previous summary; no ADR cites "rule 3" | 🟡 |
+| 4 | **Three different glosses — none discarded** | `ADR-0002`: "every PR reviewable by three people" · `ADR-0025`: "quality > speed" · `ADR-0031`: "the content manager must be able to edit these without changing code (rule 4 in practice)" | 🔴 The first two are compatible (reviewability/quality); the third is a separate idea (operability/no-code). The rule was cited loosely and has no single text |
+| 5 | **Secret hygiene:** never write a key, token or password in code; only `.env` and `django-environ` | `ADR-0033` — "all secrets are read only from `.env` via `django-environ` (rule 5)"; `ADR-0009`; enforced by `scripts/check_secrets.py` | 🔵 |
+| 6 | **Dependencies:** no new package without written technical justification in an ADR | `ADR-0005`, `ADR-0010`, `ADR-0011` — "no unnecessary dependency" · `ADR-0019` — "every new dependency must be justified" · `ADR-0021` · `ADR-0027` | 🔵 |
+| 7 | **Type safety:** Python through `mypy --strict`, frontend through `tsc --noEmit` (`strict: true`), with not a single error | `ADR-0010` — "rule 7 (type-safety)" · `ADR-0014` — "the project's type hints (already mandatory because of rule 7)" · `ADR-0015` — "mypy strict" | 🔵 |
+| 8 | **Automatic OpenAPI:** every API change documented with `@extend_schema` and passing `spectacular --validate --fail-on-warn` | `ADR-0014` — "rule 8 («automatic OpenAPI»)" · `ADR-0001` | 🔵 |
+| 9 | **No hard-coded strings in code:** "all UI strings live in translation files (gettext); we must have no hard-coded string" | `ADR-0003` — **direct quotation of the rule's text**; also `ADR-0001`, `ADR-0030` | 🟢 |
+| 10 | **Localized dates and numerals:** "dates: Jalali in Persian (`jdatetime`), Gregorian in English. Numerals: Persian in FA, Latin in EN." | `ADR-0004` — **direct quotation of the rule's text**; also `ADR-0018`, `ADR-0019` | 🟢 |
+| 11 | **RTL at component level, not a CSS hack:** never write global/site-wide RTL rules | `ADR-0027` — "rule 11 — RTL at component level, not a CSS hack" | 🔵 |
+| 12 | **All AI features go only through `apps.ai_engine`** | `ADR-0009` and `ADR-0002` | 🔵 |
+| 13 | **User input reaching the AI engine only from closed Enum/Choice lists — never free text** | `ADR-0009` | 🔵 |
+| 14 | **Every AI feature must have an Iranian cultural Guardrail** | `ADR-0009` | 🔵 |
+| 15 | **Query efficiency and performance:** `select_related` / `prefetch_related` and per-endpoint query-count ceilings | `ADR-0003` — "query efficiency" · `ADR-0005` — "performance" | 🔵 |
+| 16 | **Security and audit log:** sanitise input (anti-XSS) and record sensitive events | `ADR-0005` — "security" · `ADR-0013` — "security/audit log" · `ADR-0022` — mandates `nh3` for Markdown | 🔵 |
+| 17 | **SEO — explicit list:** `sitemap`, `robots`, `hreflang`, `JSON-LD`, `OG/Twitter`, `canonical`, dynamic meta and `RSS` | `ADR-0031` — "the project's rule 17 (SEO) has an explicit list: …" | 🔵 |
+| 18 | **Self-hosted assets and no CDN** — a requirement of Iranian shared hosting and of user privacy | `ADR-0027` — "self-hosting fonts and forbidding CDNs is a product requirement for Iranian shared hosting and user privacy (rules 6 and 18)". **Note:** this document's previous summary called rule 18 "accessibility"; the ADR source says otherwise and takes precedence | 🔵 |
+| 19 | **Performance target: Lighthouse ≥ 95 on all four axes — and a threshold is never lowered** | `ADR-0032` — "the project's rule 19 set the Lighthouse ≥ 95 target" · `ADR-0038` — "per rule 19 the threshold is not lowered; the fix is to add tests" · `ADR-0018` — "Lighthouse/CLS requirements" | 🔵 |
+| 20 | **Record in `CHANGELOG.md`:** every significant change must be logged there | `ADR-0010` — "and recorded in `CHANGELOG.md` (rule 20)" | 🔵 |
+
+**Reliable summary:** of the 20 rules, **2** have their text quoted directly
+(9 and 10), **15** have an explicit ADR gloss, **1** rests only on this document's
+previous summary (3), **1** is divergent (4) and **1** is entirely unknown (1).
+
+**Two things deliberately not done:** no text was invented for rule 1, and none of
+rule 4's three glosses was preferred over the others. Both need product-owner
+input; inventing either would mean fabricating project policy, which is worse than
+leaving the row empty.

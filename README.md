@@ -18,7 +18,7 @@
 | [`ARCHITECTURE.md`](./ARCHITECTURE.md) | معماری سیستم، نمودار ERD و تصمیمات معماری فاز ۱ |
 | [`docs/adr/README.md`](./docs/adr/README.md) | **فهرست کامل و معتبر همهٔ ADRها** — منبع یکتای «کدام ADR وجود دارد»، به‌همراه ارجاع‌های مردهٔ شناخته‌شده و یادداشت‌های اصلاحی |
 | [`docs/admin-guide-fa.md`](./docs/admin-guide-fa.md) | راهنمای تفصیلی پنل ادمین سطح SaaS، داشبورد KPI، گردش‌کار انتشار، 2FA و بکاپ |
-| [`CONTRIBUTING.md`](./CONTRIBUTING.md) | راهنمای مشارکت، خلاصهٔ ۲۰ قانون سخت‌گیرانه، فرمت Conventional Commits، چک‌لیست PR و گیت‌های کیفیت |
+| [`CONTRIBUTING.md`](./CONTRIBUTING.md) | راهنمای مشارکت، جدولِ کاملِ ۲۰ قانون سخت‌گیرانه (بازسازی‌شده از مأخذِ ADRها)، فرمت Conventional Commits، چک‌لیست PR و گیت‌های کیفیت |
 | [`CHANGELOG.md`](./CHANGELOG.md) | تاریخچهٔ کامل تغییرات پروژه در قالب Conventional Commits |
 
 ---

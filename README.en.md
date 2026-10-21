@@ -18,7 +18,7 @@ This repository is the production **Monorepo** for the bilingual (Persian/Englis
 | [`ARCHITECTURE.md`](./ARCHITECTURE.md) | Domain boundaries, ERD, and the phase-1 architecture decisions |
 | [`docs/adr/README.md`](./docs/adr/README.md) | **The complete, authoritative index of every ADR** — the single source of truth for which ADRs exist, plus known dead references and amendment notes |
 | [`docs/admin-guide-fa.md`](./docs/admin-guide-fa.md) | Detailed SaaS-level admin panel guide, KPI dashboard, publication workflow, 2FA and backups (Persian) |
-| [`CONTRIBUTING.md`](./CONTRIBUTING.md) | Engineering standards, a summary of the 20 Hard Rules, Conventional Commits, and the PR review checklist |
+| [`CONTRIBUTING.md`](./CONTRIBUTING.md) | Engineering standards, the complete 20 Hard Rules table (reconstructed from ADR citations), Conventional Commits, and the PR review checklist |
 | [`CHANGELOG.md`](./CHANGELOG.md) | Project release history with Conventional Commits |
 
 ---
