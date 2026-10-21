@@ -15,6 +15,30 @@
 5. [Section 5: Step-by-Step cPanel Shared Hosting Deployment Guide](#section-5-step-by-step-cpanel-shared-hosting-deployment-guide)
 6. [Section 6: Quality Gates, Testing, Pre-commit & CI/CD Pipeline](#section-6-quality-gates-testing-pre-commit--cicd-pipeline)
 
+### Persian/English Parity — Section Mapping
+
+These two files are a **functional** mirror of each other, not a line-by-line one.
+The Package 7 rule was: anything a reader needs in order to *act* must exist in both
+languages, but subsection numbering need not match, because the English file merges
+several Persian subsections into one. This table records the only remaining
+differences — anything not listed here is identically numbered and identically
+covered in both languages.
+
+| Persian | English | Difference |
+|---|---|---|
+| ۴.۵. Managing the AI engine in admin | 4.5. AI Catalogs, Prompts, Summaries & Data Import/Export | English merges Persian 4.5 and 4.6 |
+| ۴.۶. Data export and import | (inside 4.5) | Content present, no separate number |
+| ۴.۷. 2FA and admin SEO management | 4.6 (2FA) + 4.7 (SEO) | Persian keeps two topics in one section; English splits them |
+| ۴.۸. `System Checks` code reference | (inside 4.6) | Content present, no separate number |
+| ۵.۱ to ۵.۷ | 5.1 to 5.7 | ✅ **Identical** — since Package 7 |
+| ۶.۲. Pre-commit hooks | 6.2. Pre-commit Hooks & GitHub Actions Pipeline | English merges Persian 6.2 and 6.3 |
+| ۶.۳. GitHub Actions pipeline | (inside 6.2) | Content present, no separate number |
+| ۶.۴. Test coverage: actual measured scope | 6.3. Test Coverage: Actual Measured Scope | Same content under a **different number** — the only numbering offset visible in cross-references |
+
+No content remains single-language: host prerequisites (5.1), the post-deployment
+checklist (5.7) and admin SEO management (4.7) were added to the English file in
+Package 7.
+
 ---
 
 ## Section 1: System Architecture & Data Model
@@ -289,13 +313,27 @@ The admin index page renders a cached operational dashboard (`ADMIN_DASHBOARD_CA
 - **Admin 2FA (`ADR-0033`):** Enforced in production via `ADMIN_2FA_REQUIRED=True`. Staff enroll at `/admin/2fa/setup` using an offline inline `data:` SVG QR code or Base32 secret, verify at `/admin/2fa/verify` (rate-limited with lockout after 5 failed attempts), and receive 8 one-time recovery codes at `/admin/2fa/recovery`.
 - **Django System Checks (`emmett_admin.E001`–`W013`):** Run `python manage.py check` (and `python manage.py check --deploy --settings=config.settings.production`) to verify Jazzmin ordering, static assets, `.mo` freshness, `PUBLIC_SITE_URL`, CSP, 2FA enforcement, Search Console verification code, writable `BACKUP_DIR`, and `SECRET_KEY` entropy.
 
+### 4.7. Admin SEO, Redirects & FAQ Management
+
+- **SEO settings (`ADR-0031`):**
+  - In `Site settings`: the default meta title and description, organization contact details, social profile links, the default Open Graph image, and the Google Search Console verification code.
+  - In `Redirects`: map legacy paths with status `301` (permanent), `302` (temporary) or `410` (content permanently removed, served through a dedicated `410 Gone` page).
+  - In `FAQ items`: record each page's frequently asked questions (for example `/services`); they are emitted automatically into that page's `FAQPage` schema.
+
 ---
 
 ## Section 5: Step-by-Step cPanel Shared Hosting Deployment Guide
 
 This guide implements `ADR-0035` for Iranian shared hosting environments running **cPanel + Phusion Passenger (Python 3.11 & Node.js 22) + MySQL 8**.
 
-### 5.1. Step 1: Create the MySQL 8 Database in cPanel
+### 5.1. cPanel Host Prerequisites
+
+1. **Setup Python App** (with Python 3.11) and **Setup Node.js App** (with Node.js 22 LTS) enabled in cPanel;
+2. Access to **MySQL Databases** (MySQL 8.0, or an equivalent MariaDB with full `utf8mb4` support and `FULLTEXT` indexing);
+3. A valid SSL certificate on the primary domain (issued through **SSL/TLS Status → Run AutoSSL**);
+4. Access to **Terminal** (or SSH) and **Cron Jobs** in cPanel.
+
+### 5.2. Step 1: Create the MySQL 8 Database in cPanel
 
 1. Open **MySQL® Databases** in cPanel and create database `cpaneluser_emmett`.
 2. Create a database user `cpaneluser_app` with a strong password and grant `ALL PRIVILEGES`.
@@ -304,7 +342,7 @@ This guide implements `ADR-0035` for Iranian shared hosting environments running
    ALTER DATABASE `cpaneluser_emmett` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
    ```
 
-### 5.2. Step 2: Clone Repository & Initialize Private Directories
+### 5.3. Step 2: Clone Repository & Initialize Private Directories
 
 ```bash
 cd ~
@@ -323,7 +361,7 @@ cp ~/EmmettWebSite/backend/deploy/media.htaccess.example ~/EmmettWebSite/backend
 cp ~/EmmettWebSite/backend/deploy/passenger_wsgi.py.example ~/EmmettWebSite/backend/passenger_wsgi.py
 ```
 
-### 5.3. Step 3: Configure Django Backend (`Setup Python App`)
+### 5.4. Step 3: Configure Django Backend (`Setup Python App`)
 
 1. In cPanel → **Setup Python App** → **Create Application**:
    - **Python version:** `3.11`
@@ -348,7 +386,7 @@ cp ~/EmmettWebSite/backend/deploy/passenger_wsgi.py.example ~/EmmettWebSite/back
    ```
 5. Click **Restart** in **Setup Python App**.
 
-### 5.4. Step 4: Build & Start Next.js Frontend (`Setup Node.js App`)
+### 5.5. Step 4: Build & Start Next.js Frontend (`Setup Node.js App`)
 
 1. In cPanel → **Setup Node.js App** → **Create Application**:
    - **Node.js version:** `22.x`
@@ -365,7 +403,7 @@ cp ~/EmmettWebSite/backend/deploy/passenger_wsgi.py.example ~/EmmettWebSite/back
    ```
 3. Click **Restart** in **Setup Node.js App**.
 
-### 5.5. Step 5: Configure cPanel Cron Jobs
+### 5.6. Step 5: Configure cPanel Cron Jobs
 
 Register three cron jobs in cPanel → **Cron Jobs**:
 1. **Daily Database & Media Backup (03:30 AM):**
@@ -380,6 +418,15 @@ Register three cron jobs in cPanel → **Cron Jobs**:
    ```cron
    30 4 * * * cd /home/<cpanel_user>/EmmettWebSite/backend && /home/<cpanel_user>/virtualenv/EmmettWebSite/backend/3.11/bin/python manage.py generate_blog_summaries >> /home/<cpanel_user>/ai_summary.log 2>&1
    ```
+
+### 5.7. Step 6: Post-Deployment Verification Checklist
+
+- [ ] `https://emmett.ir/api/v1/health/` returns `200 OK` with `{"status": "ok"}`.
+- [ ] `python manage.py check --deploy` reports no errors and no security warnings (`W007`–`W013`).
+- [ ] Signing in at `https://emmett.ir/admin/` redirects staff to 2FA enrolment (`/admin/2fa/setup`), and the recovery codes have been stored somewhere safe.
+- [ ] In the admin's `Site settings`, the Google Search Console verification code is filled in and `https://emmett.ir/sitemap.xml` has been submitted to Search Console.
+- [ ] `/` (Persian, `dir="rtl"`), `/en` (English, `dir="ltr"`), the `/blog/rss` and `/academy/rss` feeds, and the `/opengraph-image` all load without error.
+- [ ] `python manage.py backup_db` has been run once by hand and the `db-*.gz` and `manifest-*.json` files exist under `backups/`.
 
 ---
 
