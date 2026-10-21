@@ -277,9 +277,17 @@ REST_FRAMEWORK = {
         "rest_framework.filters.OrderingFilter",
     ],
     "DEFAULT_THROTTLE_CLASSES": [
-        "rest_framework.throttling.AnonRateThrottle",
-        "rest_framework.throttling.UserRateThrottle",
+        "apps.core.throttling.ProxyAwareAnonRateThrottle",
+        "apps.core.throttling.ProxyAwareUserRateThrottle",
     ],
+    # تعداد reverse proxyهای مطمئن جلوتر از اپلیکیشن:
+    # - 1 (پیش‌فرض): Apache/Passenger روی هاست cPanel هدر X-Forwarded-For را ست/اضافه
+    #   می‌کند و پراکسی داخلی Next.js آن را بدون افزودن 127.0.0.1 عبور می‌دهد.
+    # - 2: زمانی که CDN خارجی (Cloudflare/ArvanCloud) بدون mod_remoteip جلوتر از Apache است
+    #   و Apache از RequestHeader append استفاده می‌کند.
+    # - 0: اتصال مستقیم بدون پراکسی (نادیده‌گرفتن کامل هدرهای X-Forwarded-For).
+    # پیش از ترافیک واقعی، خروجی تشخیصی /api/v1/health/proxy/ را روی هاست بررسی کنید.
+    "NUM_PROXIES": env.int("DJANGO_NUM_PROXIES", default=1),
     "DEFAULT_THROTTLE_RATES": {
         "anon": env("THROTTLE_RATE_ANON", default="100/hour"),
         "user": env("THROTTLE_RATE_USER", default="1000/hour"),

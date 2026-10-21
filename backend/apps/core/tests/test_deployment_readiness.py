@@ -79,6 +79,7 @@ def test_production_settings_hardening_and_deploy_check(tmp_path: Path) -> None:
         "assert settings.SECURE_CROSS_ORIGIN_OPENER_POLICY == 'same-origin'; "
         "assert settings.X_FRAME_OPTIONS == 'DENY'; "
         "assert settings.ADMIN_2FA_REQUIRED is True; "
+        "assert settings.REST_FRAMEWORK['NUM_PROXIES'] == 1; "
         "assert settings.DATABASES['default']['CONN_HEALTH_CHECKS'] is True; "
         "assert settings.DATABASES['default']['OPTIONS']['charset'] == 'utf8mb4'"
     )
@@ -110,6 +111,13 @@ def test_deploy_templates_scripts_and_documentation_exist() -> None:
     ]
     for path in required_files:
         assert path.is_file(), f"فایل الزامی فاز ۹ یافت نشد: {path}"
+
+    htaccess_text = (BACKEND_DIR / "deploy" / "public_html.htaccess.example").read_text(encoding="utf-8")
+    assert 'RequestHeader set X-Forwarded-For "expr=%{REMOTE_ADDR}"' in htaccess_text
+    assert 'RequestHeader set X-Real-IP "expr=%{REMOTE_ADDR}"' in htaccess_text
+
+    env_example_text = (BACKEND_DIR / ".env.example").read_text(encoding="utf-8")
+    assert "DJANGO_NUM_PROXIES=1" in env_example_text
 
     # بررسی صحت نحوی اسکریپت‌های Bash با bash -n
     for script in (
