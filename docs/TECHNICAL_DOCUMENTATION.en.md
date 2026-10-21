@@ -446,7 +446,8 @@ python scripts/i18n.py check
 python manage.py check
 python manage.py makemigrations --check --dry-run
 python manage.py spectacular --file /tmp/schema.yaml --validate --fail-on-warn
-coverage run -m pytest -q && coverage report --fail-under=85 -m
+PYTHONPATH=../.github/ci DJANGO_SETTINGS_MODULE=ci_test_settings coverage run -m pytest -q && coverage report --fail-under=85 -m
+    # # The CI settings shim is required: without it `config.settings.dev` keeps `CompressedManifestStaticFilesStorage` and every test that renders an admin template fails with `Missing staticfiles manifest entry` (29-34 spurious failures)
 
 # Frontend Quality, Unit Coverage (≥ 85%), Build & E2E
 cd ../frontend
@@ -603,7 +604,7 @@ Package 5 of the seven-package remediation plan ("honest coverage") was to add `
 cd frontend && npm run test:coverage          # → 98.08 / 78.31 / 98.22 / 98.68
 
 # Backend — the gate number
-cd backend && coverage run -m pytest --create-db -q && coverage report --fail-under=85
+cd backend && PYTHONPATH=../.github/ci DJANGO_SETTINGS_MODULE=ci_test_settings coverage run -m pytest --create-db -q && coverage report --fail-under=85
 #                                                          → 5607 stmt / 325 missed / 94%
 
 # Backend — wide scope

@@ -110,8 +110,15 @@ python manage.py spectacular --file /tmp/schema.yaml --fail-on-warn
 ## تست و کیفیت کد
 
 ```bash
+# لایهٔ تنظیماتِ CI برای اجرای تست‌ها **الزامی** است (ر.ک. ADR-0038). بدونِ آن هر تستی که
+# قالبِ ادمین را رندر می‌کند با `Missing staticfiles manifest entry` می‌شکند — ۲۹ تا ۳۴
+# شکستِ کاذب. این لایه فقط کلید `staticfiles` را به `StaticFilesStorage` ساده عوض می‌کند.
+export PYTHONPATH=../.github/ci DJANGO_SETTINGS_MODULE=ci_test_settings
+
 pytest                                  # کل تست‌ها (pytest-django + factory-boy)
-pytest --cov=apps --cov-report=term     # نیاز به نصب جداگانهٔ pytest-cov
+coverage run -m pytest -q && coverage report --fail-under=85   # پوشش؛ همان کاری که CI می‌کند
+# pytest --cov=apps نیاز به نصب جداگانهٔ pytest-cov دارد که در requirements-dev.txt نیست؛
+# مسیرِ پشتیبانی‌شده همان `coverage run` بالاست.
 ruff check apps config                  # لینت
 mypy apps config                        # type-check سخت‌گیرانه (strict)
 python manage.py check                  # System Checkها (E001–W013)

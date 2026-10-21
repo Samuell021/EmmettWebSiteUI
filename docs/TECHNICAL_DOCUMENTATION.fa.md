@@ -534,7 +534,8 @@ python scripts/i18n.py check                                        # بررسی
 python manage.py check                                              # بررسی سلامت سیستم جنگو
 python manage.py makemigrations --check --dry-run                   # بررسی عدم وجود تغییر مدل بدون migration
 python manage.py spectacular --file /tmp/schema.yaml --validate --fail-on-warn
-coverage run -m pytest -q && coverage report --fail-under=85 -m     # اجرای تست‌ها با شرط پوشش ≥ ۸۵٪
+PYTHONPATH=../.github/ci DJANGO_SETTINGS_MODULE=ci_test_settings coverage run -m pytest -q && coverage report --fail-under=85 -m
+    # اجرای تست‌ها با شرط پوشش ≥ ۸۵٪. # لایهٔ تنظیماتِ CI الزامی است: بدونِ آن `config.settings.dev` حافظِ `CompressedManifestStaticFilesStorage` می‌ماند و هر تستی که قالبِ ادمین را رندر می‌کند با `Missing staticfiles manifest entry` می‌شکند (۲۹ تا ۳۴ شکستِ کاذب)
 ```
 
 #### در فرانت‌اند (`frontend/`):
@@ -716,7 +717,7 @@ backend/.venv/bin/pre-commit run --all-files
 cd frontend && npm run test:coverage          # → ۹۸٫۰۸ / ۷۸٫۳۱ / ۹۸٫۲۲ / ۹۸٫۶۸
 
 # بک‌اند — عددِ گیت
-cd backend && coverage run -m pytest --create-db -q && coverage report --fail-under=85
+cd backend && PYTHONPATH=../.github/ci DJANGO_SETTINGS_MODULE=ci_test_settings coverage run -m pytest --create-db -q && coverage report --fail-under=85
 #                                                          → ۵۶۰۷ stmt / ۳۲۵ missed / ۹۴٪
 
 # بک‌اند — دامنهٔ گسترده

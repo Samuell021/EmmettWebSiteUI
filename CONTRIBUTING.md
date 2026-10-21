@@ -85,7 +85,22 @@ backend/.venv/bin/pre-commit run --all-files
 ### ۶. چک‌لیست پیش از ارسال Pull Request
 
 - [ ] `backend/.venv/bin/pre-commit run --all-files` بدون خطا اجرا شده است.
-- [ ] تست‌های بک‌اند (`coverage run -m pytest && coverage report --fail-under=85`) سبز هستند.
+- [ ] تست‌های بک‌اند سبز هستند. **دستور باید با لایهٔ تنظیماتِ CI اجرا شود** (از پوشهٔ `backend/`):
+
+      ```bash
+      PYTHONPATH=../.github/ci DJANGO_SETTINGS_MODULE=ci_test_settings coverage run -m pytest -q && coverage report --fail-under=85
+      ```
+
+      بدونِ آن، `pytest.ini` تنظیماتِ `config.settings.dev` را بارگذاری می‌کند که حافظِ
+      `CompressedManifestStaticFilesStorage` است؛ قالب‌های ادمین (jazzmin) سپس
+      `{% static "vendor/bootswatch" %}` را روی یک **پوشه** صدا می‌زنند و هر تستی که
+      ادمین را رندر می‌کند با `ValueError: Missing staticfiles manifest entry` و در
+      نتیجه HTTP 500 می‌شکند — در اندازه‌گیریِ این ریپو **۲۹ تا ۳۴ شکستِ کاذب**.
+      لایهٔ تنظیماتِ CI (‏`.github/ci/ci_test_settings.py`، موضوع `ADR-0038`) فقط کلید
+      `staticfiles` را به `StaticFilesStorage` ساده تغییر می‌دهد. امضای این اشتباه،
+      شکست در فایل‌هایی است که ادمین را رندر می‌کنند (`test_two_factor`، `test_security`،
+      `test_redirects`، `test_admin_*`). توجه: اجرای `collectstatic` این مشکل را حل
+      **نمی‌کند** (فقط ۳۴ را به ۲۹ کاهش می‌دهد) و CI عمداً هیچ گامِ `collectstatic` ندارد.
 - [ ] تست‌های فرانت‌اند (`npm run test:coverage`) و `npm run build` سبز هستند. توجه: گیت ۸۵٪ فقط `src/lib` و `src/components/{ui,molecules,organisms,seo}` را می‌سنجد و `src/app/**`، `ui-port/**`، `src/i18n/**` و `src/proxy.ts` خارج از آن‌اند (بند ۶.۴ مستندات فنی) — با این حال کد تازه در هر مسیری که باشد باید تست داشته باشد.
 - [ ] رنگ‌ها از توکن می‌آیند: `hardcoded-colors.test.ts` سبز است و شمار لیترال‌های رنگ هیچ فایلی افزایش نیافته.
 - [ ] در صورت تغییر ترجمه، `python scripts/i18n.py check` سبز است و کلیدهای `messages/fa.json` و `messages/en.json` متقارن‌اند.

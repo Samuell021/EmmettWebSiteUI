@@ -95,7 +95,7 @@ ruff check . && ruff format --check . && black --check .
 mypy apps config
 bandit -c pyproject.toml -r apps config -ll
 python scripts/i18n.py check
-coverage run -m pytest -q && coverage report --fail-under=85 -m
+PYTHONPATH=../.github/ci DJANGO_SETTINGS_MODULE=ci_test_settings coverage run -m pytest -q && coverage report --fail-under=85 -m   # The CI settings shim is required: without it `config.settings.dev` keeps `CompressedManifestStaticFilesStorage` and every test that renders an admin template fails with `Missing staticfiles manifest entry` (29-34 spurious failures)
 
 # Frontend quality & test suite
 cd ../frontend
