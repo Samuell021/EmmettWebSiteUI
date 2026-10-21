@@ -1,5 +1,23 @@
 # راهنمای مشارکت در پروژهٔ امیت (Contributing Guide — FA / EN)
 
+> **تقارنِ دو زبان:** بخشِ فارسی ۶ زیربخش دارد و بخشِ انگلیسی ۶ زیربخش؛ محتوا
+> **آینهٔ کاربردی** است نه ترجمهٔ سطر‌به‌سطر. نگاشت: فارسی ۱ = انگلیسی 1 (چرخهٔ
+> کاری)، فارسی ۲ = انگلیسی 6 (دامنهٔ قوانین)، فارسی ۳ = انگلیسی 2 (ابزارهای
+> لینت/فرمت + Pre-commit)، فارسی ۴ = انگلیسی 3 (‏Conventional Commits)،
+> فارسی ۵ = انگلیسی 4 (استاندارد توکن)، فارسی ۶ = انگلیسی 5 (چک‌لیست PR).
+> تنها تفاوتِ باقی‌مانده: فهرستِ کاملِ دستوراتِ بررسیِ محلی در فارسی در بندِ ۶.۱
+> `TECHNICAL_DOCUMENTATION.fa.md` است و در انگلیسی هم در بندِ 6.1 همان سند؛
+> بخشِ انگلیسیِ این فایل خلاصه‌اش را درون‌خطی تکرار می‌کند. هیچ محتوایی تک‌زبانه نمانده است.
+>
+> **Parity:** both halves have six subsections and are a *functional* mirror, not a
+> line-by-line translation. Mapping: Persian 1 = English 1 (workflow), Persian 2 =
+> English 6 (scope of the rules), Persian 3 = English 2 (lint/format tooling plus
+> pre-commit), Persian 4 = English 3 (Conventional Commits), Persian 5 =
+> English 4 (design tokens), Persian 6 = English 5 (PR checklist). The one
+> remaining difference: the full local-verification command list lives in section
+> 6.1 of `TECHNICAL_DOCUMENTATION.{fa,en}.md` for both languages, and the English
+> half of this file additionally repeats it inline. No content is single-language.
+
 از مشارکت شما در توسعهٔ پلتفرم وب‌سایت گروه توسعه نرم‌افزار **امیت (Emmett)** استقبال می‌کنیم. این سند قواعد مهندسی، چرخهٔ کاری اجباری، استاندارد پیام‌های کامیت و گیت‌های کیفیت را به دو زبان **فارسی** و **انگلیسی** شرح می‌دهد.
 
 ---
@@ -22,6 +40,15 @@ Discovery → Questions → Plan → ADR → Implementation → Test → Review 
 
 ### ۲. خلاصهٔ ۲۰ قانون سخت‌گیرانه (Hard Rules)
 
+> **دامنهٔ این بخش، صریح:** این یک **خلاصه** است، نه فهرستِ کامل. قانون‌های ۳ و
+> ۵ تا ۱۹ را پوشش می‌دهد؛ قانون‌های ۱، ۲، ۴ و ۲۰ اینجا نیامده‌اند. در هیچ سندِ
+> دیگری از ریپو هم **فهرستِ شماره‌گذاری‌شدهٔ کاملِ هر ۲۰ قانون** وجود ندارد —
+> ممیزیِ بستهٔ ۷ نشان داد ۱۹ قانون از ۲۰ قانون به‌صورت پراکنده در ADRها با
+> شماره ارجاع داده می‌شوند (فقط «قانون ۱» هیچ‌جا ذکر نشده)، ولی متنِ رسمیِ
+> یک‌جا گردآوری نشده است. اگر به متنِ دقیقِ یک قانون نیاز دارید، ADR مربوطه
+> همان ارجاع را با زمینهٔ تصمیم آورده است. گردآوریِ فهرستِ کامل، کارِ بازِ
+> نگهداری است نه چیزی که این سند ادعایش را داشته باشد.
+
 - **قانون ۳ (ADR):** هیچ تصمیم معماری بدون ADR پذیرفته نمی‌شود.
 - **قانون ۵ (امنیت رازها):** هرگز کلید، توکن یا رمز عبور در کد ننویسید؛ فقط از `.env` و `django-environ` استفاده کنید (`scripts/check_secrets.py`).
 - **قانون ۶ (وابستگی‌ها):** هیچ پکیج جدیدی بدون توجیه فنی مکتوب در ADR اضافه نشود.
@@ -31,7 +58,14 @@ Discovery → Questions → Plan → ADR → Implementation → Test → Review 
 - **قانون ۱۲ تا ۱۴ (موتور AI):** تمام قابلیت‌های هوش مصنوعی منحصراً از `apps.ai_engine` با ورودی‌های بستهٔ کاتالوگ (Enum) و با اعمال Guardrail فرهنگی ایرانی عبور کنند.
 - **قانون ۱۵ تا ۱۹ (کارایی، امنیت، سئو و دسترس‌پذیری):** کوئری‌ها بهینه (`select_related` / `prefetch_related`)، استاندارد WCAG AA رعایت‌شده و امتیاز Lighthouse CI در هر ۴ محور `≥ 95` باشد.
 
-### ۳. راه‌اندازی هوک‌های Pre-commit
+### ۳. راه‌اندازی هوک‌های Pre-commit و ابزارهای کیفیت
+
+ابزارهایی که این هوک‌ها اجرا می‌کنند — بک‌اند: **Ruff** (`ruff check .`،
+`ruff format --check .`)، **Black** (`black --check .`)، **Mypy** (`mypy apps config`)
+و **Bandit** (`bandit -c pyproject.toml -r apps config -ll`)؛ فرانت‌اند: **Prettier**
+(`npm run format:check`)، **ESLint** (`npm run lint`) و **TypeScript**
+(`npm run typecheck`). فهرستِ کاملِ دستوراتِ بررسیِ محلی در بندِ **۶.۱**
+`docs/TECHNICAL_DOCUMENTATION.fa.md` است.
 
 پیش از اولین کامیت، هوک‌های Pre-commit را نصب کنید:
 
@@ -104,7 +138,7 @@ backend/.venv/bin/pre-commit run --all-files
 - [ ] تست‌های فرانت‌اند (`npm run test:coverage`) و `npm run build` سبز هستند. توجه: گیت ۸۵٪ فقط `src/lib` و `src/components/{ui,molecules,organisms,seo}` را می‌سنجد و `src/app/**`، `ui-port/**`، `src/i18n/**` و `src/proxy.ts` خارج از آن‌اند (بند ۶.۴ مستندات فنی) — با این حال کد تازه در هر مسیری که باشد باید تست داشته باشد.
 - [ ] رنگ‌ها از توکن می‌آیند: `hardcoded-colors.test.ts` سبز است و شمار لیترال‌های رنگ هیچ فایلی افزایش نیافته.
 - [ ] در صورت تغییر ترجمه، `python scripts/i18n.py check` سبز است و کلیدهای `messages/fa.json` و `messages/en.json` متقارن‌اند.
-- [ ] مستندات (`docs/TECHNICAL_DOCUMENTATION.{fa,en}.md` و `CHANGELOG.md`) به‌روزرسانی شده‌اند.
+- [ ] مستندات به‌روزرسانی شده‌اند: `docs/TECHNICAL_DOCUMENTATION.{fa,en}.md` و `CHANGELOG.md`. **اگر ADR تازه‌ای نوشته‌اید، `docs/adr/README.md` (فهرستِ معتبر) و جدولِ خلاصهٔ ADRها در هر دو نسخهٔ `TECHNICAL_DOCUMENTATION` را هم اضافه کنید** — سه فهرستِ موازیِ ADR پیش‌تر کهنه مانده بودند و علتش همین بود.
 
 ---
 
@@ -156,4 +190,34 @@ A new exception requires a written technical reason and reviewer approval. Two r
 - **The hard ceiling sums `RATCHET` only.** An exception raises `scannedTotal` but never moves the ceiling, because the invariant is `scannedTotal == baselineTotal + sum(exception literals)`. The test to apply: is the literal **migratable debt** (`RATCHET`, must go down) or **unavoidable** (`EXCEPTIONS`, stays locked)? Filing an unavoidable literal under `RATCHET` inflates the ceiling for no reason and invents a debt that can never reach zero.
 - **Never put a color value in an exception's reason text.** `hardcoded-colors.baseline.ts` is itself under `src/` and, unlike the test file, is not excluded — so the guard scans it. A color literal in a reason string turns that very file into an "unknown file with raw colors" and fails the guard. Describe colors by **role**, not by value.
 
-Decision record: `docs/adr/0039-design-token-standard-and-hardcoded-color-ratchet.md`. The `/design-system` page reads every token's live value from the CSSOM at runtime and displays it, so an undefined or unmapped token is visible on that page.
+Decision record: `docs/adr/0039-design-token-standard-and-hardcoded-color-ratchet.md`.
+### 5. Pre-Pull-Request Checklist
+
+- [ ] `backend/.venv/bin/pre-commit run --all-files` passes with no errors.
+- [ ] Backend tests are green. **They must be run through the CI settings shim** (from `backend/`):
+
+      ```bash
+      PYTHONPATH=../.github/ci DJANGO_SETTINGS_MODULE=ci_test_settings coverage run -m pytest -q && coverage report --fail-under=85
+      ```
+
+      Without it, `pytest.ini` loads `config.settings.dev`, which keeps
+      `CompressedManifestStaticFilesStorage`; Jazzmin's admin templates then call
+      `{% static "vendor/bootswatch" %}` on a directory and every admin-rendering
+      test fails with `ValueError: Missing staticfiles manifest entry` — 29 to 34
+      spurious failures in this repository. Running `collectstatic` does **not** fix
+      it (34 merely drops to 29). See `ADR-0038`.
+- [ ] Frontend tests (`npm run test:coverage`) and `npm run build` are green. Note the 85% gate measures only `src/lib` and `src/components/{ui,molecules,organisms,seo}`, not `src/app/**` or the `ui-port` shell.
+- [ ] Colors come from tokens: `hardcoded-colors.test.ts` is green and no file's raw-color count has increased.
+- [ ] If translations changed, `python scripts/i18n.py check` is green and the `messages/fa.json` and `messages/en.json` key trees are symmetric.
+- [ ] Documentation is updated: `docs/TECHNICAL_DOCUMENTATION.{fa,en}.md` and `CHANGELOG.md`. **If you wrote a new ADR, also add it to `docs/adr/README.md` (the authoritative index) and to the ADR summary table in both `TECHNICAL_DOCUMENTATION` files** — three parallel ADR lists went stale previously for exactly this reason.
+
+### 6. Scope of the "20 Hard Rules"
+
+The Persian section 2 summarises the project's hard rules. That summary is
+deliberately partial: it covers rules 3 and 5 through 19, and rules 1, 2, 4 and 20
+are not restated there. **No complete enumerated list of all 20 rules exists
+anywhere in this repository.** A Package 7 audit found that 19 of the 20 are cited
+by number across the ADRs (only rule 1 is never mentioned), but the normative text
+was never collected in one place. When you need the precise wording of a rule, the
+ADR that cites it carries the decision context.
+ The `/design-system` page reads every token's live value from the CSSOM at runtime and displays it, so an undefined or unmapped token is visible on that page.
