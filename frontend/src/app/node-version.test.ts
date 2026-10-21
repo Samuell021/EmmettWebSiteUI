@@ -22,7 +22,7 @@ import { describe, expect, it } from "vitest";
  * خودِ CI می‌زند.
  */
 
-// همان الگوی `hardcoded-colors.test.ts`: ‏`import.meta.dirname` نه `__dirname`،
+// همان الگوی `hardcoded-colors.test.ts`: `import.meta.dirname` نه `__dirname`،
 // چون این پروژه ESM است و vitest فایل‌های تست را به‌صورت ماژول بارگذاری می‌کند.
 const frontendRoot = resolve(import.meta.dirname, "../..");
 const repoRoot = resolve(frontendRoot, "..");
