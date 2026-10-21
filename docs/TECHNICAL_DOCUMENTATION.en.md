@@ -200,7 +200,8 @@ All 40 ADRs are stored in `docs/adr/`. **The complete, authoritative index — i
 
 | Method | Endpoint | Auth | Description |
 |---|---|---|---|
-| `GET` | `/api/v1/health/` | Public | Checks database and cache connectivity (`{"status": "ok", "database": "ok", "cache": "ok"}`) |
+| `GET` | `/api/v1/health/` | Public | Checks database and cache connectivity (`{"status": "ok", "checks": {"database": true, "cache": true}}`) |
+| `GET` | `/api/v1/health/proxy/` | Admin (`IsAdminUser`) | Live on-host proxy-chain diagnostic (`X-Forwarded-For` / `X-Real-IP` / CDN) verifying real client IP sync across `get_client_ip` and DRF `Throttle` (`verdict.ready_for_traffic`) |
 | `GET` | `/api/v1/search/` | Public | Global full-text search; query params: `q`, `locale` (`fa`/`en`), `limit` (max 50) |
 | `GET` | `/api/v1/seo/settings/` | Public | Global SEO metadata, organization schema fields, social links, Search Console verification code, and `noindex_paths` |
 | `GET` | `/api/v1/seo/sitemap/` | Public | All published, indexable URLs across pages, services, projects, blog, and academy |
@@ -421,7 +422,8 @@ Register three cron jobs in cPanel → **Cron Jobs**:
 
 ### 5.7. Step 6: Post-Deployment Verification Checklist
 
-- [ ] `https://emmett.ir/api/v1/health/` returns `200 OK` with `{"status": "ok"}`.
+- [ ] `https://emmett.ir/api/v1/health/` returns `200 OK` with `{"status": "ok", "checks": {"database": true, "cache": true}}`.
+- [ ] While signed in to `/admin/`, `https://emmett.ir/api/v1/health/proxy/` returns `200 OK` with `verdict.ready_for_traffic: true` (verifying `X-Forwarded-For` traverses Apache and Next.js and `resolved_client_ip` is the real client IP, not `127.0.0.1`).
 - [ ] `python manage.py check --deploy` reports no errors and no security warnings (`W007`–`W013`).
 - [ ] Signing in at `https://emmett.ir/admin/` redirects staff to 2FA enrolment (`/admin/2fa/setup`), and the recovery codes have been stored somewhere safe.
 - [ ] In the admin's `Site settings`, the Google Search Console verification code is filled in and `https://emmett.ir/sitemap.xml` has been submitted to Search Console.
@@ -575,7 +577,7 @@ Unit-test coverage is not the only protective layer. For those same 61 unmeasure
 
 - **60 E2E tests across 9 files** on **real Chromium** in three projects (`fa` / `fa-locale` / `en`). Most of these exercise exactly the `src/app/**` pages and the `ui-port` shell in a browser — the places where unit coverage is 6% and 21%.
 - **Lighthouse CI with a minimum score of `0.95`** across all four axes on **6 URLs** (`.lighthouserc.json`: `/`, `/en`, `/services`, `/blog`, `/projects/pentestor` and `/products/crm`), active on `main` and `workflow_dispatch`.
-- **A two-way raw-colour ratchet** (Package 2, `hardcoded-colors.test.ts`): the ceiling is now **177 literals across 16 files** — Package 6 lowered it from 360 across 20 files — with five explicit reasoned exceptions (four of them have no CSS cascade; the fifth, `neural-network-3d.tsx`, feeds colors to Three.js/WebGL as numbers. An exception does not raise the ceiling, only `scannedTotal`). The breakdown of the 177 remaining literals (151 with no equal-value token + 26 that have one but cannot be migrated) is in the Package 6 CHANGELOG entry.
+- **A two-way raw-colour ratchet** (Package 2, `hardcoded-colors.test.ts`): the ceiling is now **177 literals across 16 files** — Package 6 lowered it from 360 across 20 files — with four explicit reasoned exceptions (three of them have no CSS cascade: `global-error.tsx`, `not-found.tsx`, and shared `brand-colors.ts` serving the OG image and 410 page; the fourth, `neural-network-3d.tsx`, feeds colors to Three.js/WebGL as numbers; `scannedTotal = 200 = 177 + 23`). The breakdown of the 177 remaining literals (151 with no equal-value token + 26 that have one but cannot be migrated) is in the Package 6 CHANGELOG entry.
 - Strict `mypy` and `ruff` across the codebase (subsection 6.3.6).
 
 The risk is therefore not "untested code"; it is **"code whose unit tests never execute at function/branch level"**. That distinction matters and must stay precise in any risk assessment.

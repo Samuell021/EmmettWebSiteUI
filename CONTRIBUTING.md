@@ -129,10 +129,10 @@ backend/.venv/bin/pre-commit run --all-files
 
 این قاعده توسط `frontend/src/app/hardcoded-colors.test.ts` **اجرا** می‌شود: شمار لیترال‌های رنگ هر فایل در `frontend/src/app/hardcoded-colors.baseline.ts` قفل شده و فقط مجاز است **کم** شود (یک جفت‌بند دوطرفه). افزودن لیترال تازه، یا کم‌کردن لیترال بدون پایین‌آوردن عدد در فهرست پایه، تست را قرمز می‌کند. گارد سه فرم را می‌شمارد: هگز (`#…`)، `rgba(`، و عددِ هگز (`0x…`، فرمی که Three.js/WebGL برای رنگ به کار می‌برد).
 
-**پنج فایل استثنا دلیل مکتوب دارند** و دو دسته‌اند:
+**چهار فایل استثنا دلیل مکتوب دارند** و دو دسته‌اند:
 
-- چهار تای آن‌ها **آبشارِ CSS در دسترس ندارند**: تصویر Open Graph (satori)، `global-error.tsx`، `src/app/not-found.tsx` و سند HTML مستقلِ انتقال. سه تای آخر بیرونِ `[locale]/layout.tsx` رندر می‌شوند — تنها جایی که `globals.css` را import می‌کند — پس متغیرهای CSS در آن سند تعریف نشده‌اند.
-- پنجمی (`neural-network-3d.tsx`) آبشار دارد ولی **ورودیِ رنگش عدد است**: رنگ را به Three.js/WebGL می‌دهد، جایی که `var()` به‌جای خودِ مقدار کار نمی‌کند.
+- سه تای آن‌ها **آبشارِ CSS در دسترس ندارند**: `global-error.tsx`، `src/app/not-found.tsx` (هر دو بیرونِ `[locale]/layout.tsx` رندر می‌شوند، تنها جایی که `globals.css` را import می‌کند) و ماژولِ مشترکِ `src/lib/brand-colors.ts` (منبعِ یکتای پالتِ زمردی برای تصویر Open Graph در satori و سند HTML مستقلِ `410 Gone` در `redirects.ts`).
+- چهارمی (`neural-network-3d.tsx`) آبشار دارد ولی **ورودیِ رنگش عدد است**: رنگ را به Three.js/WebGL می‌دهد، جایی که `var()` به‌جای خودِ مقدار کار نمی‌کند.
 
 افزودن استثنای تازه به دلیل فنی مکتوب و تأیید بازبین نیاز دارد. دو قاعده‌ای که هنگامِ تصمیم بینِ `RATCHET` و `EXCEPTIONS` لازم است:
 
@@ -205,10 +205,10 @@ Colors in frontend code **must** come from design tokens, never from raw literal
 
 Enforced by `frontend/src/app/hardcoded-colors.test.ts`: the raw-color count of every file is locked in `frontend/src/app/hardcoded-colors.baseline.ts` and may only go **down** (a two-way ratchet). Adding a literal — or removing one without lowering the recorded number — fails the test. The guard counts three forms: hex (`#…`), `rgba(`, and numeric hex (`0x…`, the form Three.js/WebGL takes colors in).
 
-**Five files are documented exceptions**, in two groups:
+**Four files are documented exceptions**, in two groups:
 
-- Four of them **have no CSS cascade available**: the Open Graph image (satori), `global-error.tsx`, `src/app/not-found.tsx`, and the standalone redirect HTML document. The last three render outside `[locale]/layout.tsx` — the only place that imports `globals.css` — so CSS custom properties are not defined in those documents.
-- The fifth (`neural-network-3d.tsx`) does have a cascade but its **color input is a number**: it feeds Three.js/WebGL, where `var()` cannot stand in for the value itself.
+- Three of them **have no CSS cascade available**: `global-error.tsx`, `src/app/not-found.tsx` (both render outside `[locale]/layout.tsx`, the only place that imports `globals.css`), and shared `src/lib/brand-colors.ts` (the single source of truth for the emerald brand palette consumed by the satori Open Graph image and the standalone `410 Gone` HTML document in `redirects.ts`).
+- The fourth (`neural-network-3d.tsx`) does have a cascade but its **color input is a number**: it feeds Three.js/WebGL, where `var()` cannot stand in for the value itself.
 
 A new exception requires a written technical reason and reviewer approval. Two rules matter when choosing between `RATCHET` and `EXCEPTIONS`:
 

@@ -15,9 +15,10 @@ export DJANGO_SETTINGS_MODULE=config.settings.dev
 python manage.py migrate && python manage.py seed_demo_data
 python manage.py runserver 0.0.0.0:8000
 
-# ۲) در ترمینال دیگر، فرانت‌اند:
+# ۲) در ترمینال دیگر، فرانت‌اند (نسخهٔ پین‌شدهٔ Node: 22.22.3 در ../.nvmrc و package.json#engines):
+nvm use   # اختیاری؛ هم‌ترازی با نسخهٔ پین‌شدهٔ CI (نگهبانی‌شده با src/app/node-version.test.ts)
 cd frontend
-npm install
+npm ci
 npm run dev
 ```
 

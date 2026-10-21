@@ -261,6 +261,7 @@ PUBLIC_SITE_URL=https://emmett.ir bash scripts/deploy_frontend.sh --install-deps
 | `DJANGO_FRAME_ANCESTORS` | `'none'` | بله | جلوگیری از بارگذاری سایت درون `<iframe>` بیگانه (ضد Clickjacking) |
 | `ADMIN_2FA_REQUIRED` | `True` | بله | اجبار احراز هویت دو مرحله‌ای TOTP برای تمام کارکنان ادمین (`W009`) |
 | `LOGIN_LOCKOUT_ENABLED` | `True` | بله | قفل موقت ورود پس از ۵ تلاش ناموفق در ۱۵ دقیقه (`429 Too Many Requests`) |
+| `DJANGO_NUM_PROXIES` | `1` | بله | تعداد پراکسی‌های مطمئن جلوتر از اپلیکیشن (`1` = Apache/Passenger با `RequestHeader set`؛ `2` = پشت CDN بدون `mod_remoteip`) |
 | `BACKUP_DIR` | `/home/<user>/EmmettWebSite/backend/backups` | بله | مسیر نوشتنی خارج از `public_html` برای ذخیرهٔ بکاپ‌ها (`W011`/`W012`) |
 | `BACKUP_RETENTION` | `7` | خیر | تعداد نسخه‌های بکاپ نگهداری‌شده پیش از حذف خودکار نسخه‌های قدیمی‌تر |
 | `KAVENEGAR_API_KEY` | `<کلید-API-کاوه‌نگار>` | اختیاری | در صورت خالی بودن، بدون خطا به لاگ کنسول و ایمیل fallback می‌کند |
@@ -320,7 +321,8 @@ bash scripts/restore_backup.sh --media backend/backups/media-20261006T033000Z.ta
 
 ### ۷.۲. چک‌لیست پس از انتشار (Post-Launch Verification)
 
-- [ ] **سلامت بک‌اند و کش:** باز کردن `https://emmett.ir/api/v1/health/` پاسخ `200 OK` با `{"status": "ok", "database": "ok", "cache": "ok"}` برمی‌گرداند.
+- [ ] **سلامت بک‌اند و کش:** باز کردن `https://emmett.ir/api/v1/health/` پاسخ `200 OK` با `{"status": "ok", "checks": {"database": true, "cache": true}}` برمی‌گرداند.
+- [ ] **تشخیص زندهٔ پراکسی و Throttle روی هاست واقعی (گام الزامی پیش از ترافیک):** پس از ورود به `/admin/`، باز کردن `https://emmett.ir/api/v1/health/proxy/` پاسخ `200 OK` با `"ready_for_traffic": true` و `"subsystems_in_sync": true` برمی‌گرداند و `resolved_client_ip` برابر IP واقعی مرورگر شماست (نه `127.0.0.1` و نه IP لبهٔ CDN).
 - [ ] **رندر دوزبانه و RTL/LTR:**
   - صفحهٔ `https://emmett.ir/` با زبان فارسی (`lang="fa" dir="rtl"`) و تاریخ شمسی/ارقام فارسی باز می‌شود.
   - صفحهٔ `https://emmett.ir/en` با زبان انگلیسی (`lang="en" dir="ltr"`) و تاریخ میلادی/ارقام لاتین باز می‌شود.
@@ -341,3 +343,4 @@ bash scripts/restore_backup.sh --media backend/backups/media-20261006T033000Z.ta
 | خطای `403 CSRF verification failed` در فرم‌ها | عدم تطابق `DJANGO_CSRF_TRUSTED_ORIGINS` یا `PUBLIC_SITE_URL` با دامنهٔ HTTPS | قرار دادن `https://emmett.ir,https://www.emmett.ir` در `DJANGO_CSRF_TRUSTED_ORIGINS` و ری‌استارت Passenger |
 | خطای `MySQL server has gone away` پس از مدتی بیکاری | بسته شدن اتصال توسط MySQL هاست اشتراکی | در `config/settings/production.py` گزینهٔ `CONN_HEALTH_CHECKS = True` فعال شده است؛ مطمئن شوید `DJANGO_SETTINGS_MODULE=config.settings.production` است |
 | اعمال نشدن تغییرات کد پس از `git pull` | کش شدن پردازش پایتون/نود در Phusion Passenger | اجرای `touch ~/EmmettWebSite/backend/tmp/restart.txt` و `touch ~/EmmettWebSite/frontend/tmp/restart.txt` |
+| خطای `429 Too Many Requests` سراسری برای همهٔ کاربران یا `ready_for_traffic: false` در `/api/v1/health/proxy/` | کپی نشدن دستورات `RequestHeader set X-Forwarded-For` در `public_html/.htaccess` یا قرارگیری پشت CDN بدون تنظیم `DJANGO_NUM_PROXIES` | کپی بخش `<IfModule mod_headers.c>` از `backend/deploy/public_html.htaccess.example` (یا در صورت وجود CDN بدون `mod_remoteip`، تغییر `set` به `append` و تنظیم `DJANGO_NUM_PROXIES=2` در `.env`) و بازبینی دوبارهٔ `/api/v1/health/proxy/` |

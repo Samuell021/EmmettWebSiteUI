@@ -213,7 +213,8 @@
 
 | متد | مسیر کامل | دسترسی | توضیح و پارامترها |
 |---|---|---|---|
-| `GET` | `/api/v1/health/` | عمومی | بررسی سلامت دیتابیس و کش (`{"status": "ok", "database": "ok", "cache": "ok"}`) |
+| `GET` | `/api/v1/health/` | عمومی | بررسی سلامت دیتابیس و کش (`{"status": "ok", "checks": {"database": true, "cache": true}}`) |
+| `GET` | `/api/v1/health/proxy/` | ادمین (`IsAdminUser`) | تشخیص زندهٔ زنجیرهٔ هدرهای پراکسی (`X-Forwarded-For` / `X-Real-IP` / CDN) و هم‌راستایی IP واقعی کلاینت بین `get_client_ip` و `Throttle` (`verdict.ready_for_traffic`) |
 | `GET` | `/api/v1/search/` | عمومی | جست‌وجوی سراسری تمام‌متن؛ پارامترها: `q` (عبارت)، `locale` (`fa`/`en`)، `limit` (حداکثر ۵۰) |
 | `GET` | `/api/v1/seo/settings/` | عمومی | تنظیمات سراسری سئو، اطلاعات سازمان، شبکه‌های اجتماعی، کد تأیید Search Console و مسیرهای `noindex` |
 | `GET` | `/api/v1/seo/sitemap/` | عمومی | فهرست کامل URLهای عمومی منتشرشده برای ساخت `sitemap.xml` |
@@ -507,7 +508,8 @@ cp ~/EmmettWebSite/backend/deploy/passenger_wsgi.py.example ~/EmmettWebSite/back
 
 ### ۵.۷. گام ۶: چک‌لیست تأیید پس از استقرار (Post-Deployment Checklist)
 
-- [ ] فراخوانی `https://emmett.ir/api/v1/health/` کد `200 OK` و `{"status": "ok"}` برمی‌گرداند.
+- [ ] فراخوانی `https://emmett.ir/api/v1/health/` کد `200 OK` و `{"status": "ok", "checks": {"database": true, "cache": true}}` برمی‌گرداند.
+- [ ] پس از ورود به `/admin/`، فراخوانی تشخیصی `https://emmett.ir/api/v1/health/proxy/` کد `200 OK` و `verdict.ready_for_traffic: true` برمی‌گرداند (تأیید اینکه `X-Forwarded-For` از Apache و Next.js عبور کرده و `resolved_client_ip` آدرس واقعی کاربر است، نه `127.0.0.1`).
 - [ ] خروجی `python manage.py check --deploy` هیچ خطا یا هشدار امنیتی (`W007`–`W013`) ندارد.
 - [ ] ورود به `https://emmett.ir/admin/` کاربر staff را به راه‌اندازی 2FA (`/admin/2fa/setup`) هدایت می‌کند و کدهای بازیابی در جای امن ذخیره شده‌اند.
 - [ ] در `Site settings` پنل ادمین، کد تأیید Google Search Console وارد شده و `https://emmett.ir/sitemap.xml` در Search Console ثبت شده است.
@@ -688,7 +690,7 @@ backend/.venv/bin/pre-commit run --all-files
 
 - **۶۰ تست E2E در ۹ فایل** روی **Chromium واقعی** در سه پروژهٔ `fa` / `fa-locale` / `en`. بخش عمدهٔ این تست‌ها دقیقاً صفحات `src/app/**` و پوستهٔ `ui-port` را در مرورگر می‌آزمایند — همان‌جایی که پوشش واحد ۶٪ و ۲۱٪ است.
 - **Lighthouse CI با حداقل امتیاز `۰٫۹۵`** در هر چهار محور روی **۶ نشانی** (`.lighthouserc.json`: `/`، `/en`، `/services`، `/blog`، `/projects/pentestor` و `/products/crm`)، فعال روی `main` و `workflow_dispatch`.
-- **گارد دو‌طرفهٔ رنگ خام** (بستهٔ ۲، `hardcoded-colors.test.ts`): سقفِ کنونی **۱۷۷ لیترال در ۱۶ فایل** — بستهٔ ۶ آن را از ۳۶۰ در ۲۰ فایل پایین آورد — به‌همراه پنج استثنای صریح و دلیل‌دار (چهار تای آن‌ها آبشارِ CSS ندارند، پنجمی `neural-network-3d.tsx` رنگ را به‌شکل عدد به Three.js/WebGL می‌دهد؛ استثنا سقف را بالا نمی‌برد، فقط `scannedTotal` را). تفکیکِ ۱۷۷ لیترالِ باقی‌مانده (۱۵۱ بدونِ توکنِ هم‌مقدار + ۲۶ دارای توکن ولی مهاجرت‌ناپذیر) در CHANGELOG بستهٔ ۶ آمده است.
+- **گارد دو‌طرفهٔ رنگ خام** (بستهٔ ۲، `hardcoded-colors.test.ts`): سقفِ کنونی **۱۷۷ لیترال در ۱۶ فایل** — بستهٔ ۶ آن را از ۳۶۰ در ۲۰ فایل پایین آورد — به‌همراه چهار استثنای صریح و دلیل‌دار (سه تای آن‌ها آبشارِ CSS ندارند: `global-error.tsx`، `not-found.tsx` و ماژولِ مشترکِ `brand-colors.ts` برای تصویر OG و صفحهٔ ۴۱۰؛ چهارمی `neural-network-3d.tsx` رنگ را به‌شکل عدد به Three.js/WebGL می‌دهد؛ `scannedTotal = ۲۰۰ = ۱۷۷ + ۲۳`). تفکیکِ ۱۷۷ لیترالِ باقی‌مانده (۱۵۱ بدونِ توکنِ هم‌مقدار + ۲۶ دارای توکن ولی مهاجرت‌ناپذیر) در CHANGELOG بستهٔ ۶ آمده است.
 - `mypy` سخت‌گیرانه و `ruff` روی کل کد (بند ۶.۴.۶).
 
 پس ریسک، «کدِ آزموده‌نشده» نیست؛ ریسک، **«کدی که تستِ واحدش در سطحِ تابع/شاخه اجرا نمی‌شود»** است. این تفاوت مهم است و باید در ارزیابی ریسک دقیق بماند.
