@@ -109,7 +109,8 @@ export function NeuralNetwork3D() {
       new THREE.BufferAttribute(new Float32Array(blueLinePositions), 3),
     );
     const blueLineMat = new THREE.LineBasicMaterial({
-      color: 0x4c9be8,
+      // Canonical "security blue" — keep this spelling in sync with academy-section/hero.
+      color: 0x4d9be8,
       transparent: true,
       opacity: 0.08,
     });
