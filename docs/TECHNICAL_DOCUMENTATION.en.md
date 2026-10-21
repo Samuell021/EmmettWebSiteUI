@@ -2,14 +2,14 @@
 
 > **Document Type:** Unified Single-File Technical Reference (English)  
 > **Persian Counterpart:** [`docs/TECHNICAL_DOCUMENTATION.fa.md`](./TECHNICAL_DOCUMENTATION.fa.md)  
-> **Scope:** System Architecture, Data Model, Summary of All 35 ADRs, Complete REST API Reference (`/api/v1/`), SaaS Admin Panel Guide, Step-by-Step cPanel Shared Hosting Deployment Guide, and Quality Gates / CI-CD Pipeline.
+> **Scope:** System Architecture, Data Model, Summary of All 40 ADRs, Complete REST API Reference (`/api/v1/`), SaaS Admin Panel Guide, Step-by-Step cPanel Shared Hosting Deployment Guide, and Quality Gates / CI-CD Pipeline.
 
 ---
 
 ## Table of Contents
 
 1. [Section 1: System Architecture & Data Model](#section-1-system-architecture--data-model)
-2. [Section 2: Architecture Decision Records Index (ADR-0001 to ADR-0035)](#section-2-architecture-decision-records-index-adr-0001-to-adr-0035)
+2. [Section 2: Architecture Decision Records Index (ADR-0001 to ADR-0040)](#section-2-architecture-decision-records-index-adr-0001-to-adr-0040)
 3. [Section 3: Complete REST API Documentation (`/api/v1/`)](#section-3-complete-rest-api-documentation-apiv1)
 4. [Section 4: SaaS Admin Panel Guide](#section-4-saas-admin-panel-guide)
 5. [Section 5: Step-by-Step cPanel Shared Hosting Deployment Guide](#section-5-step-by-step-cpanel-shared-hosting-deployment-guide)
@@ -51,7 +51,7 @@ The Emmett corporate platform is engineered as a **Monorepo** combining a server
 | `taxonomy` | Hierarchical categories and flat tags shared across content apps | `Category`, `Tag` |
 | `company` | Team members and client testimonials (About page) | `TeamMember`, `Testimonial` |
 | `services` | Software engineering service offerings | `Service` |
-| `portfolio` | Portfolio projects, flagship products (`is_product=True` such as Pentestor and CRM), and 7-section case studies | `Project`, `CaseStudy` |
+| `portfolio` | Portfolio projects, flagship products (`is_product=True`) and 7-section case studies. In the demo data only **`pentestor`** is a product; CRM has no database record at all and `/products/crm` is a live "coming soon" page (`ADR-0040`) | `Project`, `CaseStudy` |
 | `academy` | Instructors, courses, ordered lessons, and student enrollments | `Instructor`, `Course`, `Lesson`, `Enrollment` |
 | `blog` | Library articles, moderated threaded comments, and RSS feed | `BlogPost`, `Comment` |
 | `leads` | Contact submissions, 6-stage CRM sales pipeline (`Lead`), newsletter subscriptions, and Kavenegar SMS adapter | `Contact`, `Lead`, `Newsletter` |
@@ -80,14 +80,14 @@ The Emmett corporate platform is engineered as a **Monorepo** combining a server
 
 ---
 
-## Section 2: Architecture Decision Records Index (ADR-0001 to ADR-0035)
+## Section 2: Architecture Decision Records Index (ADR-0001 to ADR-0040)
 
-All 35 ADRs are stored in `docs/adr/`:
+All 40 ADRs are stored in `docs/adr/`. **The complete, authoritative index — including known dead references and amendment notes — is [`adr/README.md`](./adr/README.md).** The table below summarises each *decision*; it is not the existence list:
 
 | ADR | Title | Summary of Decision |
 |---|---|---|
 | **ADR-0001** | Overall System Architecture | Monorepo with Next.js (SSR) in `frontend/` and Django/DRF in `backend/` targeting cPanel |
-| **ADR-0002** | Django App Boundaries | Modular Monolith divided into 11 domain apps + `api` composition layer |
+| **ADR-0002** | Django App Boundaries | Modular Monolith of 10 domain apps plus the `api` composition layer (11 apps in total; `api` has no models) |
 | **ADR-0003** | Three-Tier i18n Strategy | `gettext` + `django-modeltranslation` + `core.Translation` key-value store |
 | **ADR-0004** | Backend Date & Number Localization | UTC storage; Jalali (`jdatetime`) + Persian numerals in presentation layer |
 | **ADR-0005** | Media Storage Strategy | Local disk storage with UUID filenames, extension/size/magic-byte validation & `.htaccess` script execution block |
@@ -122,6 +122,10 @@ All 35 ADRs are stored in `docs/adr/`:
 | **ADR-0034** | CI/CD Quality Gates & Pre-commit | Unified Ruff + Black + mypy + ESLint + Prettier, ≥ 85% coverage gates, Pre-commit hooks, and GitHub Actions |
 | **ADR-0035** | cPanel Shared Hosting Deployment | Same-origin single-domain Passenger WSGI + Passenger Node.js topology with MySQL 8 and Cron jobs |
 | **ADR-0036** | Deployment Readiness & Runbooks (Phase 9) | 100% pinned `requirements.txt`, finalized `production.py`, `deploy_backend.sh`/`deploy_frontend.sh`/`restore_backup.sh` scripts, and `DEPLOYMENT.md` |
+| **ADR-0037** | Phase 8 UI Port — E2E, Width Matrix & Lighthouse | CI moved to the repository root, two port-specific E2E suites (`ui-port.spec.ts` and `responsive.spec.ts` across 8 breakpoint widths), and real Lighthouse CI on six URLs gated at `0.95` on all four axes |
+| **ADR-0038** | CI Workflow at Repo Root & CI Test Settings | One workflow with six jobs and flat paths at `.github/workflows/ci.yml`, plus `.github/ci/ci_test_settings.py`, which overrides **only** the `staticfiles` key to plain `StaticFilesStorage` for tests |
+| **ADR-0039** | Design Token Standard & Raw-Colour Ratchet | Tokens become mandatory over raw literals: two existing tokens wired up, four category palette tokens and two muted-text tokens added, plus the two-way `hardcoded-colors.test.ts` regression guard (amendment note: `adr/README.md`) |
+| **ADR-0040** | Product Detail Canonical Is `/projects/{slug}` | The canonical product-detail path is `/projects/{slug}`, not `/products/{slug}`; a module-level `projectDetailPath()` feeds canonical, breadcrumb and JSON-LD from one source, and `/products/pentestor` now 308-redirects to it |
 
 ---
 
@@ -277,7 +281,7 @@ The admin index page renders a cached operational dashboard (`ADMIN_DASHBOARD_CA
 
 - **AI Governance (`ai_engine`):** Catalog keys and PromptTemplate `(feature, locale, version)` keys become immutable after creation. Use **Archive superseded versions** to retire older prompts, **Approve/Reject selected summaries** on `AIContentArtifact`, and **Revoke public share links** on `AISuggestion`.
 - **CSV / TSV / JSON Import & Export (`ADR-0029`):**
-  - Every model has an explicit `ModelResource` with natural import keys (`slug`, `(course, order)`, `(namespace, key, locale)`), transactional two-step import preview, and automatic CSV formula injection escaping (`=`, `+`, `-`, `@`).
+  - All 35 registered models across the 10 domain apps have an explicit `Resource` class in `apps/<app>/resources.py` — 36 `*Resource` classes in total: 35 model-specific plus the shared `EmmettResource` base at `apps/core/resources.py:60`. Each has natural import keys (`slug`, `(course, order)`, `(namespace, key, locale)`), transactional two-step import preview, and automatic CSV formula injection escaping (`=`, `+`, `-`, `@`).
   - Every data export is logged in `core.AuditLog` (`<app>.<Model>.exported`).
 
 ### 4.6. Admin Two-Factor Authentication (2FA) & System Checks
@@ -522,7 +526,7 @@ The only non-coverage gap: `backend/scripts/` (524 lines) is not type-checked, b
 Unit-test coverage is not the only protective layer. For those same 61 unmeasured files, CI runs:
 
 - **60 E2E tests across 9 files** on **real Chromium** in three projects (`fa` / `fa-locale` / `en`). Most of these exercise exactly the `src/app/**` pages and the `ui-port` shell in a browser — the places where unit coverage is 6% and 21%.
-- **Lighthouse CI with a minimum score of `0.95`** across all four axes on 5 URLs (`.lighthouserc.json`), active on `main` and `workflow_dispatch`.
+- **Lighthouse CI with a minimum score of `0.95`** across all four axes on **6 URLs** (`.lighthouserc.json`: `/`, `/en`, `/services`, `/blog`, `/projects/pentestor` and `/products/crm`), active on `main` and `workflow_dispatch`.
 - **A two-way raw-colour ratchet** (Package 2, `hardcoded-colors.test.ts`): the ceiling is now **177 literals across 16 files** — Package 6 lowered it from 360 across 20 files — with five explicit reasoned exceptions (four of them have no CSS cascade; the fifth, `neural-network-3d.tsx`, feeds colors to Three.js/WebGL as numbers. An exception does not raise the ceiling, only `scannedTotal`). The breakdown of the 177 remaining literals (151 with no equal-value token + 26 that have one but cannot be migrated) is in the Package 6 CHANGELOG entry.
 - Strict `mypy` and `ruff` across the codebase (subsection 6.3.6).
 
