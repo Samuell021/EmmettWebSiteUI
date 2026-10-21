@@ -1,11 +1,12 @@
 import type { Metadata } from "next";
+import { headers } from "next/headers";
 import Link from "next/link";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
 import { Badge } from "@/components/ui/badge";
 import { SearchBox } from "@/components/organisms/search-box";
 import type { AppLocale } from "@/i18n/routing";
-import { searchSite } from "@/lib/api/server";
+import { extractForwardedClientIp, searchSite } from "@/lib/api/server";
 import { getSeoSettingsOrDefaults } from "@/lib/api/seo";
 import { buildPageMetadata } from "@/lib/seo/metadata";
 import { getPublicSiteUrl, toAppLocale } from "@/lib/seo/site";
@@ -43,7 +44,8 @@ export default async function SearchPage({
   const t = await getTranslations("search");
 
   const query = (q ?? "").trim();
-  const data = query ? await searchSite(locale, query) : null;
+  const clientIp = query ? extractForwardedClientIp(await headers()) : undefined;
+  const data = query ? await searchSite(locale, query, clientIp) : null;
 
   return (
     <div className={frameWidth.narrow}>

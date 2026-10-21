@@ -31,6 +31,7 @@ import {
   toAbsoluteMediaUrl,
 } from "./seo";
 import {
+  extractForwardedClientIp,
   getBlogPost,
   getBlogPosts,
   getCatalogs,
@@ -199,9 +200,39 @@ describe("lib/api/server & lib/api/seo", () => {
     expect(await getTestimonials("fa", true)).toEqual({ results: [] });
     expect(await getTestimonials("fa")).toEqual({ results: [] });
     expect(await searchSite("fa", "django")).toEqual({ results: [] });
+    expect(await searchSite("fa", "django", "203.0.113.5")).toEqual({ results: [] });
+    expect(fetchMock).toHaveBeenLastCalledWith(
+      expect.stringContaining("/search/?q=django"),
+      expect.objectContaining({
+        headers: {
+          "Accept-Language": "fa",
+          "X-Forwarded-For": "203.0.113.5",
+        },
+      }),
+    );
     expect(await getCatalogs("fa", ["job_role"])).toEqual({ results: [] });
     expect(await getCatalogs("fa")).toEqual({ results: [] });
     expect(await getSharedAISuggestion("fa", "tok-123")).toEqual({ results: [] });
+    expect(await getSharedAISuggestion("fa", "tok-123", "203.0.113.9")).toEqual({ results: [] });
+    expect(fetchMock).toHaveBeenLastCalledWith(
+      expect.stringContaining("/ai/results/tok-123/"),
+      expect.objectContaining({
+        headers: {
+          "Accept-Language": "fa",
+          "X-Forwarded-For": "203.0.113.9",
+        },
+      }),
+    );
+
+    expect(extractForwardedClientIp(new Headers({ "x-forwarded-for": " 203.0.113.5 " }))).toBe(
+      "203.0.113.5",
+    );
+    expect(
+      extractForwardedClientIp(
+        new Headers({ "x-forwarded-for": "   ", "x-real-ip": " 203.0.113.7 " }),
+      ),
+    ).toBe("203.0.113.7");
+    expect(extractForwardedClientIp(new Headers())).toBeUndefined();
 
     fetchMock.mockResolvedValueOnce(new Response("Not found", { status: 404 }));
     expect(await getService("fa", "missing")).toBeNull();

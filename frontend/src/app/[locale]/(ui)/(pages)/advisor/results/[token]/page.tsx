@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { headers } from "next/headers";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
 
@@ -8,7 +9,7 @@ import { Link } from "@/i18n/navigation";
 import { Badge } from "@/components/ui/badge";
 import type { AppLocale } from "@/i18n/routing";
 import { formatNumber } from "@/lib/format/number";
-import { getCatalogs, getSharedAISuggestion } from "@/lib/api/server";
+import { extractForwardedClientIp, getCatalogs, getSharedAISuggestion } from "@/lib/api/server";
 import {
   PageEyebrow,
   frameWidth,
@@ -39,8 +40,9 @@ export default async function SharedAdvisorResultPage({ params }: { params: Prom
   const { locale, token } = await params;
   setRequestLocale(locale as AppLocale);
   const t = await getTranslations("ai");
+  const clientIp = extractForwardedClientIp(await headers());
   const [suggestion, catalogs] = await Promise.all([
-    getSharedAISuggestion(locale, token),
+    getSharedAISuggestion(locale, token, clientIp),
     getCatalogs(locale, ["project_type", "budget_range", "timeline"]),
   ]);
   if (!suggestion) notFound();

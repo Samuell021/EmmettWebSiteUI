@@ -1,5 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 
+import { extractForwardedClientIp } from "@/lib/api/server";
+
 /**
  * پراکسی سمت سرور برای ``/api/*`` — جایگزین ``rewrites()`` در next.config.ts
  * (ADR مرتبط: تصمیم معماری frontend↔backend در فاز ۴).
@@ -32,6 +34,10 @@ async function proxy(request: NextRequest): Promise<Response> {
       headers.set(key, value);
     }
   });
+  const forwardedIp = extractForwardedClientIp(request.headers);
+  if (forwardedIp) {
+    headers.set("x-forwarded-for", forwardedIp);
+  }
 
   const hasBody = !["GET", "HEAD"].includes(request.method);
 
