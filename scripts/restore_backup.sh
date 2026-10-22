@@ -6,9 +6,9 @@
 #   ۱) مشاهدهٔ فهرست بکاپ‌های موجود:
 #      bash scripts/restore_backup.sh --list
 #   ۲) بازیابی دیتابیس (SQLite / MySQL SQL / JSON dumpdata):
-#      bash scripts/restore_backup.sh --db backend/backups/db-20261006T033000Z.sql.gz --yes
+#      bash scripts/restore_backup.sh --db backend/backups/db-20261022-033000.sql.gz --yes
 #   ۳) بازیابی آرشیو فایل‌های آپلودشده (Media):
-#      bash scripts/restore_backup.sh --media backend/backups/media-20261006T033000Z.tar.gz --yes
+#      bash scripts/restore_backup.sh --media backend/backups/media-20261022-033000.tar.gz --yes
 # =============================================================================
 
 set -Eeuo pipefail

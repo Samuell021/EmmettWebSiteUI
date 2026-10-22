@@ -4,8 +4,6 @@ import { NextResponse, type NextRequest } from "next/server";
 
 import { buildMediaResponseHeaders, resolveSafeMediaFile } from "@/lib/media";
 
-const INTERNAL_API_URL = process.env.INTERNAL_API_URL ?? "http://127.0.0.1:8000";
-
 /**
  * سرو امن فایل‌های ``/media/*`` برای بهینه‌ساز تصویر داخلی Next.js 16 (``/_next/image``)
  * و محیط‌های بدون وب‌سرور جلویی:
@@ -28,9 +26,13 @@ export async function GET(
     });
   }
 
+  const internalBase = (process.env.INTERNAL_API_URL ?? "http://127.0.0.1:8000").replace(
+    /\/+$/,
+    "",
+  );
   const encodedPath = segments.map((part) => encodeURIComponent(part)).join("/");
   try {
-    const upstream = await fetch(`${INTERNAL_API_URL}/media/${encodedPath}`, {
+    const upstream = await fetch(`${internalBase}/media/${encodedPath}`, {
       headers: { "X-Forwarded-Proto": "https" },
       cache: "no-store",
     });

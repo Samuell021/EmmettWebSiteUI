@@ -64,6 +64,15 @@ describe("/api/[...path] proxy route handler", () => {
     const [, init] = fetchMock.mock.calls[0] as [string, RequestInit];
     const forwardedHeaders = init.headers as Headers;
     expect(forwardedHeaders.get("x-forwarded-for")).toBe("203.0.113.77");
+    expect(forwardedHeaders.get("x-forwarded-proto")).toBe("https");
     expect(res.headers.getSetCookie()).toHaveLength(2);
+  });
+
+  it("returns clean 502 JSON without throwing when upstream backend is restarting", async () => {
+    fetchMock.mockRejectedValueOnce(new Error("connect ECONNREFUSED"));
+    const req = new NextRequest("http://emmett.ir/api/v1/health/live/");
+    const res = await GET(req);
+    expect(res.status).toBe(502);
+    expect(await res.json()).toEqual({ detail: "Upstream backend unavailable." });
   });
 });
