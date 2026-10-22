@@ -167,13 +167,13 @@ STATIC_ROOT = Path(env("DJANGO_STATIC_ROOT", default=str(BASE_DIR / "staticfiles
 # (فاز ۶، ADR-0027). در production با ``collectstatic`` در ``STATIC_ROOT``
 # جمع می‌شوند و با WhiteNoise یا مستقیم توسط Apache سرو می‌شوند.
 STATICFILES_DIRS = [BASE_DIR / "static"]
-STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+STATICFILES_STORAGE = "apps.core.storage.NonStrictCompressedManifestStaticFilesStorage"
 STORAGES = {
     "default": {
         "BACKEND": "django.core.files.storage.FileSystemStorage",
     },
     "staticfiles": {
-        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+        "BACKEND": STATICFILES_STORAGE,
     },
 }
 
@@ -606,18 +606,25 @@ LOGGING = {
             "formatter": "plain_console",
         },
     },
+    "root": {
+        "handlers": ["console"],
+        "level": "DEBUG" if DEBUG else "INFO",
+    },
     "loggers": {
         "django": {
-            "handlers": ["console"],
+            "handlers": [],
             "level": env("DJANGO_LOG_LEVEL", default="INFO"),
+            "propagate": True,
         },
         "django_structlog": {
-            "handlers": ["console"],
+            "handlers": [],
             "level": "INFO",
+            "propagate": True,
         },
         "apps": {
-            "handlers": ["console"],
+            "handlers": [],
             "level": "DEBUG" if DEBUG else "INFO",
+            "propagate": True,
         },
     },
 }
