@@ -271,8 +271,9 @@ def media_upload_path(instance: Media, filename: str) -> str:
 
     ext = os.path.splitext(filename)[1].lower()
     base_name = slugify(os.path.splitext(filename)[0])[:60] or "file"
+    folder = (instance.media_type or "misc").strip("/") or "misc"
     today = timezone.now()
-    return f"{instance.media_type}/{today:%Y}/{today:%m}/{uuid.uuid4().hex}_{base_name}{ext}"
+    return f"{folder}/{today:%Y}/{today:%m}/{uuid.uuid4().hex}_{base_name}{ext}"
 
 
 class Media(BaseModel):

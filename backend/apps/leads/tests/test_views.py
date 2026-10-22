@@ -104,6 +104,22 @@ class TestNewsletterSubscribeView:
         response = client.post("/api/v1/leads/newsletter/", {"email": "not-an-email"}, format="json")
         assert response.status_code == 400
 
+    def test_resubscribing_soft_deleted_newsletter_reactivates_without_500(self) -> None:
+        client = APIClient()
+        assert (
+            client.post(
+                "/api/v1/leads/newsletter/", {"email": "revive@example.com"}, format="json"
+            ).status_code
+            == 201
+        )
+        sub = Newsletter.objects.get(email="revive@example.com")
+        sub.delete()
+        assert not Newsletter.objects.filter(email="revive@example.com").exists()
+
+        revived = client.post("/api/v1/leads/newsletter/", {"email": "revive@example.com"}, format="json")
+        assert revived.status_code == 201
+        assert Newsletter.objects.filter(email="revive@example.com").exists()
+
 
 def test_anonymous_contact_and_newsletter_posts_require_csrf() -> None:
     client = APIClient(enforce_csrf_checks=True)

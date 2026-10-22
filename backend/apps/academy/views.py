@@ -72,6 +72,18 @@ class EnrollmentCreateView(APIView):
         if course is None:
             return Response({"detail": "دوره پیدا نشد."}, status=status.HTTP_404_NOT_FOUND)
 
-        enrollment, created = Enrollment.objects.get_or_create(user=request.user, course=course)
-        response_status = status.HTTP_201_CREATED if created else status.HTTP_200_OK
+        existing = Enrollment.all_objects.filter(user=request.user, course=course).first()
+        response_status: int
+        if existing is None:
+            enrollment = Enrollment.objects.create(user=request.user, course=course)
+            response_status = status.HTTP_201_CREATED
+        elif not existing.is_active or existing.deleted_at is not None:
+            existing.is_active = True
+            existing.deleted_at = None
+            existing.save(update_fields=["is_active", "deleted_at", "updated_at"])
+            enrollment = existing
+            response_status = status.HTTP_201_CREATED
+        else:
+            enrollment = existing
+            response_status = status.HTTP_200_OK
         return Response(EnrollmentSerializer(enrollment).data, status=response_status)
