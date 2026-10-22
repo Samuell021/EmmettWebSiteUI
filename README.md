@@ -105,7 +105,7 @@ ruff check . && ruff format --check . && black --check .
 mypy apps config
 bandit -c pyproject.toml -r apps config -ll
 python scripts/i18n.py check
-PYTHONPATH=../.github/ci DJANGO_SETTINGS_MODULE=ci_test_settings coverage run -m pytest -q && coverage report --fail-under=85 -m   # لایهٔ تنظیماتِ CI الزامی است: بدونِ آن `config.settings.dev` حافظِ `CompressedManifestStaticFilesStorage` می‌ماند و هر تستی که قالبِ ادمین را رندر می‌کند با `Missing staticfiles manifest entry` می‌شکند (۲۹ تا ۳۴ شکستِ کاذب)
+PYTHONPATH=../.github/ci DJANGO_SETTINGS_MODULE=ci_test_settings coverage run -m pytest -q && coverage report --fail-under=85 -m   # لایهٔ تنظیماتِ CI استوریج را به `StaticFilesStorage` ساده سوییچ می‌کند؛ در تنظیمات پایه نیز `NonStrictCompressedManifestStaticFilesStorage` فعال است تا هم اجرای مستقیم `pytest` و هم رندر قالب‌های دایرکتوری‌محور Jazzmin در پروداکشن بدون خطای manifest کار کند
 
 # تست و کیفیت فرانت‌اند
 cd ../frontend

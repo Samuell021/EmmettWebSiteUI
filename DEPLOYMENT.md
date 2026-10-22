@@ -78,11 +78,11 @@
 
 ## ۲. وابستگی‌های Pin شده (`backend/requirements.txt`)
 
-در فایل `backend/requirements.txt` تمام **۴۰ پکیج پروداکشن** (شامل ۲۰ پکیج مستقیم سطح اول و ۲۰ زیر-وابستگی زمان اجرا) با عملگر دقیق `==` قفل شده‌اند (`ADR-0010` و `ADR-0036`):
+در فایل `backend/requirements.txt` تمام **۴۱ پکیج پروداکشن** (شامل ۲۱ پکیج مستقیم سطح اول و ۲۰ زیر-وابستگی زمان اجرا) با عملگر دقیق `==` قفل شده‌اند (`ADR-0010` و `ADR-0036`):
 - **چارچوب و API:** `Django==5.2.17`, `djangorestframework==3.18.1`, `drf-spectacular==0.30.0`, `django-filter==26.2`, `django-cors-headers==4.9.0`
 - **تنظیمات و دیتابیس:** `django-environ==0.14.0`, `PyMySQL==1.2.3` (درایور خالص پایتون بدون نیاز به کامپایلر C و `libmysqlclient-dev` روی هاست اشتراکی)
 - **پنل ادمین، تبادل داده و 2FA:** `django-jazzmin==3.0.5`, `django-import-export==4.4.1`, `django-otp==1.7.3`, `qrcode==8.2`
-- **بومی‌سازی، محتوا و امنیت:** `django-modeltranslation==0.20.6`, `jdatetime==6.1.0`, `Markdown==3.9`, `nh3==0.3.7`, `Pillow==12.3.0`, `whitenoise==6.12.0`, `structlog==26.1.0`, `django-structlog==10.1.0`, `requests==2.32.5`
+- **بومی‌سازی، محتوا و امنیت:** `django-modeltranslation==0.20.6`, `polib==1.2.0` (کامپایل و ممیزی کاتالوگ‌های `.po`/`.mo` در اسکریپت استقرار)، `jdatetime==6.1.0`, `Markdown==3.9`, `nh3==0.3.7`, `Pillow==12.3.0`, `whitenoise==6.12.0`, `structlog==26.1.0`, `django-structlog==10.1.0`, `requests==2.32.5`
 - **زیر-وابستگی‌های قفل‌شده:** `asgiref==3.12.1`, `sqlparse==0.6.0`, `tablib==3.10.0`, `PyYAML==6.0.3`, `jsonschema==4.26.0`, `urllib3==2.8.0` و سایر زیر-وابستگی‌ها.
 
 ---
@@ -123,7 +123,7 @@ cd ~/EmmettWebSite
 3. در cPanel از بخش **Software** وارد **Setup Python App** شوید و روی **Create Application** کلیک کنید:
    - **Python version:** `3.11`
    - **Application root:** `EmmettWebSite/backend`
-   - **Application URL:** دامنهٔ اصلی و مسیر بک‌اند (در توپولوژی دامنهٔ واحد)
+   - **Application URL:** زیرمسیر یا زیردامنهٔ داخلی بک‌اند (مثلاً `emmett.ir/admin` برای پنل مدیریت، یا اجرای سرویس WSGI داخلی روی `127.0.0.1:8000`؛ توجه کنید در cPanel دو اپلیکیشن Python و Node.js هم‌زمان نمی‌توانند هر دو ریشهٔ `/` یک دامنه را تصاحب کنند، پس ریشهٔ `/` دامنهٔ اصلی متعلق به اپ Node.js است و `INTERNAL_API_URL` فرانت‌اند به آدرس داخلی بک‌اند اشاره می‌کند)
    - **Application startup file:** `passenger_wsgi.py`
    - **Application Entry point:** `application`
    - روی دکمهٔ **Create** در بالا سمت راست کلیک کنید.
@@ -274,7 +274,7 @@ PUBLIC_SITE_URL=https://emmett.ir bash scripts/deploy_frontend.sh --install-deps
 
 ### ۶.۱. تهیهٔ نسخهٔ پشتیبان (`manage.py backup_db`)
 
-دستور مدیریت `backup_db` در هر اجرا سه فایل هم‌نام با برچسب زمانی UTC (`YYYYMMDDTHHMMSSZ`) در پوشهٔ `BACKUP_DIR` تولید می‌کند:
+دستور مدیریت `backup_db` در هر اجرا سه فایل هم‌نام با برچسب زمانی UTC (`YYYYMMDD-HHMMSS`) در پوشهٔ `BACKUP_DIR` تولید می‌کند:
 1. **`db-<stamp>.sql.gz`** (در MySQL با `mysqldump --single-transaction --quick --routines`؛ یا در صورت عدم دسترسی به باینری `mysqldump` روی هاست اشتراکی، به‌طور خودکار `db-<stamp>.json.gz` با `dumpdata`؛ و در SQLite فایل `db-<stamp>.sqlite3.gz` با `VACUUM INTO`).
 2. **`media-<stamp>.tar.gz`** (آرشیو فشردهٔ کل پوشهٔ `MEDIA_ROOT`).
 3. **`manifest-<stamp>.json`** (فایل متادیتا شامل زمان دقیق، موتور دیتابیس، استراتژی بکاپ، نام و حجم فایل‌ها).
@@ -297,10 +297,10 @@ cd ~/EmmettWebSite
 bash scripts/restore_backup.sh --list
 
 # ۲) بازیابی دیتابیس MySQL (یا SQLite / JSON)
-bash scripts/restore_backup.sh --db backend/backups/db-20261006T033000Z.sql.gz
+bash scripts/restore_backup.sh --db backend/backups/db-20261022-033000.sql.gz
 
 # ۳) بازیابی فایل‌های آپلودشده (Media) به همراه بازگردانی خودکار media/.htaccess
-bash scripts/restore_backup.sh --media backend/backups/media-20261006T033000Z.tar.gz
+bash scripts/restore_backup.sh --media backend/backups/media-20261022-033000.tar.gz
 ```
 
 ---
@@ -318,6 +318,9 @@ bash scripts/restore_backup.sh --media backend/backups/media-20261006T033000Z.ta
   - عنوان و توضیحات متای فارسی و انگلیسی پر شده است؛
   - کد تأیید Google Search Console (`search_console_verification`) ثبت شده است؛
   - اطلاعات تماس و لینک شبکه‌های اجتماعی سازمان وارد شده است.
+- [ ] **محتوای الزامی محصول `Pentestor` و درگاه هوش مصنوعی:**
+  - در بخش `Portfolio → Projects` پنل ادمین، رکورد پروژه با `slug = "pentestor"`، `is_product = True` و وضعیت `Published` ثبت شده است (چون مسیر `/products/pentestor` به‌صورت دائمی `308` به `/projects/pentestor` هدایت می‌شود — `ADR-0040`).
+  - در صورت استفاده از ویجت‌های «مشاور ایده‌پرداز» (`/advisor`) و «برآوردگر پروژه» (`/estimate`)، متغیرهای `AI_ENABLED=true`، `AI_API_BASE_URL`، `AI_API_KEY` و `AI_MODEL` در `backend/.env` تنظیم شده‌اند.
 
 ### ۷.۲. چک‌لیست پس از انتشار (Post-Launch Verification)
 
@@ -329,7 +332,7 @@ bash scripts/restore_backup.sh --media backend/backups/media-20261006T033000Z.ta
 - [ ] **سئو، نقشهٔ سایت و فیدها:**
   - `https://emmett.ir/sitemap.xml` شامل تمام صفحات عمومی است و مسیرهای خصوصی (`/admin`, `/profile`, `/advisor`) در آن نیستند.
   - `https://emmett.ir/robots.txt` مسیرهای خصوصی را `Disallow` کرده و لینک `Sitemap: https://emmett.ir/sitemap.xml` را نشان می‌دهد.
-  - فیدهای `https://emmett.ir/blog/rss` و `https://emmett.ir/academy/rss` و تصویر `https://emmett.ir/fa/opengraph-image` با کد `200` باز می‌شوند.
+  - فیدهای `https://emmett.ir/blog/rss` و `https://emmett.ir/academy/rss` و تصاویر `https://emmett.ir/opengraph-image` و `https://emmett.ir/en/opengraph-image` با کد `200` باز می‌شوند.
 - [ ] **هدرهای امنیتی:** در تب Network مرورگر، هدرهای `Strict-Transport-Security`, `Content-Security-Policy`, `X-Content-Type-Options: nosniff`, `Referrer-Policy` و `Cross-Origin-Opener-Policy: same-origin` روی پاسخ‌ها حضور دارند.
 - [ ] **امنیت پوشهٔ Media:** آپلود تصویر در ادمین کار می‌کند، اما درخواست به یک فایل غیررسانه‌ای یا اسکریپت در `/media/` توسط `media/.htaccess` مسدود می‌شود.
 - [ ] **تست اولین بکاپ:** اجرای دستی `python manage.py backup_db` بدون خطا فایل‌های `db-*.gz`, `media-*.tar.gz` و `manifest-*.json` را در `backend/backups/` ایجاد می‌کند.

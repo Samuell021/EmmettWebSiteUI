@@ -95,7 +95,7 @@ ruff check . && ruff format --check . && black --check .
 mypy apps config
 bandit -c pyproject.toml -r apps config -ll
 python scripts/i18n.py check
-PYTHONPATH=../.github/ci DJANGO_SETTINGS_MODULE=ci_test_settings coverage run -m pytest -q && coverage report --fail-under=85 -m   # The CI settings shim is required: without it `config.settings.dev` keeps `CompressedManifestStaticFilesStorage` and every test that renders an admin template fails with `Missing staticfiles manifest entry` (29-34 spurious failures)
+PYTHONPATH=../.github/ci DJANGO_SETTINGS_MODULE=ci_test_settings coverage run -m pytest -q && coverage report --fail-under=85 -m   # The CI settings shim switches `staticfiles` to plain `StaticFilesStorage`; base settings use `NonStrictCompressedManifestStaticFilesStorage` so both direct `pytest` runs and Jazzmin directory-level `{% static %}` lookups in production succeed cleanly
 
 # Frontend quality & test suite
 cd ../frontend

@@ -449,7 +449,7 @@ python manage.py check
 python manage.py makemigrations --check --dry-run
 python manage.py spectacular --file /tmp/schema.yaml --validate --fail-on-warn
 PYTHONPATH=../.github/ci DJANGO_SETTINGS_MODULE=ci_test_settings coverage run -m pytest -q && coverage report --fail-under=85 -m
-    # # The CI settings shim is required: without it `config.settings.dev` keeps `CompressedManifestStaticFilesStorage` and every test that renders an admin template fails with `Missing staticfiles manifest entry` (29-34 spurious failures)
+    # CI settings shim switches test static storage to plain `StaticFilesStorage`; base settings configure `NonStrictCompressedManifestStaticFilesStorage` so both direct `pytest` runs and production Jazzmin admin pages render cleanly
 
 # Frontend Quality, Unit Coverage (≥ 85%), Build & E2E
 cd ../frontend

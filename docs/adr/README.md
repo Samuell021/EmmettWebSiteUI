@@ -131,6 +131,10 @@ ADRها **مصون (immutable)**‌اند. یک ADR ثبتِ تصمیمی است
 
 مأخذِ کامل: بخش «اصلاحیهٔ پس از بستهٔ ۶» در `CHANGELOG.md`.
 
+### `ADR-0038` — کلاس ذخیره‌ساز استاتیک در تنظیمات پایه به `NonStrictCompressedManifestStaticFilesStorage` ارتقا یافت
+
+بدنهٔ `ADR-0038` توضیح می‌دهد که در تنظیمات پایه `CompressedManifestStaticFilesStorage` فعال بوده و بدون شیم `.github/ci/ci_test_settings.py` قالب‌های Jazzmin به دلیل `{% static "vendor/bootswatch" %}` روی مسیر پوشه‌ای با `ValueError` شکست می‌خوردند. در **بستهٔ ۸ (آمادگی نهایی پیش از دیپلوی)**، کلاس `apps.core.storage.NonStrictCompressedManifestStaticFilesStorage` جایگزین آن در `config/settings/base.py` شد تا در پروداکشن واقعی نیز صفحات `/admin/*` پس از `collectstatic` بدون خطای `500` و با حفظ کامل فایل‌های هش‌شده رندر شوند؛ شیم `ci_test_settings.py` نیز برای اجرای سریع تست‌های CI بدون تغییر حفظ شده است.
+
 ---
 
 ## ناهمگونی‌های ثبت‌شده (عمداً اصلاح نشده)
