@@ -40,6 +40,7 @@ async function serverFetch<T>(path: string, locale: string, init?: RequestInit):
       ...init,
       headers: {
         "Accept-Language": locale,
+        "X-Forwarded-Proto": "https",
         ...init?.headers,
       },
       // محتوای ویترین مرتباً تغییر می‌کند؛ کش کوتاه برای تعادل تازگی/کارایی.
@@ -118,7 +119,10 @@ export async function getSharedAISuggestion(
   clientIpHeader?: string,
 ): Promise<AISuggestion | null> {
   const url = `${getApiBaseUrl()}/ai/results/${encodeURIComponent(token)}/`;
-  const reqHeaders: Record<string, string> = { "Accept-Language": locale };
+  const reqHeaders: Record<string, string> = {
+    "Accept-Language": locale,
+    "X-Forwarded-Proto": "https",
+  };
   if (clientIpHeader) {
     reqHeaders["X-Forwarded-For"] = clientIpHeader;
   }

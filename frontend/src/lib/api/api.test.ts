@@ -206,6 +206,7 @@ describe("lib/api/server & lib/api/seo", () => {
       expect.objectContaining({
         headers: {
           "Accept-Language": "fa",
+          "X-Forwarded-Proto": "https",
           "X-Forwarded-For": "203.0.113.5",
         },
       }),
@@ -219,6 +220,7 @@ describe("lib/api/server & lib/api/seo", () => {
       expect.objectContaining({
         headers: {
           "Accept-Language": "fa",
+          "X-Forwarded-Proto": "https",
           "X-Forwarded-For": "203.0.113.9",
         },
       }),

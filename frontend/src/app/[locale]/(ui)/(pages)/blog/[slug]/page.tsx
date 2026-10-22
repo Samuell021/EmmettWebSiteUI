@@ -125,7 +125,7 @@ export default async function BlogPostPage({ params }: { params: Promise<PagePar
         <div className="relative mt-8 aspect-video w-full overflow-hidden rounded-lg">
           <Image
             src={post.cover_image_url}
-            alt=""
+            alt={post.title}
             fill
             sizes="(max-width: 768px) 100vw, 768px"
             priority

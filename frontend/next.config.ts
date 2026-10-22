@@ -13,7 +13,12 @@ const withNextIntl = createNextIntlPlugin("./src/i18n/request.ts");
  */
 function mediaHostnames(): string[] {
   const hosts = new Set<string>(["127.0.0.1", "localhost"]);
-  for (const candidate of [process.env.INTERNAL_API_URL, process.env.NEXT_PUBLIC_MEDIA_URL]) {
+  for (const candidate of [
+    process.env.INTERNAL_API_URL,
+    process.env.NEXT_PUBLIC_MEDIA_URL,
+    process.env.PUBLIC_SITE_URL,
+    process.env.NEXT_PUBLIC_SITE_URL,
+  ]) {
     if (!candidate) continue;
     try {
       hosts.add(new URL(candidate).hostname);
@@ -46,6 +51,7 @@ const nextConfig: NextConfig = {
     formats: ["image/avif", "image/webp"],
     deviceSizes: [360, 640, 768, 1024, 1280, 1536, 1920],
     minimumCacheTTL: 60 * 60 * 24 * 30,
+    localPatterns: [{ pathname: "/media/**" }, { pathname: "/**" }],
     remotePatterns: mediaHostnames().flatMap((hostname) => [
       { protocol: "http" as const, hostname },
       { protocol: "https" as const, hostname },

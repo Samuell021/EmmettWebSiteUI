@@ -158,7 +158,7 @@ export default async function ProjectDetailPage({ params }: { params: Promise<Pa
         <div className="relative mt-8 aspect-video w-full overflow-hidden rounded-lg">
           <Image
             src={project.cover_image_url}
-            alt=""
+            alt={project.title}
             fill
             sizes="(max-width: 768px) 100vw, 768px"
             priority

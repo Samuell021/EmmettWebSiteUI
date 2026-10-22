@@ -38,6 +38,9 @@ async function proxy(request: NextRequest): Promise<Response> {
   if (forwardedIp) {
     headers.set("x-forwarded-for", forwardedIp);
   }
+  if (!headers.has("x-forwarded-proto")) {
+    headers.set("x-forwarded-proto", "https");
+  }
 
   const hasBody = !["GET", "HEAD"].includes(request.method);
 
