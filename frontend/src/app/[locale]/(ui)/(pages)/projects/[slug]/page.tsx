@@ -6,6 +6,7 @@ import { Breadcrumb } from "@/components/molecules/breadcrumb";
 import { Badge } from "@/components/ui/badge";
 import type { AppLocale } from "@/i18n/routing";
 import { getProject } from "@/lib/api/server";
+import { sanitizeRichHtml } from "@/lib/security/sanitize-rich-html";
 import { JsonLd } from "@/components/seo/json-ld";
 import { getSeoSettingsOrDefaults } from "@/lib/api/seo";
 import { articleJsonLd, breadcrumbJsonLd } from "@/lib/seo/json-ld";
@@ -191,7 +192,9 @@ export default async function ProjectDetailPage({ params }: { params: Promise<Pa
               <h2 className={sectionTitleClass}>{t("challenge")}</h2>
               <div
                 className="markdown-content mt-3"
-                dangerouslySetInnerHTML={{ __html: project.case_study.challenge_html }}
+                dangerouslySetInnerHTML={{
+                  __html: sanitizeRichHtml(project.case_study.challenge_html),
+                }}
               />
             </section>
           ) : null}
@@ -201,7 +204,9 @@ export default async function ProjectDetailPage({ params }: { params: Promise<Pa
               <h2 className={sectionTitleClass}>{t("approach")}</h2>
               <div
                 className="markdown-content mt-3"
-                dangerouslySetInnerHTML={{ __html: project.case_study.approach_html }}
+                dangerouslySetInnerHTML={{
+                  __html: sanitizeRichHtml(project.case_study.approach_html),
+                }}
               />
             </section>
           ) : null}
@@ -223,7 +228,9 @@ export default async function ProjectDetailPage({ params }: { params: Promise<Pa
             <section>
               <div
                 className="markdown-content mt-3"
-                dangerouslySetInnerHTML={{ __html: project.case_study.architecture_notes_html }}
+                dangerouslySetInnerHTML={{
+                  __html: sanitizeRichHtml(project.case_study.architecture_notes_html),
+                }}
               />
             </section>
           ) : null}
@@ -232,7 +239,9 @@ export default async function ProjectDetailPage({ params }: { params: Promise<Pa
             <section>
               <div
                 className="markdown-content mt-3"
-                dangerouslySetInnerHTML={{ __html: project.case_study.implementation_notes_html }}
+                dangerouslySetInnerHTML={{
+                  __html: sanitizeRichHtml(project.case_study.implementation_notes_html),
+                }}
               />
             </section>
           ) : null}
@@ -242,7 +251,9 @@ export default async function ProjectDetailPage({ params }: { params: Promise<Pa
               <h2 className={sectionTitleClass}>{t("result")}</h2>
               <div
                 className="markdown-content mt-3"
-                dangerouslySetInnerHTML={{ __html: project.case_study.result_html }}
+                dangerouslySetInnerHTML={{
+                  __html: sanitizeRichHtml(project.case_study.result_html),
+                }}
               />
             </section>
           ) : null}

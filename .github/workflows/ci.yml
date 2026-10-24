@@ -24,13 +24,9 @@
 #    لایه ۳۵ تست ادمین با `ValueError: Missing staticfiles manifest entry`
 #    قرمز می‌شوند. هیچ فایل `backend/` تغییر نکرده است (ADR-0037 بند ۳-۵).
 #
-# ۲) گیت `npm audit` با `--omit=dev` اجرا می‌شود. درخت وابستگی **production**
-#    صفر آسیب‌پذیری دارد؛ تنها advisory سطح high در زنجیرهٔ dev-only
-#    `braces → micromatch → fast-glob → @next/eslint-plugin-next →
-#    eslint-config-next` است و `braces` در حال حاضر **هیچ نسخهٔ وصله‌شده‌ای
-#    ندارد** (GHSA-vfj7-8cjw-p6xm، `first_patched_version: null`). پس گیتِ
-#    شامل dev هرگز سبز نمی‌شد. برای پنهان نماندن موضوع، مرحلهٔ «گزارش» همان
-#    audit کامل را به‌صورت غیرمسدودکننده اجرا و در لاگ ثبت می‌کند.
+# ۲) گیت `npm audit` کل درخت وابستگی را بررسی می‌کند. قفل فعلی با
+#    `npm audit --audit-level=high` پاک است؛ اگر advisory جدیدی وارد هر یک از
+#    وابستگی‌های production یا development شود، جاب امنیتی شکست می‌خورد.
 # =============================================================================
 
 name: CI
@@ -359,26 +355,10 @@ jobs:
           mkdir -p "$BACKUP_DIR"
           python manage.py check --deploy --fail-level WARNING
 
-      # گیت: درخت وابستگی production.
-      - name: npm audit — production dependencies (gate)
+      # گیت کامل: production + development dependencies.
+      - name: npm audit — all dependencies (gate)
         working-directory: frontend
-        run: npm audit --omit=dev --audit-level=high
-
-      # گزارش: همان audit با dev. عمداً غیرمسدودکننده است (بند ۲ بالای فایل).
-      # اگر روزی `braces` نسخهٔ وصله‌شده داد، این مرحله سبز می‌شود و می‌توان
-      # گیت را به audit کامل ارتقا داد.
-      - name: npm audit — including dev dependencies (report only)
-        if: always()
-        working-directory: frontend
-        continue-on-error: true
-        run: |
-          {
-            echo '### npm audit (including dev dependencies)'
-            echo ''
-            echo '```'
-            npm audit --audit-level=high 2>&1 || true
-            echo '```'
-          } >> "$GITHUB_STEP_SUMMARY"
+        run: npm audit --audit-level=high
 
   # ---------------------------------------------------------------------------
   # ۶) E2E + Lighthouse: بک‌اند SQLite با دادهٔ demo + سرور پروداکشن Next.js

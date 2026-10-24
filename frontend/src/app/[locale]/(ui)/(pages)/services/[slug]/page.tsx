@@ -6,6 +6,7 @@ import { Breadcrumb } from "@/components/molecules/breadcrumb";
 import { Badge } from "@/components/ui/badge";
 import type { AppLocale } from "@/i18n/routing";
 import { getService } from "@/lib/api/server";
+import { sanitizeRichHtml } from "@/lib/security/sanitize-rich-html";
 import { getSeoSettingsOrDefaults } from "@/lib/api/seo";
 import { buildPageMetadata } from "@/lib/seo/metadata";
 import { getPublicSiteUrl, toAppLocale } from "@/lib/seo/site";
@@ -94,8 +95,8 @@ export default async function ServiceDetailPage({ params }: { params: Promise<Pa
 
       <div
         className="markdown-content mt-10"
-        // محتوا توسط nh3 در بک‌اند sanitize شده (ADR-0022/قانون ۱۶)
-        dangerouslySetInnerHTML={{ __html: service.description_html }}
+        // محتوا با nh3 در بک‌اند و پیش از raw-HTML sink در فرانت‌اند پاک‌سازی می‌شود.
+        dangerouslySetInnerHTML={{ __html: sanitizeRichHtml(service.description_html) }}
       />
     </article>
   );

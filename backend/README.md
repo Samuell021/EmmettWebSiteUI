@@ -17,8 +17,8 @@ cp .env.example .env   # و مقادیر را در صورت نیاز ویرای�
 
 export DJANGO_SETTINGS_MODULE=config.settings.dev
 python manage.py migrate
+# در صورت نیاز به ورود با مدیر seed، پیش از این دستور DEMO_ADMIN_PASSWORD را در .env محلی تنظیم کنید.
 python manage.py seed_demo_data      # دادهٔ نمایشی دوزبانهٔ ایدمپوتنت (پایین را ببینید)
-python manage.py createsuperuser     # اختیاری؛ seed_demo_data از قبل admin@emmett.dev می‌سازد
 python manage.py runserver 0.0.0.0:8000
 ```
 
@@ -37,9 +37,12 @@ API روی <http://localhost:8000/api/v1/> بالا می‌آید؛ پنل اد�
   CaseStudy)، ۳ دوره با درس و یک ثبت‌نام نمونه، ۳ پست بلاگ با یک کامنت
   نمونه، یک مشترک خبرنامه.
 
-رمز عبور پیش‌فرض کاربران dev با متغیر محیطی `DEMO_ADMIN_PASSWORD` (و
-مشابه) قابل override است — **هرگز از این دستور روی دیتابیس production
-استفاده نشود.**
+هیچ رمز پیش‌فرض یا ثابت در seed وجود ندارد: اگر `DEMO_ADMIN_PASSWORD` را در
+محیط توسعه تنظیم کنید، فقط برای حساب `admin@emmett.dev` به کار می‌رود؛ در غیر
+این صورت حساب مدیر و کاربران نمونه رمز قابل‌استفاده ندارند؛ اجرای دوباره
+بدون این مقدار، رمزهای قبلی حساب‌های seed شده را نیز غیرفعال می‌کند. رمز در خروجی
+چاپ نمی‌شود. اجرای این دستور با `config.settings.production` ممنوع است، حتی با
+`--force`؛ از seed روی دیتابیس واقعی production استفاده نکنید.
 
 ## تنظیمات (`config/settings/`)
 
