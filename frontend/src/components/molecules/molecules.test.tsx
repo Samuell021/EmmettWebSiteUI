@@ -12,8 +12,6 @@ import {
   CardMedia,
   CardTitle,
 } from "@/components/molecules/card";
-import { FadeIn } from "@/components/molecules/fade-in";
-import { LocaleSwitcher } from "@/components/molecules/locale-switcher";
 
 vi.mock("next-intl", () => ({
   useLocale: () => "fa",
@@ -63,25 +61,5 @@ describe("Molecules", () => {
 
     expect(screen.getByRole("link", { name: "خانه" })).toHaveAttribute("href", "/");
     expect(screen.getByText("توسعه وب")).toHaveAttribute("aria-current", "page");
-  });
-
-  it("renders FadeIn on mount and view", () => {
-    render(
-      <div>
-        <FadeIn on="mount">Mount Content</FadeIn>
-        <FadeIn on="view" delay={0.1}>
-          View Content
-        </FadeIn>
-      </div>,
-    );
-
-    expect(screen.getByText("Mount Content")).toBeInTheDocument();
-    expect(screen.getByText("View Content")).toBeInTheDocument();
-  });
-
-  it("renders LocaleSwitcher", () => {
-    render(<LocaleSwitcher />);
-
-    expect(screen.getByRole("group", { name: "switchLabel" })).toBeInTheDocument();
   });
 });

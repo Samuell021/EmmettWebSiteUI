@@ -191,10 +191,10 @@ export function CommandPalette({
     >
       <span className="flex items-center gap-3">
         <ChevronRight
-          className="w-3 h-3 text-[rgba(243,250,246,0.18)] group-hover:text-[#1FAE6E] transition-colors rtl:-scale-x-100"
+          className="w-3 h-3 text-[rgba(243,250,246,0.18)] group-hover:text-primary transition-colors rtl:-scale-x-100"
           aria-hidden
         />
-        <span className="text-sm text-[rgba(243,250,246,0.55)] group-hover:text-[#F3FAF6] transition-colors font-mono">
+        <span className="text-sm text-[rgba(243,250,246,0.55)] group-hover:text-foreground transition-colors font-mono">
           {row.label}
         </span>
       </span>
@@ -241,9 +241,9 @@ export function CommandPalette({
             onChange={(event) => setQuery(event.target.value)}
             placeholder={t("searchPlaceholder")}
             aria-label={t("searchPlaceholder")}
-            className="flex-1 bg-transparent text-[#F3FAF6] font-mono text-sm placeholder:text-[rgba(243,250,246,0.35)] outline-none"
+            className="flex-1 bg-transparent text-foreground font-mono text-sm placeholder:text-[rgba(243,250,246,0.35)] outline-none"
           />
-          <kbd className="text-[10px] font-mono text-[rgba(243,250,246,0.35)] border border-[rgba(31,174,110,0.12)] rounded px-1.5 py-0.5">
+          <kbd className="text-[10px] font-mono text-[rgba(243,250,246,0.35)] border border-input rounded px-1.5 py-0.5">
             ESC
           </kbd>
         </div>
@@ -297,11 +297,11 @@ export function CommandPalette({
             onClick={viewAll}
             className="w-full flex items-center justify-between px-4 py-3 border-t border-[rgba(31,174,110,0.1)] hover:bg-[rgba(31,174,110,0.06)] transition-colors text-start"
           >
-            <span className="text-sm font-mono text-[#1FAE6E]">
+            <span className="text-sm font-mono text-primary">
               {t("viewAllResults", { query: trimmed })}
             </span>
             <kbd
-              className="text-[10px] font-mono text-[rgba(243,250,246,0.35)] border border-[rgba(31,174,110,0.12)] rounded px-1.5 py-0.5"
+              className="text-[10px] font-mono text-[rgba(243,250,246,0.35)] border border-input rounded px-1.5 py-0.5"
               aria-hidden
             >
               ↵

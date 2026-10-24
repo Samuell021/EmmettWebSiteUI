@@ -6,7 +6,7 @@
         "http://127.0.0.1:3000/en",
         "http://127.0.0.1:3000/services",
         "http://127.0.0.1:3000/blog",
-        "http://127.0.0.1:3000/products/pentestor",
+        "http://127.0.0.1:3000/projects/pentestor",
         "http://127.0.0.1:3000/products/crm"
       ],
       "numberOfRuns": 2,

@@ -21,7 +21,10 @@ export async function fetchFeed(kind: FeedKind, locale: string): Promise<Respons
 
   try {
     const upstream = await fetch(url, {
-      headers: { "Accept-Language": language },
+      headers: {
+        "Accept-Language": language,
+        "X-Forwarded-Proto": "https",
+      },
       next: { revalidate: FEED_REVALIDATE_SECONDS },
     });
     if (!upstream.ok) {

@@ -17,6 +17,18 @@ import type {
 } from "./types";
 
 /**
+ * استخراج هدر IP واقعی کاربر از ``Headers`` ورودی درخواست Next.js برای عبور به بک‌اند
+ * در پراکسی ``/api/[...path]`` و فراخوانی‌های پویای SSR تا کاربران واقعی پشت
+ * ``127.0.0.1`` در یک سطل مشترک Throttle ننشینند.
+ */
+export function extractForwardedClientIp(requestHeaders: Pick<Headers, "get">): string | undefined {
+  const forwarded = requestHeaders.get("x-forwarded-for")?.trim();
+  if (forwarded) return forwarded;
+  const realIp = requestHeaders.get("x-real-ip")?.trim();
+  return realIp ? realIp : undefined;
+}
+
+/**
  * fetch سمت سرور (Server Component) — مستقیماً بک‌اند Django را صدا می‌زند
  * (هرگز از مرورگر عبور نمی‌کند). هدر ``Accept-Language`` معادل locale درخواستی
  * next-intl را ست می‌کند تا پاسخ API در زبان درست برگردد.
@@ -28,6 +40,7 @@ async function serverFetch<T>(path: string, locale: string, init?: RequestInit):
       ...init,
       headers: {
         "Accept-Language": locale,
+        "X-Forwarded-Proto": "https",
         ...init?.headers,
       },
       // محتوای ویترین مرتباً تغییر می‌کند؛ کش کوتاه برای تعادل تازگی/کارایی.
@@ -87,10 +100,11 @@ export const getTestimonials = (locale: string, featured?: boolean) =>
     locale,
   );
 
-export const searchSite = (locale: string, query: string) =>
+export const searchSite = (locale: string, query: string, clientIpHeader?: string) =>
   serverFetch<SearchResponse>(
     `/search/?q=${encodeURIComponent(query)}&locale=${encodeURIComponent(locale)}`,
     locale,
+    clientIpHeader ? { headers: { "X-Forwarded-For": clientIpHeader } } : undefined,
   );
 
 export const getCatalogs = (locale: string, keys?: string[]) =>
@@ -102,11 +116,19 @@ export const getCatalogs = (locale: string, keys?: string[]) =>
 export async function getSharedAISuggestion(
   locale: string,
   token: string,
+  clientIpHeader?: string,
 ): Promise<AISuggestion | null> {
   const url = `${getApiBaseUrl()}/ai/results/${encodeURIComponent(token)}/`;
+  const reqHeaders: Record<string, string> = {
+    "Accept-Language": locale,
+    "X-Forwarded-Proto": "https",
+  };
+  if (clientIpHeader) {
+    reqHeaders["X-Forwarded-For"] = clientIpHeader;
+  }
   try {
     const response = await fetch(url, {
-      headers: { "Accept-Language": locale },
+      headers: reqHeaders,
       cache: "no-store",
     });
     if (!response.ok) return null;

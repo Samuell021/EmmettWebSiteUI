@@ -2,8 +2,9 @@
 
 فرانت‌اند دوزبانهٔ (فارسی RTL پیش‌فرض / انگلیسی LTR در `/en`) سایت امیت، با
 Next.js 16 (App Router + Turbopack)، TypeScript strict، Tailwind v4 و
-`next-intl`. برای تصمیمات معماری کامل، ADRهای `docs/adr/0016` تا `0026` را
-ببینید؛ این فایل فقط راهنمای عملی توسعه است.
+`next-intl`. برای تصمیمات معماری، فهرست کامل و معتبر ADRها در
+[`../docs/adr/README.md`](../docs/adr/README.md) است (مربوط به فرانت‌اند از `ADR-0016` به بعد)؛
+این فایل فقط راهنمای عملی توسعه است.
 
 ## اجرای محلی
 
@@ -14,9 +15,10 @@ export DJANGO_SETTINGS_MODULE=config.settings.dev
 python manage.py migrate && python manage.py seed_demo_data
 python manage.py runserver 0.0.0.0:8000
 
-# ۲) در ترمینال دیگر، فرانت‌اند:
+# ۲) در ترمینال دیگر، فرانت‌اند (نسخهٔ پین‌شدهٔ Node: 22.22.3 در ../.nvmrc و package.json#engines):
+nvm use   # اختیاری؛ هم‌ترازی با نسخهٔ پین‌شدهٔ CI (نگهبانی‌شده با src/app/node-version.test.ts)
 cd frontend
-npm install
+npm ci
 npm run dev
 ```
 

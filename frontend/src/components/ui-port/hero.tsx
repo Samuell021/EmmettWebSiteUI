@@ -25,7 +25,10 @@ export function Hero() {
     <section
       id="home"
       className="relative min-h-screen flex items-center overflow-hidden"
-      style={{ background: "linear-gradient(135deg, #07130F 0%, #0B1F18 60%, #102A20 100%)" }}
+      style={{
+        background:
+          "linear-gradient(135deg, var(--deep-green-black) 0%, var(--background) 60%, var(--card) 100%)",
+      }}
     >
       {/* Subtle grid — emerald tint */}
       <div
@@ -51,8 +54,8 @@ export function Hero() {
               transition={{ duration: 0.5 }}
               className="flex items-center gap-3"
             >
-              <div className="w-6 h-px bg-[#1FAE6E]" />
-              <span className="text-[11px] font-mono tracking-[0.22em] uppercase text-[#1FAE6E]">
+              <div className="w-6 h-px bg-primary" />
+              <span className="text-[11px] font-mono tracking-[0.22em] uppercase text-primary">
                 {t("eyebrow")}
               </span>
             </motion.div>
@@ -62,11 +65,11 @@ export function Hero() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.7, delay: 0.08 }}
-              className="text-[clamp(2.8rem,7vw,6.5rem)] font-medium leading-[0.95] tracking-tight text-[#F3FAF6]"
+              className="text-[clamp(2.8rem,7vw,6.5rem)] font-medium leading-[0.95] tracking-tight text-foreground"
             >
               {t("line1")}
               <br />
-              <span className="text-[#1FAE6E]">{t("accent")}</span>
+              <span className="text-primary">{t("accent")}</span>
               <br />
               {t("line3")}
             </motion.h1>
@@ -90,14 +93,14 @@ export function Hero() {
             >
               <Link
                 href="/projects"
-                className="group inline-flex items-center gap-2 px-7 py-3.5 bg-[#1FAE6E] text-[#07130F] rounded-lg font-semibold text-sm hover:bg-[#35C98A] transition-all duration-150"
+                className="group inline-flex items-center gap-2 px-7 py-3.5 bg-primary text-primary-foreground rounded-lg font-semibold text-sm hover:bg-accent transition-all duration-150"
               >
                 {t("explore")}
                 <ArrowRight className="w-4 h-4 rtl:-scale-x-100 group-hover:translate-x-0.5 rtl:group-hover:-translate-x-0.5 transition-transform" />
               </Link>
               <Link
                 href="/contact"
-                className="inline-flex items-center gap-2 px-7 py-3.5 border border-[rgba(31,174,110,0.25)] rounded-lg text-[rgba(243,250,246,0.65)] text-sm font-mono hover:border-[rgba(31,174,110,0.5)] hover:text-[#F3FAF6] hover:bg-[rgba(31,174,110,0.06)] transition-all duration-150"
+                className="inline-flex items-center gap-2 px-7 py-3.5 border border-[rgba(31,174,110,0.25)] rounded-lg text-[rgba(243,250,246,0.65)] text-sm font-mono hover:border-[rgba(31,174,110,0.5)] hover:text-foreground hover:bg-[rgba(31,174,110,0.06)] transition-all duration-150"
               >
                 {t("start")}
               </Link>
@@ -108,12 +111,14 @@ export function Hero() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.5, delay: 0.45 }}
-              className="flex items-center gap-10 pt-2 border-t border-[rgba(31,174,110,0.12)]"
+              className="flex items-center gap-10 pt-2 border-t border-input"
             >
               {stats.map((s, i) => (
                 <div key={i} className="flex flex-col gap-0.5">
-                  <span className="text-2xl font-semibold font-mono text-[#F3FAF6]">{s.value}</span>
-                  <span className="text-[10px] text-[rgba(243,250,246,0.58)] uppercase tracking-[0.15em] font-mono">
+                  <span className="text-2xl font-semibold font-mono text-foreground">
+                    {s.value}
+                  </span>
+                  <span className="text-[10px] text-muted-on-dark uppercase tracking-[0.15em] font-mono">
                     {s.label}
                   </span>
                 </div>
@@ -142,7 +147,7 @@ export function Hero() {
               <div className="absolute bottom-20 start-12 font-mono text-[10px] text-[rgba(31,174,110,0.35)] tracking-widest uppercase">
                 {t("backend")}
               </div>
-              <div className="absolute bottom-10 end-10 font-mono text-[10px] text-[rgba(243,250,246,0.58)] tracking-[0.08em]">
+              <div className="absolute bottom-10 end-10 font-mono text-[10px] text-muted-on-dark tracking-[0.08em]">
                 {t("version")}
               </div>
             </div>
@@ -150,7 +155,7 @@ export function Hero() {
             {/* System status badge */}
             <div className="absolute top-5 end-5 px-3 py-1.5 rounded-md bg-[rgba(31,174,110,0.07)] border border-[rgba(31,174,110,0.15)]">
               <div className="flex items-center gap-2">
-                <div className="w-1.5 h-1.5 rounded-full bg-[#1FAE6E] animate-pulse" />
+                <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
                 <span className="text-[10px] font-mono text-[rgba(31,174,110,0.7)] tracking-widest uppercase">
                   {t("online")}
                 </span>
@@ -179,7 +184,7 @@ export function Hero() {
             className="w-0.5 h-2 rounded-full bg-[rgba(31,174,110,0.4)]"
           />
         </motion.div>
-        <span className="text-[10px] font-mono text-[rgba(243,250,246,0.58)] tracking-widest uppercase">
+        <span className="text-[10px] font-mono text-muted-on-dark tracking-widest uppercase">
           {t("scroll")}
         </span>
       </motion.div>

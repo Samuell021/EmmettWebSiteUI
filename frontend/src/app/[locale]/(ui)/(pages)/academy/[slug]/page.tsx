@@ -8,6 +8,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { EnrollButton } from "@/components/organisms/enroll-button";
 import type { AppLocale } from "@/i18n/routing";
 import { getCourse } from "@/lib/api/server";
+import { sanitizeRichHtml } from "@/lib/security/sanitize-rich-html";
 import { JsonLd } from "@/components/seo/json-ld";
 import { getSeoSettingsOrDefaults } from "@/lib/api/seo";
 import { breadcrumbJsonLd, courseJsonLd } from "@/lib/seo/json-ld";
@@ -120,7 +121,7 @@ export default async function CourseDetailPage({ params }: { params: Promise<Pag
 
       <div
         className="markdown-content mt-10"
-        dangerouslySetInnerHTML={{ __html: course.description_html }}
+        dangerouslySetInnerHTML={{ __html: sanitizeRichHtml(course.description_html) }}
       />
 
       {course.lessons.length > 0 ? (

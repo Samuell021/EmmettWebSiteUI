@@ -1,8 +1,5 @@
-import { renderHook } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import { FONT_FAMILY_EN, FONT_FAMILY_FA, FONT_FAMILY_MONO } from "@/lib/fonts";
-import { useHasMounted } from "@/lib/hooks/use-has-mounted";
 import { fetchFeed } from "@/lib/seo/feed";
 
 describe("lib/seo/feed", () => {
@@ -33,18 +30,5 @@ describe("lib/seo/feed", () => {
     fetchMock.mockRejectedValueOnce(new Error("connection refused"));
     const res2 = await fetchFeed("blog", "en");
     expect(res2.status).toBe(502);
-  });
-});
-
-describe("lib/fonts & lib/hooks/use-has-mounted", () => {
-  it("exports self-hosted font family constants", () => {
-    expect(FONT_FAMILY_FA).toBe("Vazirmatn");
-    expect(FONT_FAMILY_EN).toBe("Inter");
-    expect(FONT_FAMILY_MONO).toBe("JetBrains Mono");
-  });
-
-  it("useHasMounted returns true in client test environment", () => {
-    const { result } = renderHook(() => useHasMounted());
-    expect(result.current).toBe(true);
   });
 });

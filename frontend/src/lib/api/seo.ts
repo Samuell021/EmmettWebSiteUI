@@ -24,9 +24,13 @@ export const SEO_REVALIDATE_SECONDS = 900;
 export const REDIRECT_REVALIDATE_SECONDS = 300;
 
 async function seoFetch<T>(path: string, revalidate: number, locale?: string): Promise<T | null> {
+  const headers: Record<string, string> = { "X-Forwarded-Proto": "https" };
+  if (locale) {
+    headers["Accept-Language"] = locale;
+  }
   try {
     const response = await fetch(`${getApiBaseUrl()}${path}`, {
-      headers: locale ? { "Accept-Language": locale } : undefined,
+      headers,
       next: { revalidate },
     });
     if (!response.ok) return null;
