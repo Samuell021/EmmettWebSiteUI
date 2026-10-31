@@ -251,7 +251,7 @@ PUBLIC_SITE_URL=https://emmett.ir bash scripts/deploy_frontend.sh --install-deps
 
 ## ۵. راهنمای کامل متغیرهای محیطی (`.env.example`)
 
-الگوی کامل متغیرهای محیطی در `backend/.env.example` و `frontend/.env.example` قرار دارد. جدول زیر مقادیر الزامی در محیط پروداکشن (`config.settings.production`) را شرح می‌دهد. برای ثبت امن در پنل cPanel، تفکیک Passenger/Cron، آزمون اعلان‌ها، backup خارج از هاست و Restore، [راهنمای عملیات Production](docs/deployment/production-operations.md) را هم ببینید؛ آن راهنما برای وضعیت واقعی هاست مرجع است.
+الگوی کامل متغیرهای محیطی در `backend/.env.example` و `frontend/.env.example` قرار دارد. جدول زیر مقادیر الزامی در محیط پروداکشن (`config.settings.production`) را شرح می‌دهد. برای ثبت امن در پنل cPanel، تفکیک Passenger/Cron، آزمون اعلان‌ها، backup خارج از هاست و Restore، [راهنمای عملیات Production](docs/deployment/production-operations.md) را هم ببینید؛ برای گیت‌های Go/No-Go و ثبت شاهد روی staging از [چک‌لیست پذیرش](docs/deployment/staging-acceptance.md) استفاده کنید. هیچ‌کدام از این اسناد تأیید واقعی هاست نیستند.
 
 | نام متغیر | مقدار نمونه در پروداکشن | الزامی؟ | توضیح و نقش امنیتی/معماری |
 |---|---|---|---|

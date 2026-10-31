@@ -9,6 +9,7 @@
  */
 
 import { CACHE_TAGS } from "@/lib/cache-tags";
+import { getSafeErrorType, logUpstreamFailure } from "@/lib/api/upstream-logging";
 import { getApiBaseUrl } from "@/lib/api/config";
 import type {
   FaqPayload,
@@ -39,9 +40,13 @@ async function seoFetch<T>(
       headers,
       next: { revalidate, tags: [...tags] },
     });
-    if (!response.ok) return null;
+    if (!response.ok) {
+      logUpstreamFailure("django-seo", path, { status: response.status });
+      return null;
+    }
     return (await response.json()) as T;
-  } catch {
+  } catch (error) {
+    logUpstreamFailure("django-seo", path, { errorType: getSafeErrorType(error) });
     return null;
   }
 }

@@ -55,6 +55,25 @@ describe("/api/revalidate", () => {
     expect(response.headers.get("cache-control")).toBe("no-store");
   });
 
+  it("logs cache invalidation failures without exposing exception text", async () => {
+    vi.mocked(revalidateTag).mockImplementationOnce(() => {
+      throw new Error("private cache error details");
+    });
+    const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+
+    const response = await POST(request({ tags: ["content:blog"] }));
+
+    expect(response.status).toBe(500);
+    expect(errorSpy).toHaveBeenCalledWith("upstream_request_failed", {
+      service: "next-cache",
+      endpoint: "/api/revalidate",
+      status: 500,
+      error_type: "Error",
+    });
+    expect(JSON.stringify(errorSpy.mock.calls)).not.toContain("private cache error details");
+    errorSpy.mockRestore();
+  });
+
   it("rejects payloads larger than the bounded request size", async () => {
     const oversized = new Request("http://emmett.ir/api/revalidate", {
       method: "POST",

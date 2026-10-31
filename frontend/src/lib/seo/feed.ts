@@ -8,6 +8,7 @@
  */
 
 import { getApiBaseUrl } from "@/lib/api/config";
+import { getSafeErrorType, logUpstreamFailure } from "@/lib/api/upstream-logging";
 import { CACHE_TAGS } from "@/lib/cache-tags";
 import { isAppLocale } from "@/lib/seo/site";
 
@@ -32,6 +33,7 @@ export async function fetchFeed(kind: FeedKind, locale: string): Promise<Respons
       },
     });
     if (!upstream.ok) {
+      logUpstreamFailure("django-feed", `/${kind}/rss/`, { status: upstream.status });
       return new Response("feed unavailable\n", {
         status: 502,
         headers: { "content-type": "text/plain; charset=utf-8" },
@@ -44,7 +46,8 @@ export async function fetchFeed(kind: FeedKind, locale: string): Promise<Respons
         "cache-control": `public, max-age=0, s-maxage=${FEED_REVALIDATE_SECONDS}, must-revalidate`,
       },
     });
-  } catch {
+  } catch (error) {
+    logUpstreamFailure("django-feed", `/${kind}/rss/`, { errorType: getSafeErrorType(error) });
     return new Response("feed unavailable\n", {
       status: 502,
       headers: { "content-type": "text/plain; charset=utf-8" },

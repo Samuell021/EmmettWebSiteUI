@@ -2,6 +2,7 @@ import { timingSafeEqual } from "node:crypto";
 import { revalidateTag } from "next/cache";
 
 import { isAllowedRevalidationTag } from "@/lib/cache-tags";
+import { getSafeErrorType, logUpstreamFailure } from "@/lib/api/upstream-logging";
 
 const MAX_BODY_BYTES = 4096;
 const MAX_TAGS_PER_REQUEST = 20;
@@ -101,7 +102,11 @@ export async function POST(request: Request): Promise<Response> {
     for (const tag of uniqueTags) {
       revalidateTag(tag, { expire: 0 });
     }
-  } catch {
+  } catch (error) {
+    logUpstreamFailure("next-cache", "/api/revalidate", {
+      status: 500,
+      errorType: getSafeErrorType(error),
+    });
     return jsonResponse({ detail: "Cache revalidation failed." }, 500);
   }
 

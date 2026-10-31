@@ -1,4 +1,5 @@
 import { CACHE_TAGS } from "@/lib/cache-tags";
+import { getSafeErrorType, logUpstreamFailure } from "./upstream-logging";
 import { getApiBaseUrl } from "./config";
 import type {
   AISuggestion,
@@ -53,10 +54,12 @@ async function serverFetch<T>(
       next: { revalidate: 60, ...(tags.length > 0 ? { tags: [...tags] } : {}) },
     });
     if (!response.ok) {
+      logUpstreamFailure("django-ssr", path, { status: response.status });
       return null;
     }
     return (await response.json()) as T;
-  } catch {
+  } catch (error) {
+    logUpstreamFailure("django-ssr", path, { errorType: getSafeErrorType(error) });
     return null;
   }
 }
@@ -148,9 +151,15 @@ export async function getSharedAISuggestion(
       headers: reqHeaders,
       cache: "no-store",
     });
-    if (!response.ok) return null;
+    if (!response.ok) {
+      logUpstreamFailure("django-ssr", "/ai/results/:token/", { status: response.status });
+      return null;
+    }
     return (await response.json()) as AISuggestion;
-  } catch {
+  } catch (error) {
+    logUpstreamFailure("django-ssr", "/ai/results/:token/", {
+      errorType: getSafeErrorType(error),
+    });
     return null;
   }
 }

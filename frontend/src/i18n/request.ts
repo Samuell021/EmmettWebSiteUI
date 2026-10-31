@@ -2,6 +2,7 @@ import { getRequestConfig } from "next-intl/server";
 import { hasLocale } from "next-intl";
 
 import { getApiBaseUrl } from "@/lib/api/config";
+import { getSafeErrorType, logUpstreamFailure } from "@/lib/api/upstream-logging";
 import { CACHE_TAGS } from "@/lib/cache-tags";
 import { mergeDatabaseMessages } from "./database-messages";
 import { routing } from "./routing";
@@ -28,7 +29,12 @@ async function getMessages(locale: string): Promise<Record<string, unknown>> {
         },
       },
     );
-    if (!response.ok) return bundled;
+    if (!response.ok) {
+      logUpstreamFailure("django-site-copy", "/site-content/translations/", {
+        status: response.status,
+      });
+      return bundled;
+    }
 
     const payload = (await response.json()) as FrontendCopyResponse;
     if (
@@ -37,12 +43,19 @@ async function getMessages(locale: string): Promise<Record<string, unknown>> {
       typeof payload.messages !== "object" ||
       Array.isArray(payload.messages)
     ) {
+      logUpstreamFailure("django-site-copy", "/site-content/translations/", {
+        status: response.status,
+        errorType: "InvalidPayload",
+      });
       return bundled;
     }
     return mergeDatabaseMessages(bundled, payload.messages);
-  } catch {
-    // Keep page rendering available while the optional CMS translation feed is
-    // not configured. Production readiness later makes this state explicit.
+  } catch (error) {
+    // Keep rendering available, but make the checked-in message fallback visible
+    // to operators so a broken CMS connection cannot look like a successful edit.
+    logUpstreamFailure("django-site-copy", "/site-content/translations/", {
+      errorType: getSafeErrorType(error),
+    });
     return bundled;
   }
 }

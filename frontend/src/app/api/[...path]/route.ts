@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 
 import { extractForwardedClientIp } from "@/lib/api/server";
+import { getSafeErrorType, logUpstreamFailure } from "@/lib/api/upstream-logging";
 
 /**
  * پراکسی سمت سرور برای ``/api/*`` — جایگزین ``rewrites()`` در next.config.ts
@@ -53,7 +54,10 @@ async function proxy(request: NextRequest): Promise<Response> {
       redirect: "manual",
       cache: "no-store",
     });
-  } catch {
+  } catch (error) {
+    logUpstreamFailure("django-proxy", request.nextUrl.pathname, {
+      errorType: getSafeErrorType(error),
+    });
     return NextResponse.json({ detail: "Upstream backend unavailable." }, { status: 502 });
   }
 
