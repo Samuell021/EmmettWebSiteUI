@@ -1,7 +1,8 @@
 # راهنمای جامع استقرار روی هاست اشتراکی cPanel (`DEPLOYMENT.md`)
 
 > **فاز ۹ — آمادگی استقرار (Deployment Readiness)**  
-> **توپولوژی مصوب (`ADR-0035` و `ADR-0036`):** دامنهٔ واحد هم‌مبدأ (`Single-Domain Same-Origin`) روی هاست اشتراکی لینوکسی مجهز به **cPanel + Phusion Passenger (Python 3.11 & Node.js 22) + MySQL 8**.
+> **توپولوژی هدف (`ADR-0035` و `ADR-0036`):** دامنهٔ واحد هم‌مبدأ (`Single-Domain Same-Origin`) با نیازمندی پروژهٔ **cPanel + Phusion Passenger (Python 3.11 & Node.js 22.22.3) + MySQL 8**؛ پشتیبانی حساب واقعی باید جداگانه تأیید شود.
+> **پیش از تنظیم Addon Domain:** document root، نسخه‌های runtime، Application URL اپ Python و قواعد Passenger را طبق [پیش‌پرواز Addon Domain و Passenger](docs/deployment/cpanel-addon-domain-preflight.md) از حساب واقعی cPanel تأیید کنید. `/backend` فقط مسیر هدفِ ADR است، نه واقعیت تأییدشدهٔ این حساب؛ اگر cPanel آن را route نمی‌کند، استقرار را متوقف کنید. در هیچ مرحله‌ای `~/public_html` را به‌عنوان document root قطعی فرض نکنید.
 
 ---
 
@@ -62,16 +63,16 @@
 │   ├── backend/
 │   │   ├── .env                      # متغیرهای محیطی پروداکشن (chmod 600 — خارج از Git)
 │   │   ├── passenger_wsgi.py         # کپی‌شده از deploy/passenger_wsgi.py.example
-│   │   ├── backups/                  # محل ذخیرهٔ بکاپ‌های روزانه (chmod 700 — خارج از public_html)
-│   │   ├── .cache/django-cache/      # کش فایل‌محور جنگو (chmod 700 — خارج از public_html)
+│   │   ├── backups/                  # محل ذخیرهٔ بکاپ‌های روزانه (chmod 700 — خارج از document root واقعی)
+│   │   ├── .cache/django-cache/      # کش فایل‌محور جنگو (chmod 700 — خارج از document root واقعی)
 │   │   ├── staticfiles/              # خروجی collectstatic
 │   │   └── media/                    # آپلودهای کاربران + فایل محافظ .htaccess
 │   └── frontend/
 │       └── server.js                 # کپی‌شده از deploy/server.js.example
-└── public_html/
-    ├── .htaccess                     # کپی‌شده از backend/deploy/public_html.htaccess.example
-    ├── static -> ~/EmmettWebSite/backend/staticfiles   # سیم‌لینک (یا مسیر مستقیم DJANGO_STATIC_ROOT)
-    └── media  -> ~/EmmettWebSite/backend/media         # سیم‌لینک (یا مسیر مستقیم DJANGO_MEDIA_ROOT)
+└── <addon-domain-document-root>/     # مسیر واقعی را از cPanel → Domains بگیرید؛ public_html فرض نشود
+    ├── .htaccess                     # فایل مدیریت‌شدهٔ cPanel/Passenger + قواعد تکمیلی ادغام‌شده
+    ├── static -> ~/EmmettWebSite/backend/staticfiles   # فقط اگر symlink در هاست مجاز است
+    └── media  -> ~/EmmettWebSite/backend/media         # فقط اگر symlink در هاست مجاز است
 ```
 
 ---
@@ -102,12 +103,15 @@
 
 ### گام ۳.۲: دریافت کد پروژه در هاست
 
-از صفحهٔ اصلی cPanel وارد **Terminal** (یا از طریق SSH وارد سرور) شوید و دستورات زیر را اجرا کنید:
+از صفحهٔ اصلی cPanel وارد **Terminal** (یا از طریق SSH وارد سرور) شوید، مخزن درست را clone کنید و پیش از نصب، URL و ref انتشار را مطابق [پیش‌پرواز](docs/deployment/cpanel-addon-domain-preflight.md) ثبت و تأیید کنید:
 
 ```bash
 cd ~
-git clone https://github.com/EmmettSS/EmmettWebSite.git
+git clone https://github.com/Samuell021/EmmettWebSiteUI.git ~/EmmettWebSite
 cd ~/EmmettWebSite
+git remote get-url origin
+git status --short --branch
+git rev-parse HEAD
 ```
 
 ### گام ۳.۳: راه‌اندازی بک‌اند در `Setup Python App` و `virtualenv`
@@ -123,7 +127,7 @@ cd ~/EmmettWebSite
 3. در cPanel از بخش **Software** وارد **Setup Python App** شوید و روی **Create Application** کلیک کنید:
    - **Python version:** `3.11`
    - **Application root:** `EmmettWebSite/backend`
-   - **Application URL:** زیرمسیر یا زیردامنهٔ داخلی بک‌اند (مثلاً `emmett.ir/admin` برای پنل مدیریت، یا اجرای سرویس WSGI داخلی روی `127.0.0.1:8000`؛ توجه کنید در cPanel دو اپلیکیشن Python و Node.js هم‌زمان نمی‌توانند هر دو ریشهٔ `/` یک دامنه را تصاحب کنند، پس ریشهٔ `/` دامنهٔ اصلی متعلق به اپ Node.js است و `INTERNAL_API_URL` فرانت‌اند به آدرس داخلی بک‌اند اشاره می‌کند)
+   - **Application URL:** مقدار واقعی را از Setup Python App برای همین Addon Domain ثبت کنید؛ `/backend` فقط مسیر هدف ADR است و تا تأیید routing هم‌زمان Node و Python مقدار قطعی نیست. پورت localhost یا مسیر `/admin` را حدس نزنید؛ اگر cPanel mount موردنیاز را نمی‌پذیرد، استقرار را متوقف و توپولوژی جایگزین را جداگانه تأیید کنید.
    - **Application startup file:** `passenger_wsgi.py`
    - **Application Entry point:** `application`
    - روی دکمهٔ **Create** در بالا سمت راست کلیک کنید.
@@ -147,21 +151,32 @@ cd ~/EmmettWebSite
 - `STATIC_URL = "/static/"` و `STATIC_ROOT = BASE_DIR / "staticfiles"` (قابل تغییر با `DJANGO_STATIC_ROOT`)
 - `MEDIA_URL = "/media/"` و `MEDIA_ROOT = BASE_DIR / "media"` (قابل تغییر با `DJANGO_MEDIA_ROOT`)
 
-برای آنکه وب‌سرور Apache/LiteSpeed در هاست cPanel فایل‌های `/static/` و `/media/` را با حداکثر سرعت و با اعمال محدودیت‌های امنیتی سرو کند، دستورات زیر را در ترمینال اجرا کنید (`<cpanel_user>` را با نام کاربری هاست خود جایگزین کنید):
+برای سرو فایل‌های `/static/` و `/media/`، ابتدا مسیر واقعی **Document Root** را از cPanel → **Domains** دریافت و طبق [پیش‌پرواز](docs/deployment/cpanel-addon-domain-preflight.md) مسیرها/مجوزها را بررسی کنید. `~/public_html` فقط در صورتی معتبر است که cPanel دقیقاً همین Document Root را نشان دهد. پس از جایگزینی placeholder با مسیر واقعی و بررسی اینکه مقصدهای هم‌نام موجود نیستند، دستورات زیر را اجرا کنید:
 
 ```bash
-# ۱) اطمینان از وجود فایل امنیتی .htaccess در پوشهٔ media (جلوگیری از اجرای اسکریپت آپلودشده — ADR-0005)
-cp ~/EmmettWebSite/backend/deploy/media.htaccess.example ~/EmmettWebSite/backend/media/.htaccess
+PROJECT_ROOT="$HOME/EmmettWebSite"
+# این مسیر را عیناً از cPanel → Domains بردارید؛ مقدار نمونه را اجرا نکنید.
+ADDON_DOCROOT="/home/<cpanel_user>/<actual-addon-document-root>"
+case "$ADDON_DOCROOT" in *'<'*|*'>'*) echo 'Set the real Addon Domain document root first' >&2; exit 1 ;; esac
+test -d "$ADDON_DOCROOT" || { echo "Missing document root: $ADDON_DOCROOT" >&2; exit 1; }
 
-# ۲) ایجاد سیم‌لینک پوشه‌های staticfiles و media در public_html
-ln -sfn ~/EmmettWebSite/backend/staticfiles ~/public_html/static
-ln -sfn ~/EmmettWebSite/backend/media ~/public_html/media
+# ۱) فایل امنیتی media؛ deploy_backend.sh نیز این فایل را ایجاد/به‌روزرسانی می‌کند.
+cp "$PROJECT_ROOT/backend/deploy/media.htaccess.example" "$PROJECT_ROOT/backend/media/.htaccess"
 
-# ۳) کپی قواعد .htaccess دامنهٔ واحد در public_html (در صورت وجود فایل قبلی، ابتدا از آن بکاپ بگیرید)
-cp ~/EmmettWebSite/backend/deploy/public_html.htaccess.example ~/public_html/.htaccess
+# ۲) پیش از symlink، مقصدهای موجود را دستی بررسی کنید؛ هیچ‌کدام را کورکورانه overwrite نکنید.
+for target in "$ADDON_DOCROOT/static" "$ADDON_DOCROOT/media"; do
+  if [ -e "$target" ] || [ -L "$target" ]; then
+    echo "Review existing path before changing it: $target" >&2
+    exit 1
+  fi
+done
+ln -s "$PROJECT_ROOT/backend/staticfiles" "$ADDON_DOCROOT/static"
+ln -s "$PROJECT_ROOT/backend/media" "$ADDON_DOCROOT/media"
 ```
 
-> **نکته:** اسکریپت `scripts/deploy_backend.sh` در هر بار اجرا به‌صورت خودکار فایل `media/.htaccess` را بازنویسی و دستور `collectstatic --noinput --clear` را اجرا می‌کند.
+> **مهم دربارهٔ `.htaccess`:** فایل موردنظر `$ADDON_DOCROOT/.htaccess` است، نه الزاماً `~/public_html/.htaccess`. پس از ساخت appها، cPanel/Passenger قواعد خودش را می‌نویسد. از `backend/deploy/public_html.htaccess.example` فقط قواعد امنیتی تکمیلی را، پس از بررسی و تأیید provider، ادغام کنید؛ آن را روی `.htaccess` موجود کپی نکنید یا کامل جایگزین نسازید. قواعد Passenger را حفظ کنید و پس از تغییر، مسیر دامنهٔ اصلی، Application URL واقعی Python (اگر مجزا است) و `/static/` را smoke-test کنید.
+>
+> **نکته:** اسکریپت `scripts/deploy_backend.sh` در هر بار اجرا فایل `media/.htaccess` را بازنویسی و `collectstatic --noinput --clear` را اجرا می‌کند.
 
 ### گام ۳.۵: راه‌اندازی فرانت‌اند در `Setup Node.js App`
 
@@ -171,7 +186,7 @@ cp ~/EmmettWebSite/backend/deploy/public_html.htaccess.example ~/public_html/.ht
    cp deploy/server.js.example server.js
    ```
 2. در cPanel از بخش **Software** وارد **Setup Node.js App** شوید و روی **Create Application** کلیک کنید:
-   - **Node.js version:** `22.x`
+   - **Node.js version:** دقیقاً `22.22.3`؛ مقدار کلی `22.x` را کافی فرض نکنید. نسخهٔ قفل‌شده در `frontend/package.json` و `.github/workflows/ci.yml` است؛ اگر همین runtime در cPanel قابل انتخاب نیست، نصب/build را متوقف کنید.
    - **Application mode:** `Production`
    - **Application root:** `EmmettWebSite/frontend`
    - **Application URL:** دامنهٔ اصلی سایت (مثلاً `emmett.ir`)
@@ -262,7 +277,7 @@ PUBLIC_SITE_URL=https://emmett.ir bash scripts/deploy_frontend.sh --install-deps
 | `ADMIN_2FA_REQUIRED` | `True` | بله | اجبار احراز هویت دو مرحله‌ای TOTP برای تمام کارکنان ادمین (`W009`) |
 | `LOGIN_LOCKOUT_ENABLED` | `True` | بله | قفل موقت ورود پس از ۵ تلاش ناموفق در ۱۵ دقیقه (`429 Too Many Requests`) |
 | `DJANGO_NUM_PROXIES` | `1` | بله | تعداد پراکسی‌های مطمئن جلوتر از اپلیکیشن (`1` = Apache/Passenger با `RequestHeader set`؛ `2` = پشت CDN بدون `mod_remoteip`) |
-| `BACKUP_DIR` | `/home/<user>/EmmettWebSite/backend/backups` | بله | مسیر نوشتنی خارج از `public_html` برای ذخیرهٔ بکاپ‌ها (`W011`/`W012`) |
+| `BACKUP_DIR` | `/home/<user>/EmmettWebSite/backend/backups` | بله | مسیر نوشتنی خارج از document root واقعی Addon Domain برای ذخیرهٔ بکاپ‌ها (`W011`/`W012`) |
 | `BACKUP_RETENTION` | `7` | خیر | تعداد نسخه‌های بکاپ نگهداری‌شده پیش از حذف خودکار نسخه‌های قدیمی‌تر |
 | `KAVENEGAR_API_KEY` | `<کلید-API-کاوه‌نگار>` | اختیاری | در صورت خالی بودن، بدون خطا به لاگ کنسول و ایمیل fallback می‌کند |
 | `EMAIL_BACKEND` | `django.core.mail.backends.smtp.EmailBackend` | اختیاری | بک‌اند ارسال ایمیل از طریق SMTP هاست (`EMAIL_HOST`, `EMAIL_PORT`, `EMAIL_HOST_USER`, `EMAIL_HOST_PASSWORD`) |
@@ -342,8 +357,8 @@ bash scripts/restore_backup.sh --media backend/backups/media-20261022-033000.tar
 | نشانهٔ خطا | علت احتمالی | راه‌حل دقیق |
 |---|---|---|
 | خطای `500` یا صفحهٔ سفید Passenger در بک‌اند | خطای متغیر محیطی در `.env` یا عدم اجرای `migrate` | بررسی لاگ `~/EmmettWebSite/backend/stderr.log` و اجرای `python manage.py check --deploy` در ترمینال |
-| عدم بارگذاری استایل‌های پنل ادمین (`/admin/`) | اجرا نشدن `collectstatic` یا عدم وجود سیم‌لینک `public_html/static` | اجرای `bash scripts/deploy_backend.sh` و بررسی `ls -l ~/public_html/static` |
+| عدم بارگذاری استایل‌های پنل Django admin | اجرا نشدن `collectstatic` یا عدم وجود symlink در document root واقعی Addon Domain | اجرای `bash scripts/deploy_backend.sh` و بررسی `ls -l "$ADDON_DOCROOT/static"` پس از تنظیم متغیر مطابق cPanel |
 | خطای `403 CSRF verification failed` در فرم‌ها | عدم تطابق `DJANGO_CSRF_TRUSTED_ORIGINS` یا `PUBLIC_SITE_URL` با دامنهٔ HTTPS | قرار دادن `https://emmett.ir,https://www.emmett.ir` در `DJANGO_CSRF_TRUSTED_ORIGINS` و ری‌استارت Passenger |
 | خطای `MySQL server has gone away` پس از مدتی بیکاری | بسته شدن اتصال توسط MySQL هاست اشتراکی | در `config/settings/production.py` گزینهٔ `CONN_HEALTH_CHECKS = True` فعال شده است؛ مطمئن شوید `DJANGO_SETTINGS_MODULE=config.settings.production` است |
 | اعمال نشدن تغییرات کد پس از `git pull` | کش شدن پردازش پایتون/نود در Phusion Passenger | اجرای `touch ~/EmmettWebSite/backend/tmp/restart.txt` و `touch ~/EmmettWebSite/frontend/tmp/restart.txt` |
-| خطای `429 Too Many Requests` سراسری برای همهٔ کاربران یا `ready_for_traffic: false` در `/api/v1/health/proxy/` | کپی نشدن دستورات `RequestHeader set X-Forwarded-For` در `public_html/.htaccess` یا قرارگیری پشت CDN بدون تنظیم `DJANGO_NUM_PROXIES` | کپی بخش `<IfModule mod_headers.c>` از `backend/deploy/public_html.htaccess.example` (یا در صورت وجود CDN بدون `mod_remoteip`، تغییر `set` به `append` و تنظیم `DJANGO_NUM_PROXIES=2` در `.env`) و بازبینی دوبارهٔ `/api/v1/health/proxy/` |
+| خطای `429 Too Many Requests` سراسری برای همهٔ کاربران یا `ready_for_traffic: false` در `/api/v1/health/proxy/` | ادغام نشدن `RequestHeader set X-Forwarded-For` در `.htaccess` مربوط به document root واقعی Addon Domain یا قرارگیری پشت CDN بدون تنظیم `DJANGO_NUM_PROXIES` | محل `.htaccess` و قواعد Passenger را از cPanel تأیید کنید؛ سپس قواعد تکمیلی `<IfModule mod_headers.c>` را بدون جایگزینی فایل کامل merge کنید (یا در حالت CDN بدون `mod_remoteip`، پس از تأیید chain، `set` را به `append` و `DJANGO_NUM_PROXIES=2` کنید) و endpoint تشخیصی را دوباره بررسی کنید |
