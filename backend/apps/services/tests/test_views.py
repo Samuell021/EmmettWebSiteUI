@@ -8,7 +8,7 @@ from rest_framework.test import APIClient
 from apps.core.models import PublishableModel
 from apps.services.models import Service
 from apps.services.tests.factories import ServiceFactory
-from apps.taxonomy.models import Category
+from apps.taxonomy.models import Category, Tag
 from apps.taxonomy.tests.factories import TagFactory
 
 pytestmark = pytest.mark.django_db
@@ -38,7 +38,7 @@ class TestServiceViewSet:
     def test_list_exposes_database_tags_and_categories(self) -> None:
         service = cast(Service, ServiceFactory(slug="labeled-service"))
         category = cast(Category, Category.objects.create(name="امنیت", slug="security", scope="service"))
-        tag = TagFactory(name="Django", slug="django")
+        tag = cast(Tag, TagFactory(name="Django", slug="django"))
         service.categories.add(category)
         service.tags.add(tag)
 
