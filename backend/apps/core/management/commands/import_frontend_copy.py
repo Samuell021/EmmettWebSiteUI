@@ -14,6 +14,7 @@ from typing import Any
 from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
 
+from apps.core.frontend_cache import schedule_frontend_revalidation
 from apps.core.models import Translation
 
 
@@ -52,6 +53,7 @@ class Command(BaseCommand):
             raise CommandError(f"Frontend message directory does not exist: {source_dir}")
 
         created = updated = unchanged = skipped = 0
+        changed_locales: set[str] = set()
         for locale in locales:
             source = source_dir / f"{locale}.json"
             if not source.is_file():
@@ -63,8 +65,9 @@ class Command(BaseCommand):
             if not isinstance(payload, dict):
                 raise CommandError(f"The root value in {source} must be a JSON object.")
 
+            key_max_length = Translation._meta.get_field("key").max_length
             for key, value in self._flatten_strings(payload):
-                if len(key) > Translation._meta.get_field("key").max_length:
+                if key_max_length is not None and len(key) > key_max_length:
                     raise CommandError(f"Message key exceeds the database limit ({len(key)}): {key}")
 
                 entry, was_created = Translation.objects.get_or_create(
@@ -75,16 +78,21 @@ class Command(BaseCommand):
                 )
                 if was_created:
                     created += 1
+                    changed_locales.add(locale)
                 elif options["overwrite"]:
                     if entry.value != value or entry.is_html:
                         entry.value = value
                         entry.is_html = False
                         entry.save(update_fields=["value", "is_html", "updated_at"])
                         updated += 1
+                        changed_locales.add(locale)
                     else:
                         unchanged += 1
                 else:
                     skipped += 1
+
+        if changed_locales:
+            schedule_frontend_revalidation(f"site-copy:{locale}" for locale in changed_locales)
 
         self.stdout.write(
             self.style.SUCCESS(

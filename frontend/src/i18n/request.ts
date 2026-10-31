@@ -2,6 +2,7 @@ import { getRequestConfig } from "next-intl/server";
 import { hasLocale } from "next-intl";
 
 import { getApiBaseUrl } from "@/lib/api/config";
+import { CACHE_TAGS } from "@/lib/cache-tags";
 import { mergeDatabaseMessages } from "./database-messages";
 import { routing } from "./routing";
 
@@ -21,7 +22,10 @@ async function getMessages(locale: string): Promise<Record<string, unknown>> {
       `${getApiBaseUrl()}/site-content/translations/?locale=${encodeURIComponent(locale)}`,
       {
         headers: { "Accept-Language": locale },
-        next: { revalidate: 60 },
+        next: {
+          revalidate: 60,
+          tags: [locale === "en" ? CACHE_TAGS.siteCopyEn : CACHE_TAGS.siteCopyFa],
+        },
       },
     );
     if (!response.ok) return bundled;

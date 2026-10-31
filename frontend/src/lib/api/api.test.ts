@@ -249,6 +249,33 @@ describe("lib/api/server & lib/api/seo", () => {
     expect(await getSharedAISuggestion("fa", "err")).toBeNull();
   });
 
+  it("associates public data fetches with stable cache-invalidation tags", async () => {
+    fetchMock.mockResolvedValue(new Response(JSON.stringify({ results: [] }), { status: 200 }));
+
+    await getServices("fa");
+    await getProject("en", "project");
+    await getBlogPost("fa", "post");
+    await getCourse("en", "course");
+    await getTeamMembers("fa");
+    await searchSite("fa", "query");
+    await getSitemapEntries();
+    await getFaqForPath("/contact", "en");
+
+    const options = fetchMock.mock.calls.map(
+      ([, init]) => init as RequestInit & { next?: { tags?: string[] } },
+    );
+    expect(options.map((init) => init.next?.tags)).toEqual([
+      ["content:services"],
+      ["content:projects"],
+      ["content:blog"],
+      ["content:academy"],
+      ["content:company"],
+      ["search:site"],
+      ["seo:sitemap"],
+      ["seo:faq:en"],
+    ]);
+  });
+
   it("fetches SEO settings, sitemap, redirects, FAQ, and fallbacks gracefully", async () => {
     fetchMock.mockImplementation(() =>
       Promise.resolve(

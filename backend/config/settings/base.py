@@ -209,6 +209,12 @@ else:
         }
     }
 
+# Next.js on-demand cache invalidation. When the webhook is not configured,
+# frontend data fetches still recover through their explicit short TTL.
+FRONTEND_REVALIDATE_URL = env("FRONTEND_REVALIDATE_URL", default="")
+FRONTEND_REVALIDATE_SECRET = env("FRONTEND_REVALIDATE_SECRET", default="")
+FRONTEND_REVALIDATE_TIMEOUT_SECONDS = env.int("FRONTEND_REVALIDATE_TIMEOUT_SECONDS", default=2)
+
 # ---------------------------------------------------------------------------
 # CORS (فقط برای توسعهٔ محلی frontend جدا؛ در prod تنظیمات سخت‌گیرانه‌تر است)
 # ---------------------------------------------------------------------------

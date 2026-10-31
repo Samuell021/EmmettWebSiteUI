@@ -37,7 +37,9 @@ class TestFrontendCopyTranslationsAPI:
 
 
 @pytest.mark.django_db
-def test_import_frontend_copy_is_non_destructive_by_default(tmp_path: Path) -> None:
+def test_import_frontend_copy_is_non_destructive_by_default(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
     (tmp_path / "fa.json").write_text(
         json.dumps(
             {
@@ -52,6 +54,11 @@ def test_import_frontend_copy_is_non_destructive_by_default(tmp_path: Path) -> N
     )
     Translation.objects.create(namespace="site.copy", key="ui.hero.title", locale="fa", value="ویرایش مدیر")
     output = StringIO()
+    scheduled_tags: list[tuple[str, ...]] = []
+    monkeypatch.setattr(
+        "apps.core.management.commands.import_frontend_copy.schedule_frontend_revalidation",
+        lambda tags: scheduled_tags.append(tuple(tags)),
+    )
 
     call_command(
         "import_frontend_copy",
@@ -71,6 +78,7 @@ def test_import_frontend_copy_is_non_destructive_by_default(tmp_path: Path) -> N
     assert not numeric_entry_exists
     assert "1 created" in output.getvalue()
     assert "1 existing preserved" in output.getvalue()
+    assert scheduled_tags == [("site-copy:fa",)]
 
 
 def test_translation_path_limit_is_checked_against_model_field() -> None:

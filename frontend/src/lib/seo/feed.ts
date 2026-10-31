@@ -8,9 +8,10 @@
  */
 
 import { getApiBaseUrl } from "@/lib/api/config";
+import { CACHE_TAGS } from "@/lib/cache-tags";
 import { isAppLocale } from "@/lib/seo/site";
 
-export const FEED_REVALIDATE_SECONDS = 900;
+export const FEED_REVALIDATE_SECONDS = 60;
 
 export type FeedKind = "blog" | "academy";
 
@@ -25,7 +26,10 @@ export async function fetchFeed(kind: FeedKind, locale: string): Promise<Respons
         "Accept-Language": language,
         "X-Forwarded-Proto": "https",
       },
-      next: { revalidate: FEED_REVALIDATE_SECONDS },
+      next: {
+        revalidate: FEED_REVALIDATE_SECONDS,
+        tags: [kind === "blog" ? CACHE_TAGS.blogFeed : CACHE_TAGS.academyFeed],
+      },
     });
     if (!upstream.ok) {
       return new Response("feed unavailable\n", {
@@ -37,7 +41,7 @@ export async function fetchFeed(kind: FeedKind, locale: string): Promise<Respons
       status: 200,
       headers: {
         "content-type": "application/rss+xml; charset=utf-8",
-        "cache-control": `public, s-maxage=${FEED_REVALIDATE_SECONDS}, stale-while-revalidate=3600`,
+        "cache-control": `public, max-age=0, s-maxage=${FEED_REVALIDATE_SECONDS}, must-revalidate`,
       },
     });
   } catch {

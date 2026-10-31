@@ -1,3 +1,4 @@
+import { CACHE_TAGS } from "@/lib/cache-tags";
 import { getApiBaseUrl } from "./config";
 import type {
   AISuggestion,
@@ -33,7 +34,12 @@ export function extractForwardedClientIp(requestHeaders: Pick<Headers, "get">): 
  * (هرگز از مرورگر عبور نمی‌کند). هدر ``Accept-Language`` معادل locale درخواستی
  * next-intl را ست می‌کند تا پاسخ API در زبان درست برگردد.
  */
-async function serverFetch<T>(path: string, locale: string, init?: RequestInit): Promise<T | null> {
+async function serverFetch<T>(
+  path: string,
+  locale: string,
+  init?: RequestInit,
+  tags: readonly string[] = [],
+): Promise<T | null> {
   const url = `${getApiBaseUrl()}${path}`;
   try {
     const response = await fetch(url, {
@@ -44,7 +50,7 @@ async function serverFetch<T>(path: string, locale: string, init?: RequestInit):
         ...init?.headers,
       },
       // محتوای ویترین مرتباً تغییر می‌کند؛ کش کوتاه برای تعادل تازگی/کارایی.
-      next: { revalidate: 60 },
+      next: { revalidate: 60, ...(tags.length > 0 ? { tags: [...tags] } : {}) },
     });
     if (!response.ok) {
       return null;
@@ -59,45 +65,55 @@ export const getServices = (locale: string, searchParams?: string) =>
   serverFetch<Paginated<ServiceListItem>>(
     `/services/${searchParams ? `?${searchParams}` : ""}`,
     locale,
+    undefined,
+    [CACHE_TAGS.services],
   );
 
 export const getService = (locale: string, slug: string) =>
-  serverFetch<ServiceDetail>(`/services/${slug}/`, locale);
+  serverFetch<ServiceDetail>(`/services/${slug}/`, locale, undefined, [CACHE_TAGS.services]);
 
 export const getProjects = (locale: string, searchParams?: string) =>
   serverFetch<Paginated<ProjectListItem>>(
     `/projects/${searchParams ? `?${searchParams}` : ""}`,
     locale,
+    undefined,
+    [CACHE_TAGS.projects],
   );
 
 export const getProject = (locale: string, slug: string) =>
-  serverFetch<ProjectDetail>(`/projects/${slug}/`, locale);
+  serverFetch<ProjectDetail>(`/projects/${slug}/`, locale, undefined, [CACHE_TAGS.projects]);
 
 export const getCourses = (locale: string, searchParams?: string) =>
   serverFetch<Paginated<CourseListItem>>(
     `/academy/${searchParams ? `?${searchParams}` : ""}`,
     locale,
+    undefined,
+    [CACHE_TAGS.academy],
   );
 
 export const getCourse = (locale: string, slug: string) =>
-  serverFetch<CourseDetail>(`/academy/${slug}/`, locale);
+  serverFetch<CourseDetail>(`/academy/${slug}/`, locale, undefined, [CACHE_TAGS.academy]);
 
 export const getBlogPosts = (locale: string, searchParams?: string) =>
   serverFetch<Paginated<BlogPostListItem>>(
     `/blog/${searchParams ? `?${searchParams}` : ""}`,
     locale,
+    undefined,
+    [CACHE_TAGS.blog],
   );
 
 export const getBlogPost = (locale: string, slug: string) =>
-  serverFetch<BlogPostDetail>(`/blog/${slug}/`, locale);
+  serverFetch<BlogPostDetail>(`/blog/${slug}/`, locale, undefined, [CACHE_TAGS.blog]);
 
 export const getTeamMembers = (locale: string) =>
-  serverFetch<Paginated<TeamMember>>("/company/team/", locale);
+  serverFetch<Paginated<TeamMember>>("/company/team/", locale, undefined, [CACHE_TAGS.company]);
 
 export const getTestimonials = (locale: string, featured?: boolean) =>
   serverFetch<Paginated<Testimonial>>(
     `/company/testimonials/${featured ? "?featured=true" : ""}`,
     locale,
+    undefined,
+    [CACHE_TAGS.company],
   );
 
 export const searchSite = (locale: string, query: string, clientIpHeader?: string) =>
@@ -105,6 +121,7 @@ export const searchSite = (locale: string, query: string, clientIpHeader?: strin
     `/search/?q=${encodeURIComponent(query)}&locale=${encodeURIComponent(locale)}`,
     locale,
     clientIpHeader ? { headers: { "X-Forwarded-For": clientIpHeader } } : undefined,
+    [CACHE_TAGS.search],
   );
 
 export const getCatalogs = (locale: string, keys?: string[]) =>
