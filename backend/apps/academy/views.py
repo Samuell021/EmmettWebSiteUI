@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from django.db.models import QuerySet
+from django.db.models import Count, QuerySet
 from drf_spectacular.utils import extend_schema
 from rest_framework import status
 from rest_framework.generics import ListAPIView
@@ -32,6 +32,8 @@ class CourseViewSet(PublicReadOnlyViewSet[Course]):
         )
         if self.action == "retrieve":
             qs = qs.prefetch_related("categories", "tags", "lessons")
+        else:
+            qs = qs.annotate(lesson_count=Count("lessons", distinct=True))
         return qs.order_by("order")
 
     def get_serializer_class(self) -> type[CourseListSerializer | CourseDetailSerializer]:

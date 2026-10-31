@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { Github, Linkedin, Twitter } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 
@@ -99,11 +98,6 @@ export function Footer() {
   const t = useTranslations("ui.footer");
   const brand = useTranslations("ui");
   const columns = t.raw("columns") as FooterColumn[];
-  const social = [
-    { icon: Github, label: t("social.github") },
-    { icon: Linkedin, label: t("social.linkedin") },
-    { icon: Twitter, label: t("social.twitter") },
-  ];
 
   return (
     <footer
@@ -114,53 +108,37 @@ export function Footer() {
 
       <div className="relative z-10 max-w-[1440px] mx-auto px-6 lg:px-12 pt-20 pb-10">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-10 mb-20">
-          {columns.map((col) => (
-            <div key={col.header}>
-              <p className="text-[10px] font-mono tracking-[0.2em] uppercase text-[rgba(243,250,246,0.2)] mb-5">
-                {col.header}
-              </p>
-              <ul className="space-y-3">
-                {col.links.map((link) => (
-                  <li key={link.label}>
-                    <Link
-                      href={link.href as "/"}
-                      className="text-sm text-[rgba(243,250,246,0.35)] hover:text-[rgba(243,250,246,0.7)] transition-colors duration-150"
-                    >
-                      {link.label}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ))}
+          {columns
+            .map((column) => ({
+              ...column,
+              links: column.links.filter((link) => link.href !== "#"),
+            }))
+            .filter((column) => column.links.length > 0)
+            .map((col) => (
+              <div key={col.header}>
+                <p className="text-[10px] font-mono tracking-[0.2em] uppercase text-[rgba(243,250,246,0.2)] mb-5">
+                  {col.header}
+                </p>
+                <ul className="space-y-3">
+                  {col.links.map((link) => (
+                    <li key={link.label}>
+                      <Link
+                        href={link.href as "/"}
+                        className="text-sm text-[rgba(243,250,246,0.35)] hover:text-[rgba(243,250,246,0.7)] transition-colors duration-150"
+                      >
+                        {link.label}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
         </div>
 
-        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6 pt-8 border-t border-[rgba(31,174,110,0.08)]">
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-2">
-              <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
-              <span className="text-xs font-mono text-[rgba(243,250,246,0.22)]">
-                {t("operational")}
-              </span>
-            </div>
-            <span className="text-xs text-[rgba(243,250,246,0.1)]">·</span>
-            <span className="text-xs font-mono text-[rgba(243,250,246,0.22)]">
-              {t("copyright", { year: new Date().getFullYear() })}
-            </span>
-          </div>
-
-          <div className="flex items-center gap-3">
-            {social.map((item) => (
-              <a
-                key={item.label}
-                href="#"
-                aria-label={item.label}
-                className="p-2 rounded-lg border border-[rgba(31,174,110,0.1)] text-[rgba(243,250,246,0.2)] hover:text-[rgba(243,250,246,0.55)] hover:border-[rgba(31,174,110,0.25)] transition-all duration-150"
-              >
-                <item.icon className="w-3.5 h-3.5" />
-              </a>
-            ))}
-          </div>
+        <div className="flex flex-col md:flex-row items-start md:items-center justify-end gap-6 pt-8 border-t border-[rgba(31,174,110,0.08)]">
+          <span className="text-xs font-mono text-[rgba(243,250,246,0.22)]">
+            {t("copyright", { year: new Date().getFullYear() })}
+          </span>
         </div>
 
         <div className="mt-16 font-mono text-[clamp(4rem,15vw,12rem)] font-bold leading-none text-[rgba(31,174,110,0.04)] tracking-[0.05em] select-none">

@@ -8,30 +8,28 @@ import type {
 import { formatDate } from "@/lib/format/date";
 import { toAppLocale } from "@/lib/seo/site";
 
-/**
- * مدل نمایشی بخش‌های Home (فاز ۳).
- *
- * فقط فیلدهایی که اندپوینت فهرست واقعاً برمی‌گرداند اینجا نگاشت می‌شوند.
- * عنوان ثابت بخش‌ها، تگ‌ها، داشبورد کارت محصول، پشته و نتیجهٔ پروژه، دستهٔ
- * مقاله و برچسب گره‌های آکادمی متن طراحی‌اند و در خود کامپوننت می‌مانند.
- */
-
+/** Typed, presentation-ready values mapped only from published CMS API records. */
 export type HomeService = {
   id: string;
   num: string;
   title: string;
   copy: string;
+  tags: string[];
   href: string;
 };
+
+export type HomeMetric = { label: string; value: string };
 
 export type HomeProduct = {
   id: string;
   num: string;
   name: string;
-  tagline: string;
   copy: string;
   href: string;
-  pill: string;
+  year: string;
+  tags: string[];
+  technologyStack: string[];
+  metrics: HomeMetric[];
 };
 
 export type HomeProject = {
@@ -42,12 +40,16 @@ export type HomeProject = {
   description: string;
   year: string;
   href: string;
+  tags: string[];
+  technologyStack: string[];
+  metrics: HomeMetric[];
 };
 
 export type HomeArticle = {
   id: string;
   title: string;
   excerpt: string;
+  category: string;
   author: string;
   initials: string;
   date: string;
@@ -61,11 +63,12 @@ export type HomeCourse = {
   title: string;
   levelLabel: string;
   meta: string;
+  lessonCount: number;
   href: string;
 };
 
 export type HomeContent = {
-  /** ``null`` یعنی همان اندپوینت در دسترس نبود؛ بخش، متن طراحی را نگه می‌دارد. */
+  /** null = API unavailable; [] = API succeeded but has no published records. */
   services: HomeService[] | null;
   products: HomeProduct[] | null;
   projects: HomeProject[] | null;
@@ -87,37 +90,53 @@ function initials(name: string) {
   return `${first}${second}`.toUpperCase();
 }
 
-export function mapServices(data: Paginated<ServiceListItem> | null): HomeService[] {
-  return (data?.results ?? []).map((service, index) => ({
+function metricsFromProject(project: ProjectListItem): HomeMetric[] {
+  return Object.entries(project.case_study?.metrics ?? {}).map(([label, value]) => ({
+    label,
+    value: String(value),
+  }));
+}
+
+export function mapServices(data: Paginated<ServiceListItem> | null): HomeService[] | null {
+  if (data === null) return null;
+  return data.results.map((service, index) => ({
     id: service.public_id,
     num: pad(index, 2),
     title: service.title,
     copy: service.summary,
+    tags: service.tags.map((tag) => tag.name),
     href: `/services/${service.slug}`,
   }));
 }
 
-export function mapProducts(data: Paginated<ProjectListItem> | null): HomeProduct[] {
-  return (data?.results ?? []).slice(0, PREVIEW.products).map((product, index) => ({
+export function mapProducts(data: Paginated<ProjectListItem> | null): HomeProduct[] | null {
+  if (data === null) return null;
+  return data.results.slice(0, PREVIEW.products).map((product, index) => ({
     id: product.public_id,
     num: pad(index, 2),
     name: product.title,
-    tagline: product.client_name,
     copy: product.summary,
     href: `/projects/${product.slug}`,
-    pill: product.year == null ? "" : String(product.year),
+    year: product.year == null ? "" : String(product.year),
+    tags: product.tags.map((tag) => tag.name),
+    technologyStack: product.case_study?.technology_stack ?? [],
+    metrics: metricsFromProject(product),
   }));
 }
 
-export function mapProjects(data: Paginated<ProjectListItem> | null): HomeProject[] {
-  return (data?.results ?? []).slice(0, PREVIEW.projects).map((project, index) => ({
+export function mapProjects(data: Paginated<ProjectListItem> | null): HomeProject[] | null {
+  if (data === null) return null;
+  return data.results.slice(0, PREVIEW.projects).map((project, index) => ({
     id: project.public_id,
     num: pad(index, 3),
     title: project.title,
-    industry: project.client_name,
+    industry: project.categories[0]?.name ?? "",
     description: project.summary,
     year: project.year == null ? "" : String(project.year),
     href: `/projects/${project.slug}`,
+    tags: project.tags.map((tag) => tag.name),
+    technologyStack: project.case_study?.technology_stack ?? [],
+    metrics: metricsFromProject(project),
   }));
 }
 
@@ -125,12 +144,14 @@ export function mapArticles(
   data: Paginated<BlogPostListItem> | null,
   locale: string,
   minuteLabel: string,
-): HomeArticle[] {
+): HomeArticle[] | null {
+  if (data === null) return null;
   const appLocale = toAppLocale(locale);
-  return (data?.results ?? []).slice(0, PREVIEW.articles).map((post) => ({
+  return data.results.slice(0, PREVIEW.articles).map((post) => ({
     id: post.public_id,
     title: post.title,
     excerpt: post.excerpt,
+    category: post.categories[0]?.name ?? "",
     author: post.author_name ?? "",
     initials: initials(post.author_name ?? ""),
     date: post.published_at ? formatDate(post.published_at, appLocale) : "",
@@ -143,13 +164,15 @@ export function mapCourses(
   data: Paginated<CourseListItem> | null,
   levelLabel: (level: CourseListItem["level"]) => string,
   hoursLabel: string,
-): HomeCourse[] {
-  return (data?.results ?? []).slice(0, PREVIEW.courses).map((course) => ({
+): HomeCourse[] | null {
+  if (data === null) return null;
+  return data.results.slice(0, PREVIEW.courses).map((course) => ({
     id: course.public_id,
     slug: course.slug,
     title: course.title,
     levelLabel: levelLabel(course.level),
     meta: course.duration_hours ? `${course.duration_hours} ${hoursLabel}` : "",
+    lessonCount: course.lesson_count,
     href: `/academy/${course.slug}`,
   }));
 }

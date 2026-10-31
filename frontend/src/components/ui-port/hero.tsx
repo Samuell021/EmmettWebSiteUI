@@ -19,7 +19,6 @@ const NeuralNetwork3D = nextDynamic(
 
 export function Hero() {
   const t = useTranslations("ui.hero");
-  const stats = t.raw("stats") as Array<{ value: string; label: string }>;
 
   return (
     <section
@@ -105,25 +104,6 @@ export function Hero() {
                 {t("start")}
               </Link>
             </motion.div>
-
-            {/* Technical stats */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.5, delay: 0.45 }}
-              className="flex items-center gap-10 pt-2 border-t border-input"
-            >
-              {stats.map((s, i) => (
-                <div key={i} className="flex flex-col gap-0.5">
-                  <span className="text-2xl font-semibold font-mono text-foreground">
-                    {s.value}
-                  </span>
-                  <span className="text-[10px] text-muted-on-dark uppercase tracking-[0.15em] font-mono">
-                    {s.label}
-                  </span>
-                </div>
-              ))}
-            </motion.div>
           </div>
 
           {/* Right — Neural Network */}
@@ -146,19 +126,6 @@ export function Hero() {
               </div>
               <div className="absolute bottom-20 start-12 font-mono text-[10px] text-[rgba(31,174,110,0.35)] tracking-widest uppercase">
                 {t("backend")}
-              </div>
-              <div className="absolute bottom-10 end-10 font-mono text-[10px] text-muted-on-dark tracking-[0.08em]">
-                {t("version")}
-              </div>
-            </div>
-
-            {/* System status badge */}
-            <div className="absolute top-5 end-5 px-3 py-1.5 rounded-md bg-[rgba(31,174,110,0.07)] border border-[rgba(31,174,110,0.15)]">
-              <div className="flex items-center gap-2">
-                <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
-                <span className="text-[10px] font-mono text-[rgba(31,174,110,0.7)] tracking-widest uppercase">
-                  {t("online")}
-                </span>
               </div>
             </div>
           </motion.div>

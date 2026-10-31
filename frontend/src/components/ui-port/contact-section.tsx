@@ -95,7 +95,6 @@ function SubtleNetwork() {
 
 export function ContactSection() {
   const t = useTranslations("ui.contact");
-  const meta = t.raw("meta") as Array<{ label: string; value: string }>;
 
   return (
     <section
@@ -165,24 +164,6 @@ export function ContactSection() {
           >
             {t("work")}
           </Link>
-        </motion.div>
-
-        {/* Technical metadata strip */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true }}
-          transition={{ delay: 0.35 }}
-          className="mt-20 flex items-center justify-center gap-8 flex-wrap"
-        >
-          {meta.map((item) => (
-            <div key={item.label} className="text-center">
-              <div className="text-[9px] font-mono text-muted-on-dark tracking-widest uppercase mb-1">
-                {item.label}
-              </div>
-              <div className="text-xs font-mono text-muted-on-dark">{item.value}</div>
-            </div>
-          ))}
         </motion.div>
       </div>
     </section>

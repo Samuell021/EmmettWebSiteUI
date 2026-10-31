@@ -31,16 +31,16 @@
  */
 export const RATCHET = {
   // ===== بستهٔ UI (ui-port) — هدف مهاجرت تدریجی در بستهٔ ۶ =====
-  "src/components/ui-port/products-section.tsx": 21,
-  "src/components/ui-port/library-section.tsx": 21,
+  "src/components/ui-port/products-section.tsx": 12,
+  "src/components/ui-port/library-section.tsx": 20,
   "src/components/ui-port/services-section.tsx": 23,
-  "src/components/ui-port/hero.tsx": 19,
+  "src/components/ui-port/hero.tsx": 16,
   "src/components/ui-port/navbar.tsx": 14,
   "src/components/ui-port/command-palette.tsx": 21,
   "src/components/ui-port/projects-section.tsx": 10,
   "src/components/ui-port/academy-section.tsx": 11,
   "src/components/ui-port/contact-section.tsx": 5,
-  "src/components/ui-port/footer.tsx": 15,
+  "src/components/ui-port/footer.tsx": 9,
   "src/components/ui-port/coming-soon.tsx": 9,
   "src/components/ui-port/page-frame.tsx": 2,
   "src/components/ui-port/loader.tsx": 3,

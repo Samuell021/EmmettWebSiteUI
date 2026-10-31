@@ -101,29 +101,21 @@ function isActiveCluster(id: string, active: string | null) {
   return clusterLinks.some(([a, b]) => (a === active && b === id) || (b === active && a === id));
 }
 
-type ServiceCopy = { title: string; copy: string; tags: string[] };
-
 export function ServicesSection({ services: items }: { services: HomeService[] | null }) {
   const [active, setActive] = useState<string | null>(null);
   const t = useTranslations("ui.services");
-  const copy = t.raw("slots") as ServiceCopy[];
-  const services =
-    items === null
-      ? serviceSlots.map((slot, index) => ({
-          ...slot,
-          title: copy[index]?.title ?? "",
-          copy: copy[index]?.copy ?? "",
-          tags: copy[index]?.tags ?? [],
-          href: "/services",
-        }))
-      : items.slice(0, serviceSlots.length).map((item, index) => ({
-          ...serviceSlots[index]!,
-          num: item.num,
-          title: item.title,
-          copy: item.copy,
-          tags: copy[index]?.tags ?? [],
-          href: item.href,
-        }));
+  const common = useTranslations("common");
+  const empty = useTranslations("services");
+  const services = (items ?? []).slice(0, serviceSlots.length).map((item, index) => ({
+    ...serviceSlots[index % serviceSlots.length]!,
+    itemId: item.id,
+    clusterId: serviceSlots[index % serviceSlots.length]!.id,
+    num: item.num,
+    title: item.title,
+    copy: item.copy,
+    tags: item.tags,
+    href: item.href,
+  }));
 
   return (
     <section className="py-28 lg:py-36" style={{ background: "#F1F7F3" }}>
@@ -165,21 +157,30 @@ export function ServicesSection({ services: items }: { services: HomeService[] |
         <div className="grid lg:grid-cols-[1fr_1fr] gap-8 lg:gap-16 items-start">
           {/* Services list */}
           <div className="space-y-0">
+            {items === null ? (
+              <p role="status" className="py-8 text-sm text-muted-on-light">
+                {common("contentUnavailable")}
+              </p>
+            ) : services.length === 0 ? (
+              <p role="status" className="py-8 text-sm text-muted-on-light">
+                {empty("empty")}
+              </p>
+            ) : null}
             {services.map((s, i) => (
               <motion.div
-                key={s.id}
+                key={s.itemId}
                 initial={{ opacity: 0, x: -12 }}
                 whileInView={{ opacity: 1, x: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.05 }}
-                onMouseEnter={() => setActive(s.id)}
+                onMouseEnter={() => setActive(s.clusterId)}
                 onMouseLeave={() => setActive(null)}
                 className={`group border-b border-[rgba(16,42,32,0.1)] py-6 cursor-default transition-all duration-200 ${
-                  active === s.id ? "ps-4" : "ps-0"
+                  active === s.clusterId ? "ps-4" : "ps-0"
                 }`}
                 style={{
                   borderLeft:
-                    active === s.id ? "2px solid var(--primary)" : "2px solid transparent",
+                    active === s.clusterId ? "2px solid var(--primary)" : "2px solid transparent",
                 }}
               >
                 <div className="flex items-start gap-5">
@@ -190,7 +191,7 @@ export function ServicesSection({ services: items }: { services: HomeService[] |
                     <div className="flex items-center gap-3 mb-2">
                       <h3
                         className="text-base font-semibold transition-colors duration-150"
-                        style={{ color: active === s.id ? "var(--primary)" : "#102A20" }}
+                        style={{ color: active === s.clusterId ? "var(--primary)" : "#102A20" }}
                       >
                         <Link href={s.href}>{s.title}</Link>
                       </h3>
@@ -203,10 +204,15 @@ export function ServicesSection({ services: items }: { services: HomeService[] |
                           className="text-[10px] font-mono tracking-widest uppercase px-2 py-0.5 rounded border"
                           style={{
                             color:
-                              active === s.id ? "var(--emerald-deep)" : "var(--muted-on-light)",
+                              active === s.clusterId
+                                ? "var(--emerald-deep)"
+                                : "var(--muted-on-light)",
                             borderColor:
-                              active === s.id ? "rgba(31,174,110,0.3)" : "rgba(16,42,32,0.1)",
-                            background: active === s.id ? "rgba(31,174,110,0.05)" : "transparent",
+                              active === s.clusterId
+                                ? "rgba(31,174,110,0.3)"
+                                : "rgba(16,42,32,0.1)",
+                            background:
+                              active === s.clusterId ? "rgba(31,174,110,0.05)" : "transparent",
                           }}
                         >
                           {t}
@@ -335,7 +341,7 @@ export function ServicesSection({ services: items }: { services: HomeService[] |
                       letterSpacing="0.03em"
                       style={{ transition: "fill 0.2s" }}
                     >
-                      {services.find((sv) => sv.id === cluster.id)?.num}
+                      {services.find((sv) => sv.clusterId === cluster.id)?.num}
                     </text>
                   </g>
                 );
@@ -351,7 +357,7 @@ export function ServicesSection({ services: items }: { services: HomeService[] |
                   animate={{ opacity: 1, y: 0 }}
                   className="text-[11px] font-mono text-emerald-deep tracking-wide"
                 >
-                  {services.find((s) => s.id === active)?.title}
+                  {services.find((s) => s.clusterId === active)?.title}
                 </motion.div>
               ) : (
                 <div className="text-[11px] font-mono text-muted-on-light tracking-wide">
