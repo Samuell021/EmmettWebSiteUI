@@ -66,10 +66,10 @@ export function Loader() {
           transition={{ duration: 0.4 }}
           aria-hidden
           className="ui-loader fixed inset-0 z-50 flex items-center justify-center"
-          style={{ background: "#07130F" }}
+          style={{ background: "var(--deep-green-black)" }}
         >
           <div className="text-center space-y-8">
-            <div className="font-mono text-5xl tracking-[0.2em] text-[#F3FAF6] font-semibold">
+            <div className="font-mono text-5xl tracking-[0.2em] text-foreground font-semibold">
               {brand("brand")}
             </div>
 
@@ -80,7 +80,7 @@ export function Loader() {
               </div>
               <div className="h-px bg-[rgba(31,174,110,0.12)] overflow-hidden">
                 <motion.div
-                  className="h-full bg-[#1FAE6E]"
+                  className="h-full bg-primary"
                   style={{ width: `${progress}%` }}
                   transition={{ duration: 0.2 }}
                 />

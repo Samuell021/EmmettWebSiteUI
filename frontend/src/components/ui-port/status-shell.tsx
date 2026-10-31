@@ -19,7 +19,7 @@ export function StatusShell({ children }: { children: ReactNode }) {
       >
         {t("skipToContent")}
       </a>
-      <div className="ui-shell min-h-screen overflow-x-hidden bg-[#0B1F18] text-foreground">
+      <div className="ui-shell min-h-screen overflow-x-hidden bg-background text-foreground">
         <Navbar />
         <main
           id="main-content"

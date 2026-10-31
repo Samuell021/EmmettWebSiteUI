@@ -13,23 +13,22 @@ export const frameWidth = {
 } as const;
 
 export const pageTitleClass =
-  "text-[clamp(2rem,4.5vw,3.25rem)] font-medium leading-[1.1] tracking-tight text-[#F3FAF6]";
+  "text-[clamp(2rem,4.5vw,3.25rem)] font-medium leading-[1.1] tracking-tight text-foreground";
 
 export const pageLeadClass =
   "mt-4 max-w-[52ch] text-base leading-relaxed text-[rgba(243,250,246,0.55)]";
 
 export const pageSummaryClass = "mt-4 text-lg leading-relaxed text-[rgba(243,250,246,0.55)]";
 
-export const sectionTitleClass = "text-xl font-medium tracking-tight text-[#F3FAF6]";
+export const sectionTitleClass = "text-xl font-medium tracking-tight text-foreground";
 
-export const panelClass =
-  "rounded-xl border border-[rgba(31,174,110,0.18)] bg-[#102A20] p-5 sm:p-8";
+export const panelClass = "rounded-xl border border-border bg-card p-5 sm:p-8";
 
 export function PageEyebrow({ children }: { children: ReactNode }) {
   return (
     <div className="mb-5 flex items-center gap-3">
-      <div className="h-px w-6 bg-[#1FAE6E]" />
-      <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-[#1FAE6E]">{children}</p>
+      <div className="h-px w-6 bg-primary" />
+      <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-primary">{children}</p>
     </div>
   );
 }
@@ -38,7 +37,7 @@ export function FeedLink({ href, children }: { href: string; children: ReactNode
   return (
     <a
       href={href}
-      className="inline-flex items-center gap-2 text-sm text-[#1FAE6E] transition-colors hover:text-[#35C98A]"
+      className="inline-flex items-center gap-2 text-sm text-primary transition-colors hover:text-accent"
     >
       <Rss aria-hidden="true" className="size-4" />
       {children}

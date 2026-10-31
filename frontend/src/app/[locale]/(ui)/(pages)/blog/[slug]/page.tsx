@@ -8,6 +8,7 @@ import { Link } from "@/i18n/navigation";
 import { CommentForm } from "@/components/organisms/comment-form";
 import type { AppLocale } from "@/i18n/routing";
 import { getBlogPost } from "@/lib/api/server";
+import { sanitizeRichHtml } from "@/lib/security/sanitize-rich-html";
 import { JsonLd } from "@/components/seo/json-ld";
 import { getSeoSettingsOrDefaults } from "@/lib/api/seo";
 import { articleJsonLd, breadcrumbJsonLd } from "@/lib/seo/json-ld";
@@ -125,7 +126,7 @@ export default async function BlogPostPage({ params }: { params: Promise<PagePar
         <div className="relative mt-8 aspect-video w-full overflow-hidden rounded-lg">
           <Image
             src={post.cover_image_url}
-            alt=""
+            alt={post.title}
             fill
             sizes="(max-width: 768px) 100vw, 768px"
             priority
@@ -165,7 +166,7 @@ export default async function BlogPostPage({ params }: { params: Promise<PagePar
 
       <div
         className="markdown-content mt-8"
-        dangerouslySetInnerHTML={{ __html: post.content_html }}
+        dangerouslySetInnerHTML={{ __html: sanitizeRichHtml(post.content_html) }}
       />
 
       {post.related_posts.length > 0 ? (

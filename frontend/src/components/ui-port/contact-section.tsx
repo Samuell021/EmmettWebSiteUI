@@ -95,10 +95,12 @@ function SubtleNetwork() {
 
 export function ContactSection() {
   const t = useTranslations("ui.contact");
-  const meta = t.raw("meta") as Array<{ label: string; value: string }>;
 
   return (
-    <section className="relative py-36 lg:py-48 overflow-hidden" style={{ background: "#07130F" }}>
+    <section
+      className="relative py-36 lg:py-48 overflow-hidden"
+      style={{ background: "var(--deep-green-black)" }}
+    >
       <SubtleNetwork />
 
       {/* Radial depth */}
@@ -111,11 +113,11 @@ export function ContactSection() {
           viewport={{ once: true }}
           className="flex items-center justify-center gap-3 mb-8"
         >
-          <div className="w-6 h-px bg-[#1FAE6E]" />
-          <span className="text-[10px] font-mono tracking-[0.22em] uppercase text-[#1FAE6E]">
+          <div className="w-6 h-px bg-primary" />
+          <span className="text-[10px] font-mono tracking-[0.22em] uppercase text-primary">
             {t("eyebrow")}
           </span>
-          <div className="w-6 h-px bg-[#1FAE6E]" />
+          <div className="w-6 h-px bg-primary" />
         </motion.div>
 
         <motion.h2
@@ -123,11 +125,11 @@ export function ContactSection() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ delay: 0.07 }}
-          className="text-[clamp(2.5rem,6vw,5.5rem)] font-medium tracking-tight text-[#F3FAF6] leading-[0.95] mb-6"
+          className="text-[clamp(2.5rem,6vw,5.5rem)] font-medium tracking-tight text-foreground leading-[0.95] mb-6"
         >
           {t("line1")}
           <br />
-          <span className="text-[#1FAE6E]">{t("accent")}</span>
+          <span className="text-primary">{t("accent")}</span>
         </motion.h2>
 
         <motion.p
@@ -135,7 +137,7 @@ export function ContactSection() {
           whileInView={{ opacity: 1 }}
           viewport={{ once: true }}
           transition={{ delay: 0.15 }}
-          className="text-lg text-[rgba(243,250,246,0.58)] max-w-[42ch] mx-auto leading-relaxed mb-12"
+          className="text-lg text-muted-on-dark max-w-[42ch] mx-auto leading-relaxed mb-12"
         >
           {t("lead1")}
           <br />
@@ -151,35 +153,17 @@ export function ContactSection() {
         >
           <Link
             href="/contact"
-            className="group inline-flex items-center gap-3 px-8 py-4 bg-[#1FAE6E] text-[#07130F] rounded-lg font-semibold hover:bg-[#35C98A] transition-all duration-150"
+            className="group inline-flex items-center gap-3 px-8 py-4 bg-primary text-primary-foreground rounded-lg font-semibold hover:bg-accent transition-all duration-150"
           >
             {t("start")}
             <ArrowRight className="w-4 h-4 rtl:-scale-x-100 group-hover:translate-x-0.5 rtl:group-hover:-translate-x-0.5 transition-transform" />
           </Link>
           <Link
             href="/projects"
-            className="inline-flex items-center gap-2 px-8 py-4 border border-[rgba(31,174,110,0.2)] rounded-lg text-[rgba(243,250,246,0.58)] font-mono text-sm hover:border-[rgba(31,174,110,0.4)] hover:text-[#F3FAF6] transition-all duration-150"
+            className="inline-flex items-center gap-2 px-8 py-4 border border-[rgba(31,174,110,0.2)] rounded-lg text-muted-on-dark font-mono text-sm hover:border-[rgba(31,174,110,0.4)] hover:text-foreground transition-all duration-150"
           >
             {t("work")}
           </Link>
-        </motion.div>
-
-        {/* Technical metadata strip */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true }}
-          transition={{ delay: 0.35 }}
-          className="mt-20 flex items-center justify-center gap-8 flex-wrap"
-        >
-          {meta.map((item) => (
-            <div key={item.label} className="text-center">
-              <div className="text-[9px] font-mono text-[rgba(243,250,246,0.58)] tracking-widest uppercase mb-1">
-                {item.label}
-              </div>
-              <div className="text-xs font-mono text-[rgba(243,250,246,0.58)]">{item.value}</div>
-            </div>
-          ))}
         </motion.div>
       </div>
     </section>
