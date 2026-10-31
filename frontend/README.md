@@ -30,9 +30,10 @@ npm run dev
 
 ### اتصال به بک‌اند
 
-- **Server Components** (اکثر صفحات) مستقیماً بک‌اند را صدا می‌زنند:
-  `INTERNAL_API_URL` (پیش‌فرض `http://127.0.0.1:8000`؛ در production باید به
-  آدرس داخلی سرویس Django تنظیم شود). ر.ک. `src/lib/api/server.ts`.
+- **Server Components** (اکثر صفحات) مستقیماً از سمت سرور به Django درخواست می‌زنند:
+  در توسعه `INTERNAL_API_URL=http://127.0.0.1:8000`؛ در توپولوژی cPanel مقدار
+  `https://<canonical-host>/backend` است (Passenger Python mount در `/backend`).
+  ر.ک. `src/lib/api/config.ts` و `docs/adr/0035-cpanel-deployment-topology.md`.
 - **Client Components** (فرم تماس، ورود/ثبت‌نام، کامنت، ثبت‌نام دوره،
   جست‌وجوی تعاملی) فقط از مسیر نسبی `/api/v1/...` استفاده می‌کنند. این مسیر
   توسط Route Handler `src/app/api/[...path]/route.ts` سمت سرور Next.js به

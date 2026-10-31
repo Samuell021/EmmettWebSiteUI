@@ -7,13 +7,43 @@ import importlib.metadata as importlib_metadata
 import re
 import subprocess
 from pathlib import Path
+from typing import Any, cast
 
 import pytest
 from django.conf import settings
+from django.core.handlers.wsgi import WSGIHandler
 from django.core.management import call_command
+from django.test import RequestFactory
+from django.urls import get_script_prefix, set_script_prefix
 
 REPO_ROOT = Path(settings.BASE_DIR).parent
 BACKEND_DIR = Path(settings.BASE_DIR)
+
+
+@pytest.mark.django_db
+def test_admin_redirect_includes_passenger_mount_prefix(settings: Any) -> None:
+    settings.FORCE_SCRIPT_NAME = "/backend"
+    environ = RequestFactory().get("/admin/", secure=True, SCRIPT_NAME="/backend").environ
+    response_headers: dict[str, str] = {}
+    response_status = ""
+
+    def start_response(status: str, headers: list[tuple[str, str]], exc_info: Any = None) -> Any:
+        nonlocal response_status
+        response_status = status
+        response_headers.update(headers)
+
+    previous_script_prefix = get_script_prefix()
+    try:
+        response = WSGIHandler()(environ, cast(Any, start_response))
+        try:
+            assert response_status.startswith("302")
+            assert response_headers["Location"].startswith("/backend/admin/login/")
+        finally:
+            response.close()
+    finally:
+        # WSGIHandler sets this thread-local; unlike a real server, pytest reuses
+        # the current thread for later Client-based tests.
+        set_script_prefix(previous_script_prefix)
 
 
 def test_requirements_txt_is_100_percent_pinned_and_installed() -> None:
@@ -55,6 +85,7 @@ def test_production_settings_hardening_and_deploy_check(tmp_path: Path) -> None:
         "DJANGO_ALLOWED_HOSTS": "emmett.ir,www.emmett.ir",
         "DJANGO_CSRF_TRUSTED_ORIGINS": "https://emmett.ir,https://www.emmett.ir",
         "PUBLIC_SITE_URL": "https://emmett.ir",
+        "DJANGO_FORCE_SCRIPT_NAME": "/backend/",
         "MYSQL_DATABASE": "emmett_prod",
         "MYSQL_USER": "emmett_user",
         "MYSQL_PASSWORD": "strong-db-password",
@@ -79,6 +110,7 @@ def test_production_settings_hardening_and_deploy_check(tmp_path: Path) -> None:
         "assert settings.SECURE_CROSS_ORIGIN_OPENER_POLICY == 'same-origin'; "
         "assert settings.X_FRAME_OPTIONS == 'DENY'; "
         "assert settings.ADMIN_2FA_REQUIRED is True; "
+        "assert settings.FORCE_SCRIPT_NAME == '/backend'; "
         "assert settings.REST_FRAMEWORK['NUM_PROXIES'] == 1; "
         "assert settings.DATABASES['default']['CONN_HEALTH_CHECKS'] is True; "
         "assert settings.DATABASES['default']['OPTIONS']['charset'] == 'utf8mb4'"
@@ -115,9 +147,16 @@ def test_deploy_templates_scripts_and_documentation_exist() -> None:
     htaccess_text = (BACKEND_DIR / "deploy" / "public_html.htaccess.example").read_text(encoding="utf-8")
     assert 'RequestHeader set X-Forwarded-For "expr=%{REMOTE_ADDR}"' in htaccess_text
     assert 'RequestHeader set X-Real-IP "expr=%{REMOTE_ADDR}"' in htaccess_text
+    assert "Django is mounted at /backend" in htaccess_text
+    assert "NEVER" in htaccess_text
 
     env_example_text = (BACKEND_DIR / ".env.example").read_text(encoding="utf-8")
     assert "DJANGO_NUM_PROXIES=1" in env_example_text
+    assert "DJANGO_FORCE_SCRIPT_NAME=" in env_example_text
+
+    frontend_env_example = (REPO_ROOT / "frontend" / ".env.example").read_text(encoding="utf-8")
+    assert "INTERNAL_API_URL=http://127.0.0.1:8000" in frontend_env_example
+    assert "https://<canonical-host>/backend" in frontend_env_example
 
     # بررسی صحت نحوی اسکریپت‌های Bash با bash -n
     for script in (

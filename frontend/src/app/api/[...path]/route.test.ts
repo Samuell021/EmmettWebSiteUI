@@ -11,6 +11,7 @@ describe("/api/[...path] proxy route handler", () => {
   });
 
   afterEach(() => {
+    vi.unstubAllEnvs();
     vi.unstubAllGlobals();
     fetchMock.mockReset();
   });
@@ -37,6 +38,17 @@ describe("/api/[...path] proxy route handler", () => {
     const forwardedHeaders = init.headers as Headers;
     expect(forwardedHeaders.get("x-forwarded-for")).toBe("203.0.113.55");
     expect(forwardedHeaders.get("host")).toBeNull();
+  });
+
+  it("proxies through the configured Passenger mount and normalizes a trailing slash", async () => {
+    vi.stubEnv("INTERNAL_API_URL", "https://emmett.ir/backend/");
+    fetchMock.mockResolvedValueOnce(new Response("{}", { status: 200 }));
+
+    const req = new NextRequest("http://emmett.ir/api/v1/health/");
+    const res = await GET(req);
+
+    expect(res.status).toBe(200);
+    expect(fetchMock.mock.calls[0]?.[0]).toBe("https://emmett.ir/backend/api/v1/health/");
   });
 
   it("promotes X-Real-IP into X-Forwarded-For when X-Forwarded-For is absent on POST", async () => {

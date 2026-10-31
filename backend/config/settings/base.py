@@ -107,6 +107,10 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = "config.urls"
+# cPanel's Python Passenger app is mounted under /backend while Next.js owns /
+# (ADR-0035). Normalize the value and keep local development at the domain root.
+_script_prefix = env("DJANGO_FORCE_SCRIPT_NAME", default="").strip().strip("/")
+FORCE_SCRIPT_NAME = f"/{_script_prefix}" if _script_prefix else None
 
 TEMPLATES = [
     {

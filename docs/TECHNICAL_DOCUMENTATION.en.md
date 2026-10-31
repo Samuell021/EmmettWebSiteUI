@@ -63,7 +63,7 @@ The Emmett corporate platform is engineered as a **Monorepo** combining a server
 ```
 
 - **Frontend-to-Backend Communication:**
-  - **Server Components:** Fetch directly from `INTERNAL_API_URL` (default `http://127.0.0.1:8000`) with the active `Accept-Language` header and layered `revalidate` caching.
+  - **Server Components:** Fetch server-side from `INTERNAL_API_URL`; local development uses `http://127.0.0.1:8000`, while the cPanel topology uses `https://<canonical-host>/backend` (the Django Passenger mount). See ADR-0035.
   - **Client Components:** Always call same-origin relative paths (`/api/v1/...`), which are proxied server-side by `frontend/src/app/api/[...path]/route.ts` while preserving trailing slashes (compatible with Django `APPEND_SLASH`) and forwarding `Set-Cookie` headers (`csrftoken`, `sessionid`).
 
 ### 1.2. Django Modular Monolith App Boundaries (`backend/apps/`)
@@ -265,6 +265,8 @@ All 40 ADRs are stored in `docs/adr/`. **The complete, authoritative index — i
 
 ## Section 4: SaaS Admin Panel Guide
 
+> In cPanel production, Django is mounted with `DJANGO_FORCE_SCRIPT_NAME=/backend`; prefix every Django admin and i18n URL below with `/backend` (for example `/backend/admin/`). The unprefixed paths describe Django's local/development mount.
+
 ### 4.1. Access, Roles, Theme & Scoped RTL
 
 - **URL:** `/admin/`
@@ -367,6 +369,7 @@ cp ~/EmmettWebSite/backend/deploy/passenger_wsgi.py.example ~/EmmettWebSite/back
 1. In cPanel → **Setup Python App** → **Create Application**:
    - **Python version:** `3.11`
    - **Application root:** `EmmettWebSite/backend`
+   - **Application URL:** exactly `/backend` on the primary domain; Node.js owns `/`. The host must support both Passenger apps at these URL mounts.
    - **Application startup file:** `passenger_wsgi.py`
    - **Application Entry point:** `application`
 2. Activate the virtualenv in cPanel Terminal and install production dependencies:
@@ -376,7 +379,7 @@ cp ~/EmmettWebSite/backend/deploy/passenger_wsgi.py.example ~/EmmettWebSite/back
    pip install --upgrade pip
    pip install -r requirements.txt
    ```
-3. Create `~/EmmettWebSite/backend/.env` (`chmod 600 .env`) from `backend/.env.example` with production values (`DJANGO_SETTINGS_MODULE=config.settings.production`, `DJANGO_DEBUG=False`, `PUBLIC_SITE_URL=https://emmett.ir`, `ADMIN_2FA_REQUIRED=True`, MySQL credentials, and a 64-character random `DJANGO_SECRET_KEY`).
+3. Set Python runtime values in **Setup Python App → Environment Variables** (including `DJANGO_SETTINGS_MODULE=config.settings.production`, `DJANGO_FORCE_SCRIPT_NAME=/backend`, `PUBLIC_SITE_URL`, MySQL credentials, `FRONTEND_REVALIDATE_URL=https://emmett.ir/api/revalidate`, and `FRONTEND_REVALIDATE_SECRET`). Set that same high-entropy revalidation secret in the Node App environment. If cPanel Terminal/Cron does not inherit the app variables, create a server-only `backend/.env` (`chmod 600`, excluded from Git) for CLI commands; do not assume Passenger variables are available to CLI/Cron. See the [Production operations runbook](deployment/production-operations.md).
 4. Run database migrations, static collection, translation verification, and deploy checks:
    ```bash
    python manage.py migrate --noinput
@@ -390,11 +393,12 @@ cp ~/EmmettWebSite/backend/deploy/passenger_wsgi.py.example ~/EmmettWebSite/back
 ### 5.5. Step 4: Build & Start Next.js Frontend (`Setup Node.js App`)
 
 1. In cPanel → **Setup Node.js App** → **Create Application**:
-   - **Node.js version:** `22.x`
+   - **Node.js version:** exactly `22.22.3` (matches `frontend/package.json` and CI)
    - **Application mode:** `Production`
    - **Application root:** `EmmettWebSite/frontend`
    - **Application URL:** `emmett.ir`
-   - **Environment variables:** `NODE_ENV=production`, `PUBLIC_SITE_URL=https://emmett.ir`, `INTERNAL_API_URL=http://127.0.0.1:8000` (or `https://api.emmett.ir` in the subdomain topology).
+   - **Application startup file:** `server.js` from `frontend/deploy/server.js.example`.
+   - **Environment variables:** `NODE_ENV=production`, `PUBLIC_SITE_URL=https://emmett.ir`, `INTERNAL_API_URL=https://emmett.ir/backend`, and the same server-only `FRONTEND_REVALIDATE_SECRET` used by Django.
 2. In cPanel Terminal, activate the Node virtualenv, install packages, and build:
    ```bash
    source /home/<cpanel_user>/nodevenv/EmmettWebSite/frontend/22/bin/activate
@@ -423,9 +427,9 @@ Register three cron jobs in cPanel → **Cron Jobs**:
 ### 5.7. Step 6: Post-Deployment Verification Checklist
 
 - [ ] `https://emmett.ir/api/v1/health/` returns `200 OK` with `{"status": "ok", "checks": {"database": true, "cache": true}}`.
-- [ ] While signed in to `/admin/`, `https://emmett.ir/api/v1/health/proxy/` returns `200 OK` with `verdict.ready_for_traffic: true` (verifying `X-Forwarded-For` traverses Apache and Next.js and `resolved_client_ip` is the real client IP, not `127.0.0.1`).
+- [ ] While signed in to `/backend/admin/`, `https://emmett.ir/api/v1/health/proxy/` returns `200 OK` with `verdict.ready_for_traffic: true` (verifying `X-Forwarded-For` traverses Apache and Next.js and `resolved_client_ip` is the real client IP, not `127.0.0.1`).
 - [ ] `python manage.py check --deploy` reports no errors and no security warnings (`W007`–`W013`).
-- [ ] Signing in at `https://emmett.ir/admin/` redirects staff to 2FA enrolment (`/admin/2fa/setup`), and the recovery codes have been stored somewhere safe.
+- [ ] Signing in at `https://emmett.ir/backend/admin/` redirects staff to 2FA enrolment (`/backend/admin/2fa/setup`), and the recovery codes have been stored somewhere safe.
 - [ ] In the admin's `Site settings`, the Google Search Console verification code is filled in and `https://emmett.ir/sitemap.xml` has been submitted to Search Console.
 - [ ] `/` (Persian, `dir="rtl"`), `/en` (English, `dir="ltr"`), the `/blog/rss` and `/academy/rss` feeds, and the `/opengraph-image` all load without error.
 - [ ] `python manage.py backup_db` has been run once by hand and the `db-*.gz` and `manifest-*.json` files exist under `backups/`.

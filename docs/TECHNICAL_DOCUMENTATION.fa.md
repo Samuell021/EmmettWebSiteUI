@@ -63,7 +63,7 @@
 
 - **چرا مونو-ریپو؟** همگام‌سازی تایپ‌های API، اشتراک پایپ‌لاین CI/CD، Pre-commit واحد و ردیابی اتمیک تغییرات فرانت و بک‌اند در یک Pull Request.
 - **الگوی اتصال فرانت به بک‌اند:**
-  - **Server Components:** مستقیماً از سرور Next.js به `INTERNAL_API_URL` (پیش‌فرض `http://127.0.0.1:8000`) با هدر `Accept-Language` و کش `revalidate` درخواست می‌زنند.
+  - **Server Components:** مستقیم از سمت سرور Next به `INTERNAL_API_URL` درخواست می‌زنند؛ در توسعه `http://127.0.0.1:8000` و در cPanel `https://<canonical-host>/backend` (mount اپ Python Passenger) است. ر.ک. ADR-0035.
   - **Client Components:** همیشه به مسیر نسبی هم‌مبدأ `/api/v1/...` درخواست می‌فرستند که توسط Route Handler سمت سرور (`frontend/src/app/api/[...path]/route.ts`) با حفظ دقیق اسلش پایانی و کوکی‌های `csrftoken`/`sessionid` به بک‌اند Django پراکسی می‌شود.
 
 ### ۱.۲. مرزبندی اپ‌های بک‌اند (`backend/apps/`)
@@ -278,6 +278,8 @@
 
 ## بخش چهارم: راهنمای جامع پنل مدیریت (Admin Guide)
 
+> در پروداکشن cPanel، Django با `DJANGO_FORCE_SCRIPT_NAME=/backend` mount می‌شود؛ بنابراین پیشوند `/backend` را به تمام مسیرهای ادمین و i18n این بخش اضافه کنید (مثلاً `/backend/admin/`). مسیرهای بدون پیشوند، مسیر Django در توسعهٔ محلی هستند.
+
 ### ۴.۱. ورود، نقش‌ها و تجربهٔ کاربری دوزبانه (RTL/LTR)
 
 - **آدرس پنل:** `/admin/`
@@ -413,7 +415,7 @@ cp ~/EmmettWebSite/backend/deploy/passenger_wsgi.py.example ~/EmmettWebSite/back
 1. در cPanel وارد **Setup Python App** شوید و روی **Create Application** کلیک کنید:
    - **Python version:** `3.11`
    - **Application root:** `EmmettWebSite/backend`
-   - **Application URL:** در الگوی دامنهٔ واحد می‌توانید مسیر پایهٔ وب‌سرور یا در الگوی ساب‌دامنه، `api.emmett.ir` را انتخاب کنید.
+   - **Application URL:** دقیقاً `/backend` روی دامنهٔ اصلی؛ Node.js در `/` می‌ماند. این الگو باید توسط ارائه‌دهندهٔ cPanel پشتیبانی شود.
    - **Application startup file:** `passenger_wsgi.py`
    - **Application Entry point:** `application`
 2. دستور فعال‌سازی محیط مجازی نمایش‌داده‌شده در بالای صفحهٔ Setup Python App را کپی و در ترمینال اجرا کنید:
@@ -423,42 +425,9 @@ cp ~/EmmettWebSite/backend/deploy/passenger_wsgi.py.example ~/EmmettWebSite/back
    pip install --upgrade pip
    pip install -r requirements.txt
    ```
-3. فایل `.env` پروداکشن را در `~/EmmettWebSite/backend/.env` بسازید (`chmod 600 .env`):
-   ```ini
-   DJANGO_SETTINGS_MODULE=config.settings.production
-   DJANGO_SECRET_KEY=<یک-رشته-تصادفی-۶۴-کاراکتری-امن>
-   DJANGO_DEBUG=False
-   DJANGO_ALLOWED_HOSTS=emmett.ir,www.emmett.ir,127.0.0.1,localhost
-
-   MYSQL_DATABASE=cpaneluser_emmett
-   MYSQL_USER=cpaneluser_app
-   MYSQL_PASSWORD=<رمز-دیتابیس>
-   MYSQL_HOST=127.0.0.1
-   MYSQL_PORT=3306
-
-   CACHE_BACKEND=filebased
-   CACHE_LOCATION=/home/<cpanel_user>/EmmettWebSite/backend/.cache/django-cache
-
-   PUBLIC_SITE_URL=https://emmett.ir
-   DJANGO_CSRF_TRUSTED_ORIGINS=https://emmett.ir,https://www.emmett.ir
-   DJANGO_SECURE_SSL_REDIRECT=True
-   DJANGO_SESSION_COOKIE_SECURE=True
-   DJANGO_CSRF_COOKIE_SECURE=True
-
-   DJANGO_CSP_ENABLED=True
-   DJANGO_FRAME_ANCESTORS='none'
-   ADMIN_2FA_REQUIRED=True
-   LOGIN_LOCKOUT_ENABLED=True
-
-   BACKUP_DIR=/home/<cpanel_user>/EmmettWebSite/backend/backups
-   BACKUP_RETENTION=7
-   BACKUP_INCLUDE_MEDIA=True
-
-   KAVENEGAR_API_KEY=<کلید-کاوه‌نگار-در-صورت-استفاده>
-   KAVENEGAR_SENDER=<خط-ارسال‌کننده>
-   AI_ENABLED=false
-   ```
-4. دستورات مهاجرت دیتابیس، جمع‌آوری استاتیک، بررسی ترجمه و بررسی امنیتی پروداکشن را اجرا کنید:
+3. متغیرهای runtime جنگو را در **Setup Python App → Environment Variables** تنظیم کنید: `DJANGO_SETTINGS_MODULE=config.settings.production`, `DJANGO_FORCE_SCRIPT_NAME=/backend`, دامنهٔ canonical و CSRF، تنظیمات MySQL، `FRONTEND_REVALIDATE_URL` و یک `FRONTEND_REVALIDATE_SECRET` پرقدرت. همان secret را در Environment Variables اپ Node نیز ثبت کنید. نام دیتابیس، کاربر، میزبان، دامنه و مسیرها را فقط از cPanel/provider واقعی بگیرید؛ مقادیر نمونه را حدس نزنید.
+4. متغیرهای Passenger را در Terminal/Cron خودکار فرض نکنید. اگر فرمان‌های CLI یا Cron به env نیاز دارند و cPanel آن را به آن‌ها منتقل نمی‌کند، یک `backend/.env` خصوصی روی سرور با مجوز `600` و خارج از Git بسازید؛ از نمونه فقط به‌عنوان فهرست متغیرها استفاده کنید و همهٔ مقدارهای توسعه را جایگزین کنید. جزئیات در [راهنمای عملیات Production](deployment/production-operations.md) آمده است.
+5. دستورهای مهاجرت پایگاه داده، جمع‌آوری فایل‌های استاتیک، بررسی ترجمه‌ها و چک امنیتی استقرار را اجرا کنید:
    ```bash
    python manage.py migrate --noinput
    python manage.py collectstatic --noinput
@@ -466,20 +435,21 @@ cp ~/EmmettWebSite/backend/deploy/passenger_wsgi.py.example ~/EmmettWebSite/back
    python manage.py check --deploy
    python manage.py createsuperuser
    ```
-5. در صفحهٔ **Setup Python App** دکمهٔ **Restart** را بزنید.
+6. در صفحهٔ **Setup Python App** دکمهٔ **Restart** را بزنید.
 
 ### ۵.۵. گام ۴: بیلد و راه‌اندازی فرانت‌اند Next.js (`Setup Node.js App`)
 
 1. در cPanel وارد **Setup Node.js App** شوید و روی **Create Application** کلیک کنید:
-   - **Node.js version:** `22.x`
+   - **Node.js version:** دقیقاً `22.22.3` (مطابق `frontend/package.json` و CI)
    - **Application mode:** `Production`
    - **Application root:** `EmmettWebSite/frontend`
    - **Application URL:** `emmett.ir`
-   - **Application startup file:** `node_modules/next/dist/bin/next` (با آرگومان `start` یا از طریق اسکریپت `npm start`)
+   - **Application startup file:** `server.js` (نمونهٔ مخزن: `frontend/deploy/server.js.example`)
 2. متغیرهای محیطی زیر را در بخش **Environment variables** اپلیکیشن Node.js اضافه کنید:
    - `NODE_ENV` = `production`
    - `PUBLIC_SITE_URL` = `https://emmett.ir`
-   - `INTERNAL_API_URL` = آدرس داخلی یا ساب‌دامنهٔ سرویس Django (مثلاً `http://127.0.0.1:8000` یا `https://api.emmett.ir`)
+   - `INTERNAL_API_URL` = `https://emmett.ir/backend` (mount اپ Python؛ host را برای دامنهٔ canonical خود جایگزین کنید)
+   - `FRONTEND_REVALIDATE_SECRET` = همان secret سمت Django، بدون پیشوند `NEXT_PUBLIC_`
 3. در ترمینال، محیط مجازی Node.js را فعال کرده و پروژه را بیلد کنید:
    ```bash
    source /home/<cpanel_user>/nodevenv/EmmettWebSite/frontend/22/bin/activate
@@ -509,9 +479,9 @@ cp ~/EmmettWebSite/backend/deploy/passenger_wsgi.py.example ~/EmmettWebSite/back
 ### ۵.۷. گام ۶: چک‌لیست تأیید پس از استقرار (Post-Deployment Checklist)
 
 - [ ] فراخوانی `https://emmett.ir/api/v1/health/` کد `200 OK` و `{"status": "ok", "checks": {"database": true, "cache": true}}` برمی‌گرداند.
-- [ ] پس از ورود به `/admin/`، فراخوانی تشخیصی `https://emmett.ir/api/v1/health/proxy/` کد `200 OK` و `verdict.ready_for_traffic: true` برمی‌گرداند (تأیید اینکه `X-Forwarded-For` از Apache و Next.js عبور کرده و `resolved_client_ip` آدرس واقعی کاربر است، نه `127.0.0.1`).
+- [ ] پس از ورود به `/backend/admin/`، فراخوانی تشخیصی `https://emmett.ir/api/v1/health/proxy/` کد `200 OK` و `verdict.ready_for_traffic: true` برمی‌گرداند (تأیید اینکه `X-Forwarded-For` از Apache و Next.js عبور کرده و `resolved_client_ip` آدرس واقعی کاربر است، نه `127.0.0.1`).
 - [ ] خروجی `python manage.py check --deploy` هیچ خطا یا هشدار امنیتی (`W007`–`W013`) ندارد.
-- [ ] ورود به `https://emmett.ir/admin/` کاربر staff را به راه‌اندازی 2FA (`/admin/2fa/setup`) هدایت می‌کند و کدهای بازیابی در جای امن ذخیره شده‌اند.
+- [ ] ورود به `https://emmett.ir/backend/admin/` کاربر staff را به راه‌اندازی 2FA (`/backend/admin/2fa/setup`) هدایت می‌کند و کدهای بازیابی در جای امن ذخیره شده‌اند.
 - [ ] در `Site settings` پنل ادمین، کد تأیید Google Search Console وارد شده و `https://emmett.ir/sitemap.xml` در Search Console ثبت شده است.
 - [ ] صفحات `/` (فارسی، `dir="rtl"`) و `/en` (انگلیسی، `dir="ltr"`)، فیدهای `/blog/rss` و `/academy/rss` و تصویر `/opengraph-image` بدون خطا بارگذاری می‌شوند.
 - [ ] دستور `python manage.py backup_db` یک‌بار دستی اجرا شده و فایل‌های `db-*.gz` و `manifest-*.json` در پوشهٔ `backups/` ساخته شده‌اند.

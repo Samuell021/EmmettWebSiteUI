@@ -52,11 +52,19 @@ describe("lib/api/config", () => {
     expect(getApiBaseUrl()).toBe("/api/v1");
 
     const origWindow = globalThis.window;
-    // @ts-expect-error testing server environment without window
-    delete globalThis.window;
-    process.env.INTERNAL_API_URL = "http://127.0.0.1:8000";
-    expect(getApiBaseUrl()).toBe("http://127.0.0.1:8000/api/v1");
-    globalThis.window = origWindow;
+    const originalApiUrl = process.env.INTERNAL_API_URL;
+    try {
+      // @ts-expect-error testing server environment without window
+      delete globalThis.window;
+      process.env.INTERNAL_API_URL = "http://127.0.0.1:8000";
+      expect(getApiBaseUrl()).toBe("http://127.0.0.1:8000/api/v1");
+      process.env.INTERNAL_API_URL = "https://emmett.ir/backend/";
+      expect(getApiBaseUrl()).toBe("https://emmett.ir/backend/api/v1");
+    } finally {
+      globalThis.window = origWindow;
+      if (originalApiUrl === undefined) delete process.env.INTERNAL_API_URL;
+      else process.env.INTERNAL_API_URL = originalApiUrl;
+    }
   });
 });
 

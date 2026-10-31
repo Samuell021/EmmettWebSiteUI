@@ -5,7 +5,7 @@
  *   cp frontend/deploy/server.js.example frontend/server.js
  *
  * در صفحهٔ Setup Node.js App در cPanel:
- * - Node.js version: 22.x
+ * - Node.js version: exactly 22.22.3 (matches frontend/package.json and CI)
  * - Application mode: Production
  * - Application root: EmmettWebSite/frontend
  * - Application startup file: server.js
@@ -15,7 +15,9 @@ const { createServer } = require("node:http");
 const next = require("next");
 
 const dev = process.env.NODE_ENV !== "production";
-const hostname = process.env.HOSTNAME || "127.0.0.1";
+// Passenger supplies PORT. Bind its listener on all interfaces unless the host
+// explicitly provides HOST; HOSTNAME is the machine name, not a bind address.
+const hostname = process.env.HOST || "0.0.0.0";
 const port = Number.parseInt(process.env.PORT || "3000", 10);
 
 const app = next({ dev });
@@ -38,8 +40,7 @@ app
         res.statusCode = 500;
         res.end("Internal Server Error");
       }
-    }).listen(port, (err) => {
-      if (err) throw err;
+    }).listen(port, hostname, () => {
       console.log(`> Emmett Next.js SSR server ready on http://${hostname}:${port}`);
     });
   })

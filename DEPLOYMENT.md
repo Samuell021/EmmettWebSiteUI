@@ -1,7 +1,7 @@
 # راهنمای جامع استقرار روی هاست اشتراکی cPanel (`DEPLOYMENT.md`)
 
 > **فاز ۹ — آمادگی استقرار (Deployment Readiness)**  
-> **توپولوژی هدف (`ADR-0035` و `ADR-0036`):** دامنهٔ واحد هم‌مبدأ (`Single-Domain Same-Origin`) با نیازمندی پروژهٔ **cPanel + Phusion Passenger (Python 3.11 & Node.js 22.22.3) + MySQL 8**؛ پشتیبانی حساب واقعی باید جداگانه تأیید شود.
+> **توپولوژی مصوب (`ADR-0035` و `ADR-0036`):** دامنهٔ واحد هم‌مبدأ (`Single-Domain Same-Origin`) روی هاست اشتراکی لینوکسی مجهز به **cPanel + Phusion Passenger (Python 3.11 & Node.js 22.22.3) + MySQL 8**.
 > **پیش از تنظیم Addon Domain:** document root، نسخه‌های runtime، Application URL اپ Python و قواعد Passenger را طبق [پیش‌پرواز Addon Domain و Passenger](docs/deployment/cpanel-addon-domain-preflight.md) از حساب واقعی cPanel تأیید کنید. `/backend` فقط مسیر هدفِ ADR است، نه واقعیت تأییدشدهٔ این حساب؛ اگر cPanel آن را route نمی‌کند، استقرار را متوقف کنید. در هیچ مرحله‌ای `~/public_html` را به‌عنوان document root قطعی فرض نکنید.
 
 ---
@@ -34,13 +34,13 @@
                    │        Apache / LiteSpeed + Phusion Passenger            │
                    └──────────────┬───────────────────────────┬───────────────┘
                                   │                           │
-       مسیرهای صفحات عمومی و API  │                           │ مسیرهای پنل مدیریت و فایل‌ها
-       (/, /en/*, /api/v1/*)      ▼                           ▼ (/admin/*, /i18n/*, /static/*, /media/*)
+       صفحات عمومی + API هم‌مبدأ         │                         Django admin/API mount + فایل‌ها
+       (/, /en/*, /api/v1/*)               ▼                         ▼ (/backend/*, /static/*, /media/*)
 ┌─────────────────────────────────────────┐       ┌─────────────────────────────────────────┐
 │  Setup Node.js App (Next.js 16 SSR)     │       │  Setup Python App (Django 5.2 WSGI)     │
+│  URL: / — ریشهٔ دامنه                   │       │  URL: /backend — mount اختصاصی          │
 │  ریشه: ~/EmmettWebSite/frontend         │       │  ریشه: ~/EmmettWebSite/backend          │
-│  فایل ورودی: server.js                  │──────▶│  فایل ورودی: passenger_wsgi.py          │
-│  پراکسی داخلی: /api/[...path]/route.ts  │ HTTP  │  تنظیمات: config.settings.production    │
+│  proxy: /api/[...path] → /backend/api/* │ HTTP  │  فایل ورودی: passenger_wsgi.py          │
 └─────────────────────────────────────────┘       └────────────────────┬────────────────────┘
                                                                        │
                                                                        ▼
@@ -61,7 +61,7 @@
 │   │   ├── deploy_frontend.sh        # اسکریپت خودکار npm ci + next build + restart
 │   │   └── restore_backup.sh         # اسکریپت بازیابی دیتابیس و مدیا از بکاپ
 │   ├── backend/
-│   │   ├── .env                      # متغیرهای محیطی پروداکشن (chmod 600 — خارج از Git)
+│   │   ├── .env                      # فقط اگر CLI/Cron نیاز دارد؛ خصوصی، chmod 600 و خارج از Git
 │   │   ├── passenger_wsgi.py         # کپی‌شده از deploy/passenger_wsgi.py.example
 │   │   ├── backups/                  # محل ذخیرهٔ بکاپ‌های روزانه (chmod 700 — خارج از document root واقعی)
 │   │   ├── .cache/django-cache/      # کش فایل‌محور جنگو (chmod 700 — خارج از document root واقعی)
@@ -116,18 +116,17 @@ git rev-parse HEAD
 
 ### گام ۳.۳: راه‌اندازی بک‌اند در `Setup Python App` و `virtualenv`
 
-1. ابتدا در ترمینال، فایل ورودی Passenger و فایل `.env` بک‌اند را از روی قالب‌های `.example` کپی کنید:
+1. ابتدا در ترمینال، فایل ورودی Passenger را از روی نمونه کپی کنید:
    ```bash
    cd ~/EmmettWebSite/backend
    cp deploy/passenger_wsgi.py.example passenger_wsgi.py
-   cp .env.example .env
-   chmod 600 .env
    ```
-2. فایل `~/EmmettWebSite/backend/.env` را با ویرایشگر (`nano .env` یا File Manager سی‌پنل) باز کرده و مقادیر پروداکشن را طبق [بخش ۵](#۵-راهنمای-کامل-متغیرهای-محیطی-envexample) وارد کنید.
+2. در **Setup Python App → Environment Variables** مقادیر runtime جنگو را ثبت کنید؛ از جمله `DJANGO_SETTINGS_MODULE=config.settings.production`, `DJANGO_FORCE_SCRIPT_NAME=/backend`, `PUBLIC_SITE_URL`, تنظیمات MySQL، `FRONTEND_REVALIDATE_URL=https://<canonical-host>/api/revalidate` و `FRONTEND_REVALIDATE_SECRET`. مقدار secret را بعداً عیناً در Node App نیز ثبت کنید. متغیرهای Passenger را در Terminal/Cron خودکار فرض نکنید. `scripts/deploy_backend.sh` به‌طور پیش‌فرض یک `backend/.env` خصوصی با مجوز `600` می‌خواهد؛ اگر تمام متغیرهای لازم را امن در محیط Terminal صادر کرده‌اید، فقط در آن صورت از `--allow-missing-env` استفاده کنید. برای `.env` سرور می‌توانید از `backend/.env.example` به‌عنوان فهرست متغیرها استفاده کنید، اما مقادیر توسعه را حتماً با Production جایگزین کنید و فایل را به Git اضافه نکنید. جزئیات مرز تنظیمات Passenger و CLI را ببینید در [راهنمای عملیات Production](docs/deployment/production-operations.md).
 3. در cPanel از بخش **Software** وارد **Setup Python App** شوید و روی **Create Application** کلیک کنید:
    - **Python version:** `3.11`
    - **Application root:** `EmmettWebSite/backend`
-   - **Application URL:** مقدار واقعی را از Setup Python App برای همین Addon Domain ثبت کنید؛ `/backend` فقط مسیر هدف ADR است و تا تأیید routing هم‌زمان Node و Python مقدار قطعی نیست. پورت localhost یا مسیر `/admin` را حدس نزنید؛ اگر cPanel mount موردنیاز را نمی‌پذیرد، استقرار را متوقف و توپولوژی جایگزین را جداگانه تأیید کنید.
+   - **Application URL:** دقیقاً مسیر `/backend` روی دامنهٔ اصلی. Node.js در `/` می‌ماند؛ آدرس `/admin` را برای mount اپ Python انتخاب نکنید. `DJANGO_FORCE_SCRIPT_NAME=/backend` را در متغیرهای Environment همین Python App (و در صورت نیاز CLI/Cron در env خصوصی) بگذارید تا URLهای معکوس Django همان prefix را داشته باشند.
+   - این چینش نیازمند اجازهٔ cPanel/Passenger برای route هم‌زمان Node در `/` و Python در `/backend` است. قواعد mount را cPanel می‌سازد؛ `.htaccess` تولیدی را نگه دارید و با نمونهٔ hardening این مخزن جایگزین نکنید.
    - **Application startup file:** `passenger_wsgi.py`
    - **Application Entry point:** `application`
    - روی دکمهٔ **Create** در بالا سمت راست کلیک کنید.
@@ -191,17 +190,33 @@ ln -s "$PROJECT_ROOT/backend/media" "$ADDON_DOCROOT/media"
    - **Application root:** `EmmettWebSite/frontend`
    - **Application URL:** دامنهٔ اصلی سایت (مثلاً `emmett.ir`)
    - **Application startup file:** `server.js`
-3. در پایین همان صفحه، در بخش **Environment variables** سه متغیر زیر را با کلیک روی **Add Variable** ثبت کنید:
-   - `NODE_ENV` = `production`
-   - `PUBLIC_SITE_URL` = `https://emmett.ir` (دامنهٔ واقعی خودتان بدون اسلش پایانی)
-   - `INTERNAL_API_URL` = `http://127.0.0.1:8000` (آدرس داخلی سرویس بک‌اند جنگو)
-4. روی **Create** (یا **Save**) کلیک کنید، سپس دستور `source /home/<cpanel_user>/nodevenv/...` بالای صفحه را کپی کرده و در **Terminal** اجرا کنید:
+3. در بخش **Environment variables** این مقادیر را ثبت کنید:
+   - `NODE_ENV=production`
+   - `PUBLIC_SITE_URL=https://emmett.ir` (دامنهٔ canonical واقعی، بدون اسلش پایانی)
+   - `INTERNAL_API_URL=https://emmett.ir/backend` (همان mount اپ Python؛ برای دامنهٔ دیگر host را جایگزین کنید)
+   - `FRONTEND_REVALIDATE_SECRET` = همان secret پرقدرتی که در Environment Variables اپ Python ثبت شده؛ فقط server-side و بدون پیشوند `NEXT_PUBLIC_`. یک مقدار بسازید و عیناً در هر دو اپ ثبت کنید (در env خصوصی CLI هم فقط اگر لازم است):
+     ```bash
+     python -c "import secrets; print(secrets.token_urlsafe(32))"
+     ```
+4. روی **Create/Save** کلیک کنید، سپس محیط Node را فعال و build کنید:
    ```bash
    source /home/<cpanel_user>/nodevenv/EmmettWebSite/frontend/22/bin/activate
    cd ~/EmmettWebSite
-   PUBLIC_SITE_URL=https://emmett.ir INTERNAL_API_URL=http://127.0.0.1:8000 bash scripts/deploy_frontend.sh --install-deps
+   PUBLIC_SITE_URL=https://emmett.ir INTERNAL_API_URL=https://emmett.ir/backend bash scripts/deploy_frontend.sh --install-deps
    ```
 5. در صفحهٔ **Setup Node.js App** روی **Restart** کلیک کنید.
+
+### راستی‌آزمایی توپولوژی قبل از Go-Live
+
+این تست‌ها را از **ترمینال همان cPanel**، پس از Restart هر دو اپ اجرا کنید. مسیر مستقیم، mount Python را می‌سنجد؛ مسیر `/api/v1`، عبور مرورگر از Next به Python را:
+
+```bash
+curl --fail --show-error https://emmett.ir/backend/api/v1/health/
+curl --fail --show-error https://emmett.ir/api/v1/health/
+curl --silent --show-error --head https://emmett.ir/backend/admin/
+```
+
+هر دو health باید `200` و `status: ok` بدهند. پاسخ admin باید به login زیر `/backend/admin/login/` هدایت کند؛ از HTML نیز بررسی کنید URLهای static به `/static/` برسند. اگر درخواست HTTPS به دامنهٔ canonical از خود هاست به خودش مسدود است، **پورت localhost فرض نکنید**: از پشتیبانی هاست، آدرس داخلی قابل‌استفاده برای هر Passenger app را بگیرید و همان را در env تنظیم کنید. اگر هاست نتواند Node `/` و Python `/backend` را هم‌زمان route کند، استقرار را متوقف و توپولوژی جایگزین را جداگانه تصویب کنید.
 
 ### گام ۳.۶: ثبت Cron Jobها (بکاپ خودکار و نگهداری AI)
 
@@ -260,6 +275,10 @@ PUBLIC_SITE_URL=https://emmett.ir bash scripts/deploy_frontend.sh --install-deps
 | `DJANGO_DEBUG` | `False` | بله | در `production.py` به‌طور قطعی روی `False` قفل شده است |
 | `DJANGO_ALLOWED_HOSTS` | `emmett.ir,www.emmett.ir,127.0.0.1` | بله | فهرست دامنه‌های مجاز هدر `Host` |
 | `PUBLIC_SITE_URL` | `https://emmett.ir` | بله | تنها منبع حقیقت برای ساخت canonical، hreflang، sitemap، OG و RSS (`W007`) |
+| `DJANGO_FORCE_SCRIPT_NAME` | `/backend` | بله در cPanel | باید دقیقاً با Python App URL در Passenger یکی باشد؛ مسیر root توسعه را خالی بگذارید |
+| `INTERNAL_API_URL` (frontend) | `https://emmett.ir/backend` | بله در cPanel | mount Python که توسط Server Components و Route Handler Next استفاده می‌شود؛ در محیط محلی `http://127.0.0.1:8000` |
+| `FRONTEND_REVALIDATE_URL` | `https://emmett.ir/api/revalidate` | بله برای on-demand invalidation | endpoint اپ Next؛ اگر آدرس داخلی مورد تأیید هاست دارید از همان استفاده کنید |
+| `FRONTEND_REVALIDATE_SECRET` | secret تصادفی مشترک، حداقل ۳۲ بایت entropy | بله برای on-demand invalidation | مقدار یکسان در Python App و Node Environment Variables (و env خصوصی CLI در صورت نیاز)؛ هرگز `NEXT_PUBLIC_` نکنید |
 | `DJANGO_CSRF_TRUSTED_ORIGINS` | `https://emmett.ir,https://www.emmett.ir` | بله | مبدأهای مورد اعتماد برای درخواست‌های تغییر وضعیت (`POST`/`PATCH`/`DELETE`) |
 | `MYSQL_DATABASE` | `cpaneluser_emmett` | بله | نام دیتابیس MySQL 8 ساخته شده در cPanel |
 | `MYSQL_USER` | `cpaneluser_app` | بله | نام کاربری دیتابیس MySQL |
@@ -325,27 +344,27 @@ bash scripts/restore_backup.sh --media backend/backups/media-20261022-033000.tar
 ### ۷.۱. چک‌لیست پیش از باز کردن ترافیک عمومی (Pre-Launch)
 
 - [ ] **گواهی SSL:** در cPanel بخش **SSL/TLS Status** گواهی AutoSSL برای `emmett.ir` و `www.emmett.ir` سبز و فعال است.
-- [ ] **فایل `.env` پروداکشن:** در `backend/.env` مقدار `DJANGO_SETTINGS_MODULE=config.settings.production`، `DJANGO_DEBUG=False`، `PUBLIC_SITE_URL=https://emmett.ir` و یک `DJANGO_SECRET_KEY` تصادفی ۶۴ کاراکتری قرار گرفته و سطح دسترسی فایل `600` است.
+- [ ] **Environment Variables اپ‌ها:** متغیرهای runtime در Python App و Node App ثبت شده‌اند؛ `DJANGO_FORCE_SCRIPT_NAME=/backend` با mount واقعی برابر است و `FRONTEND_REVALIDATE_SECRET` در هر دو اپ یکسان است. اگر برای CLI/Cron فایل `backend/.env` لازم است، فقط روی سرور، خارج از Git و با مجوز `600` نگهداری می‌شود.
 - [ ] **بررسی امنیتی خودکار جنگو:** اجرای `python manage.py check --deploy` هیچ خطا یا هشداری (`emmett_admin.E001` تا `W013`) برنمی‌گرداند.
 - [ ] **ترجمه‌های دوزبانه:** خروجی `python scripts/i18n.py check` سبز است.
-- [ ] **احراز هویت دو مرحله‌ای ادمین (2FA):** حساب Superuser وارد `/admin/` شده، کد QR صفحهٔ `/admin/2fa/setup` را در اپ Authenticator اسکن کرده و ۸ کد بازیابی یک‌بارمصرف (`/admin/2fa/recovery`) را در مدیر رمز عبور امن ذخیره کرده است.
+- [ ] **احراز هویت دو مرحله‌ای ادمین (2FA):** حساب Superuser وارد `/backend/admin/` شده، کد QR صفحهٔ `/backend/admin/2fa/setup` را در اپ Authenticator اسکن کرده و ۸ کد بازیابی یک‌بارمصرف (`/backend/admin/2fa/recovery`) را در مدیر رمز عبور امن ذخیره کرده است.
 - [ ] **تنظیمات سئو در پنل ادمین (`Core → Site settings`):**
   - عنوان و توضیحات متای فارسی و انگلیسی پر شده است؛
   - کد تأیید Google Search Console (`search_console_verification`) ثبت شده است؛
   - اطلاعات تماس و لینک شبکه‌های اجتماعی سازمان وارد شده است.
 - [ ] **محتوای الزامی محصول `Pentestor` و درگاه هوش مصنوعی:**
   - در بخش `Portfolio → Projects` پنل ادمین، رکورد پروژه با `slug = "pentestor"`، `is_product = True` و وضعیت `Published` ثبت شده است (چون مسیر `/products/pentestor` به‌صورت دائمی `308` به `/projects/pentestor` هدایت می‌شود — `ADR-0040`).
-  - در صورت استفاده از ویجت‌های «مشاور ایده‌پرداز» (`/advisor`) و «برآوردگر پروژه» (`/estimate`)، متغیرهای `AI_ENABLED=true`، `AI_API_BASE_URL`، `AI_API_KEY` و `AI_MODEL` در `backend/.env` تنظیم شده‌اند.
+  - در صورت استفاده از ویجت‌های «مشاور ایده‌پرداز» (`/advisor`) و «برآوردگر پروژه» (`/estimate`)، متغیرهای `AI_ENABLED=true`، `AI_API_BASE_URL`، `AI_API_KEY` و `AI_MODEL` در Python App environment (و در صورت نیاز CLI/Cron در env خصوصی) تنظیم شده‌اند.
 
 ### ۷.۲. چک‌لیست پس از انتشار (Post-Launch Verification)
 
 - [ ] **سلامت بک‌اند و کش:** باز کردن `https://emmett.ir/api/v1/health/` پاسخ `200 OK` با `{"status": "ok", "checks": {"database": true, "cache": true}}` برمی‌گرداند.
-- [ ] **تشخیص زندهٔ پراکسی و Throttle روی هاست واقعی (گام الزامی پیش از ترافیک):** پس از ورود به `/admin/`، باز کردن `https://emmett.ir/api/v1/health/proxy/` پاسخ `200 OK` با `"ready_for_traffic": true` و `"subsystems_in_sync": true` برمی‌گرداند و `resolved_client_ip` برابر IP واقعی مرورگر شماست (نه `127.0.0.1` و نه IP لبهٔ CDN).
+- [ ] **تشخیص زندهٔ پراکسی و Throttle روی هاست واقعی (گام الزامی پیش از ترافیک):** پس از ورود به `/backend/admin/`، باز کردن `https://emmett.ir/api/v1/health/proxy/` پاسخ `200 OK` با `"ready_for_traffic": true` و `"subsystems_in_sync": true` برمی‌گرداند و `resolved_client_ip` برابر IP واقعی مرورگر شماست (نه `127.0.0.1` و نه IP لبهٔ CDN).
 - [ ] **رندر دوزبانه و RTL/LTR:**
   - صفحهٔ `https://emmett.ir/` با زبان فارسی (`lang="fa" dir="rtl"`) و تاریخ شمسی/ارقام فارسی باز می‌شود.
   - صفحهٔ `https://emmett.ir/en` با زبان انگلیسی (`lang="en" dir="ltr"`) و تاریخ میلادی/ارقام لاتین باز می‌شود.
 - [ ] **سئو، نقشهٔ سایت و فیدها:**
-  - `https://emmett.ir/sitemap.xml` شامل تمام صفحات عمومی است و مسیرهای خصوصی (`/admin`, `/profile`, `/advisor`) در آن نیستند.
+  - `https://emmett.ir/sitemap.xml` شامل تمام صفحات عمومی است و مسیرهای خصوصی (`/backend/`, `/admin/`, `/profile/`, `/advisor/`) در آن نیستند.
   - `https://emmett.ir/robots.txt` مسیرهای خصوصی را `Disallow` کرده و لینک `Sitemap: https://emmett.ir/sitemap.xml` را نشان می‌دهد.
   - فیدهای `https://emmett.ir/blog/rss` و `https://emmett.ir/academy/rss` و تصاویر `https://emmett.ir/opengraph-image` و `https://emmett.ir/en/opengraph-image` با کد `200` باز می‌شوند.
 - [ ] **هدرهای امنیتی:** در تب Network مرورگر، هدرهای `Strict-Transport-Security`, `Content-Security-Policy`, `X-Content-Type-Options: nosniff`, `Referrer-Policy` و `Cross-Origin-Opener-Policy: same-origin` روی پاسخ‌ها حضور دارند.
